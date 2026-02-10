@@ -4,3 +4,14 @@ body {
   font-family: system-ui, sans-serif;
   line-height: 1.6;
 }
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #111;
+    color: #eaeaea;
+  }
+
+  a {
+    color: #8ab4f8;
+  }
+}
