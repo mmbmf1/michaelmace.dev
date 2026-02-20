@@ -9,7 +9,7 @@
   </head>
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
-    <h1>On What Makes a Conversation Real</h1>
+    <h1>On What Makes a Conversation Real <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>February 2026</em></p>
     <p>
       In response to
@@ -110,5 +110,13 @@
       I shared this reflection directly in response to the original post as
       well.
     </p>
+
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
+      }
+    </script>
   </body>
 </html>

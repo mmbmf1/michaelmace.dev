@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>going to delete this</title>
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
@@ -11,7 +13,7 @@
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
-    <h1>going to delete this</h1>
+    <h1>going to delete this <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>Friday February 20th 2026</em></p>
 
     <h3><em>delete</em> <strong>me</strong></h3>
@@ -19,10 +21,22 @@
     <h3>some todos</h3>
     <ul>
     <li><input checked="" disabled="" type="checkbox"> need to be able to handle urls</li>
-    <li>need to be able to handle gifs</li>
+    <li><input checked="" disabled="" type="checkbox"> need to be able to handle gifs</li>
     </ul>
     <p><a href="https://www.google.com" target="_blank" rel="noopener">https://www.google.com</a></p>
     <p><img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif" alt=""></p>
+    <!-- some hidden text -->
     
+    <p><code>code</code></p>
+    <p>a code block</p>
+    <pre><code class="hljs language-sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> notes</code></pre>
+    
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
+      }
+    </script>
   </body>
 </html>

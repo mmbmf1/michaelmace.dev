@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const { marked } = require('marked')
+const hljs = require('highlight.js')
 
 const app = express()
 const EDITOR_DIR = __dirname
@@ -11,6 +12,21 @@ const PORT = process.env.PORT || 3002
 app.use(express.json({ limit: '1mb' }))
 
 marked.setOptions({ gfm: true })
+
+marked.use({
+  renderer: {
+    code({ text, lang }) {
+      const language = (lang || 'plaintext').trim().toLowerCase()
+      try {
+        const highlighted = hljs.highlight(text, { language: language === 'plaintext' ? undefined : language }).value
+        return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>\n`
+      } catch {
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        return `<pre><code>${escaped}</code></pre>\n`
+      }
+    },
+  },
+})
 
 function slugFromTitle(title) {
   return title
@@ -39,6 +55,8 @@ function noteShell(title, date, bodyHtml) {
     <meta charset="utf-8" />
     <title>${escapedTitle}</title>
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
@@ -46,10 +64,17 @@ function noteShell(title, date, bodyHtml) {
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
-    <h1>${escapedTitle}</h1>
+    <h1>${escapedTitle} <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>${date.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</em></p>
 
 ${bodyHtml}
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
+      }
+    </script>
   </body>
 </html>
 `

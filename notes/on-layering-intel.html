@@ -11,7 +11,7 @@
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
-    <h1>On Layering Intelligence</h1>
+    <h1>On Layering Intelligence <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>February 2026</em></p>
 
     <p>At first, I thought building a prediction model was the strategy.</p>
@@ -98,5 +98,13 @@
       more like deciding where intelligence belongs — and making sure the
       boundaries are clear before the tools get more capable.
     </p>
+
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
+      }
+    </script>
   </body>
 </html>

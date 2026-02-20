@@ -10,15 +10,37 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.local-edit {
+  margin-left: 0.35rem;
+  text-decoration: none;
+}
+
+h1 .local-edit {
+  font-size: 0.75em;
+  vertical-align: middle;
+  margin-left: 0.35rem;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin: 1rem 0;
+}
+pre code {
+  padding: 0;
+  font-size: 0.9em;
+}
+
 /* GFM task lists: - [ ] and - [x] — only hide bullet on the checkbox item */
-li:has(input[type="checkbox"]) {
+li:has(input[type='checkbox']) {
   list-style: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.35rem;
 }
-li input[type="checkbox"] {
+li input[type='checkbox'] {
   width: 1.1em;
   height: 1.1em;
   margin: 0;
@@ -39,7 +61,7 @@ li input[type="checkbox"] {
     margin-bottom: 1rem;
   }
 
-  li input[type="checkbox"] {
+  li input[type='checkbox'] {
     accent-color: #8ab4f8;
   }
 
