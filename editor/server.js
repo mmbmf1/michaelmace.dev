@@ -64,6 +64,31 @@ function extractTitleAndDate(htmlPath) {
   return { title, date }
 }
 
+function extractBodyFromNoteHtml(html) {
+  const dateClose = html.indexOf('</em></p>')
+  if (dateClose === -1) return ''
+  const start = dateClose + '</em></p>'.length
+  const bodyEnd = html.indexOf('</body>', start)
+  if (bodyEnd === -1) return ''
+  const raw = html.slice(start, bodyEnd).trim()
+  const withNewlines = raw.replace(/<\/p>\s*/gi, '\n\n').replace(/<br\s*\/?>/gi, '\n').replace(/<hr\s*\/?>/gi, '\n---\n')
+  const plain = withNewlines
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/ +/g, ' ')
+    .replace(/\n +/g, '\n')
+    .replace(/ +\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+  return plain
+}
+
+function loadNoteFromHtml(htmlPath) {
+  const html = fs.readFileSync(htmlPath, 'utf-8')
+  const { title, date } = extractTitleAndDate(htmlPath)
+  const body = extractBodyFromNoteHtml(html)
+  return { title, date, body }
+}
+
 function dateToSortKey(dateStr) {
   const months = {
     january: '01',
@@ -79,7 +104,8 @@ function dateToSortKey(dateStr) {
     november: '11',
     december: '12',
   }
-  const m = dateStr.match(/^(\w+)\s+(\d{4})$/i)
+  // "February 2026" or "Monday February 20th 2026"
+  const m = dateStr.match(/^(?:\w+\s+)?(\w+)\s+(?:\d+\w*\s+)?(\d{4})$/i)
   if (!m) return dateStr
   const month = months[m[1].toLowerCase()] || '00'
   return `${m[2]}-${month}`
@@ -106,6 +132,7 @@ function regenerateIndex() {
       (e) =>
         `      <li>
         <a href="${e.slug}.html"> ${e.title} </a>
+        <a href="/editor/?slug=${e.slug}" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>${e.date}</small>
       </li>`
@@ -120,6 +147,24 @@ function regenerateIndex() {
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
+    <style>
+      .local-edit { margin-left: 0.35rem; text-decoration: none; }
+      .new-note-btn {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        color: inherit;
+        background: #e5e5e5;
+        border-radius: 0.25rem;
+        border: 1px solid #ccc;
+      }
+      .new-note-btn:hover { background: #d5d5d5; }
+      @media (prefers-color-scheme: dark) {
+        .new-note-btn { background: #333; border-color: #555; color: #eaeaea; }
+        .new-note-btn:hover { background: #444; }
+      }
+    </style>
   </head>
 
   <body>
@@ -127,9 +172,17 @@ function regenerateIndex() {
 
     <h1>Notes</h1>
 
+    <p id="new-note-wrap" style="display:none"><a href="/editor/index.html" class="new-note-btn">New note</a></p>
+
     <ul>
 ${listItems}
     </ul>
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var w = document.getElementById('new-note-wrap'); if (w) w.style.display = '';
+        document.querySelectorAll('.local-edit').forEach(function (a) { a.style.display = 'inline'; });
+      }
+    </script>
   </body>
 </html>
 `
@@ -138,12 +191,55 @@ ${listItems}
 
 const REPO_ROOT = path.join(EDITOR_DIR, '..')
 
+function parseNoteMd(content) {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
+  if (!match) return { title: '', date: 'February 2026', body: content.trim() }
+  const front = match[1]
+  const body = match[2].trim()
+  let title = ''
+  let date = 'February 2026'
+  for (const line of front.split(/\r?\n/)) {
+    const t = line.match(/^title:\s*(.+)$/i)
+    const d = line.match(/^date:\s*(.+)$/i)
+    if (t) title = t[1].trim()
+    if (d) date = d[1].trim()
+  }
+  return { title, date, body }
+}
+
 app.get('/editor', (req, res) => {
   res.redirect('/editor/')
 })
 
 app.get('/editor/', (req, res) => {
   res.sendFile(path.join(EDITOR_DIR, 'index.html'))
+})
+
+app.get('/api/note/:slug', (req, res) => {
+  const slug = req.params.slug
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    return res.status(400).json({ error: 'invalid slug' })
+  }
+  const mdPath = path.join(NOTES_DIR, `${slug}.md`)
+  const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
+  let title, date, body
+  if (fs.existsSync(mdPath)) {
+    const content = fs.readFileSync(mdPath, 'utf-8')
+    ;({ title, date, body } = parseNoteMd(content))
+  } else if (fs.existsSync(htmlPath)) {
+    ;({ title, date, body } = loadNoteFromHtml(htmlPath))
+    const mdContent = `---
+title: ${title}
+date: ${date}
+---
+
+${body}
+`
+    fs.writeFileSync(mdPath, mdContent, 'utf-8')
+  } else {
+    return res.status(404).json({ error: 'note not found' })
+  }
+  res.json({ title, slug, date, body })
 })
 
 app.post('/api/save', (req, res) => {
@@ -189,5 +285,5 @@ app.use(express.static(REPO_ROOT))
 
 app.listen(PORT, () => {
   console.log(`Site at http://localhost:${PORT}`)
-  console.log(`Editor at http://localhost:${PORT}/editor/`)
+  console.log(`Editor at http://localhost:${PORT}/editor/index.html`)
 })

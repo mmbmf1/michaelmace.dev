@@ -1,8 +1,24 @@
 body {
-  max-width: 42rem;
+  max-width: 50rem;
   margin: 3rem auto;
   font-family: system-ui, sans-serif;
+  font-size: 1.342069rem;
   line-height: 1.6;
+}
+
+/* GFM task lists: - [ ] and - [x] — only hide bullet on the checkbox item */
+li:has(input[type="checkbox"]) {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+li input[type="checkbox"] {
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +33,10 @@ body {
 
   li {
     margin-bottom: 1rem;
+  }
+
+  li input[type="checkbox"] {
+    accent-color: #8ab4f8;
   }
 
   .gif {

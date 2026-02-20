@@ -6,27 +6,53 @@
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
+    <style>
+      #note-form input,
+      #note-form textarea {
+        font-size: 1rem;
+        padding: 0.4rem 0.5rem;
+        width: 100%;
+        max-width: 36rem;
+        box-sizing: border-box;
+      }
+      #note-form textarea {
+        min-height: 16rem;
+        resize: vertical;
+      }
+      #note-form button {
+        margin-top: 1rem;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    </style>
   </head>
   <body>
-    <p><a href="../index.html">← Home</a></p>
+    <p><a href="../notes/index.html">← Home</a></p>
     <h1>Notes editor</h1>
 
     <form id="note-form">
       <p>
         <label for="title">Title</label><br />
-        <input type="text" id="title" name="title" required size="50" />
+        <input type="text" id="title" name="title" required />
       </p>
       <p>
-        <label for="slug">Slug (optional, derived from title if empty)</label><br />
-        <input type="text" id="slug" name="slug" size="50" placeholder="e.g. on-layering-intel" />
+        <label for="slug"
+          >Url slug (optional, derived from title if empty)</label
+        ><br />
+        <input
+          type="text"
+          id="slug"
+          name="slug"
+          placeholder="e.g. on-layering-intel"
+        />
       </p>
       <p>
         <label for="date">Date</label><br />
-        <input type="text" id="date" name="date" size="20" value="February 2026" />
+        <input type="text" id="date" name="date" />
       </p>
       <p>
         <label for="body">Body (markdown)</label><br />
-        <textarea id="body" name="body" rows="20" cols="70"></textarea>
+        <textarea id="body" name="body" rows="20"></textarea>
       </p>
       <p>
         <button type="submit">Submit</button>
@@ -36,33 +62,110 @@
     <p id="message" aria-live="polite"></p>
 
     <script>
-      const form = document.getElementById("note-form");
-      const messageEl = document.getElementById("message");
+      const form = document.getElementById('note-form')
+      const messageEl = document.getElementById('message')
+      const titleInput = document.getElementById('title')
+      const slugInput = document.getElementById('slug')
+      const dateInput = document.getElementById('date')
+      const bodyInput = document.getElementById('body')
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        messageEl.textContent = "";
-        const title = document.getElementById("title").value.trim();
-        const slug = document.getElementById("slug").value.trim();
-        const date = document.getElementById("date").value.trim();
-        const body = document.getElementById("body").value;
+      function formatDateWithDay(date) {
+        const days = [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+        ]
+        const months = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ]
+        const d = date.getDate()
+        const ord =
+          d === 1 || d === 21 || d === 31
+            ? 'st'
+            : d === 2 || d === 22
+            ? 'nd'
+            : d === 3 || d === 23
+            ? 'rd'
+            : 'th'
+        return (
+          days[date.getDay()] +
+          ' ' +
+          months[date.getMonth()] +
+          ' ' +
+          d +
+          ord +
+          ' ' +
+          date.getFullYear()
+        )
+      }
+
+      dateInput.value = formatDateWithDay(new Date())
+      ;(async function loadNoteFromQuery() {
+        const params = new URLSearchParams(window.location.search)
+        const slug = params.get('slug')
+        if (!slug) return
+        try {
+          const res = await fetch('/api/note/' + encodeURIComponent(slug))
+          if (!res.ok) {
+            messageEl.textContent =
+              res.status === 404 ? 'Note not found.' : 'Failed to load note.'
+            return
+          }
+          const data = await res.json()
+          titleInput.value = data.title || ''
+          slugInput.value = data.slug || ''
+          dateInput.value = data.date || formatDateWithDay(new Date())
+          bodyInput.value = data.body || ''
+        } catch (err) {
+          messageEl.textContent = 'Request failed: ' + err.message
+        }
+      })()
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        messageEl.textContent = ''
+        const title = titleInput.value.trim()
+        const slug = slugInput.value.trim()
+        const date = dateInput.value.trim()
+        const body = bodyInput.value
 
         try {
-          const res = await fetch("/api/save", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, slug: slug || undefined, date: date || "February 2026", body }),
-          });
-          const data = await res.json().catch(() => ({}));
+          const res = await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title,
+              slug: slug || undefined,
+              date: date || formatDateWithDay(new Date()),
+              body,
+            }),
+          })
+          const data = await res.json().catch(() => ({}))
           if (!res.ok) {
-            messageEl.textContent = data.error || "Save failed.";
-            return;
+            messageEl.textContent = data.error || 'Save failed.'
+            return
           }
-          messageEl.innerHTML = 'Saved. <a href="../notes/' + data.slug + '.html">Open note</a>';
+          messageEl.innerHTML =
+            'Saved. <a href="../notes/' + data.slug + '.html">Open note</a>'
         } catch (err) {
-          messageEl.textContent = "Request failed: " + err.message;
+          messageEl.textContent = 'Request failed: ' + err.message
         }
-      });
+      })
     </script>
   </body>
 </html>
