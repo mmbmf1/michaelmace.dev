@@ -42,6 +42,15 @@ function slugFromTitle(title) {
     .replace(/[^a-z0-9-]/g, '')
 }
 
+function escapeHtml(s) {
+  if (typeof s !== 'string') return ''
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
 function addExternalLinkAttrs(html) {
   return html.replace(
     /<a href="(https?:\/\/[^"]*)"/g,
@@ -165,10 +174,10 @@ function regenerateIndex() {
     .map(
       (e) =>
         `      <li>
-        <a href="${e.slug}.html"> ${e.title} </a>
+        <a href="${e.slug}.html"> ${escapeHtml(e.title)} </a>
         <a href="/editor/index.html?slug=${e.slug}" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
-        <small>${e.date}</small>
+        <small>${escapeHtml(e.date)}</small>
       </li>`
     )
     .join('\n')
@@ -245,9 +254,11 @@ app.get('/api/note/:slug', (req, res) => {
     ;({ title, date, body } = parseNoteMd(content))
   } else if (fs.existsSync(htmlPath)) {
     ;({ title, date, body } = loadNoteFromHtml(htmlPath))
+    const safeTitle = String(title).replace(/\r?\n/g, ' ').trim()
+    const safeDate = String(date).replace(/\r?\n/g, ' ').trim()
     const mdContent = `---
-title: ${title}
-date: ${date}
+title: ${safeTitle}
+date: ${safeDate}
 ---
 
 ${body}
@@ -292,10 +303,12 @@ app.post('/api/save', (req, res) => {
       .json({ error: 'slug could not be derived from title' })
   }
   const dateStr = date && date.trim() ? date.trim() : 'February 2026'
+  const safeTitle = String(title).replace(/\r?\n/g, ' ').trim()
+  const safeDate = String(dateStr).replace(/\r?\n/g, ' ').trim()
 
   const mdContent = `---
-title: ${title}
-date: ${dateStr}
+title: ${safeTitle}
+date: ${safeDate}
 ---
 
 ${body}
@@ -309,7 +322,7 @@ ${body}
     .map((line) => '    ' + line)
     .join('\n')
   const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
-  fs.writeFileSync(htmlPath, noteShell(title, dateStr, bodyHtml), 'utf-8')
+  fs.writeFileSync(htmlPath, noteShell(safeTitle, safeDate, bodyHtml), 'utf-8')
 
   regenerateIndex()
 
