@@ -3,6 +3,8 @@ title: On Layering Intelligence
 date: February 2026
 ---
 
+<hr />
+
 At first, I thought building a prediction model was the strategy.
 
 Over time, it became clear that the model wasn’t the main thing. It was an

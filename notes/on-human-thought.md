@@ -3,13 +3,9 @@ title: On What Makes a Conversation Real
 date: February 2026
 ---
 
-In response to
+<hr />
 
-a recent post on Substack
-
-about whether conversations truly happen online.
-
----
+In response to a recent post on [Substack](https://kevinozkal.substack.com/i/187861158/conversations-dont-happen-online) about whether conversations truly happen online.
 
 I agree with the core point: it is absolutely possible to engage one
 person — or a few people — at a personal level and have an actual

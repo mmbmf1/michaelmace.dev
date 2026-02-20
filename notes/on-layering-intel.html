@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>On Layering Intelligence</title>
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
@@ -14,91 +16,54 @@
     <h1>On Layering Intelligence <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>February 2026</em></p>
 
+    <hr />
+    
     <p>At first, I thought building a prediction model was the strategy.</p>
-
-    <p>
-      Over time, it became clear that the model wasn’t the main thing. It was an
-      entry point. What it surfaced was a broader architectural question: where
-      should intelligence actually live inside an organization?
-    </p>
-
-    <p>
-      That shift has changed how I think about AI integration. It feels less
-      like adding models and more like layering intelligence on top of systems
-      that already exist.
-    </p>
-
-    <p>
-      It’s hard not to think about the same pattern in humans — layers of
-      cognition stacked on top of older systems.
-    </p>
-
-    <p>
-      At the base of that architecture is structured data — the operational
-      records that reflect what has actually happened. When we use that data to
-      generate predictions — cost ranges, timelines, anomaly detection — we’re
-      working from deterministic history. This layer doesn’t need semantic
-      interpretation. It needs clean schemas, well-defined logic, and
-      disciplined modeling. It produces something close to institutional truth.
-    </p>
-
+    <p>Over time, it became clear that the model wasn’t the main thing. It was an
+    entry point. What it surfaced was a broader architectural question: where
+    should intelligence actually live inside an organization?</p>
+    <p>That shift has changed how I think about AI integration. It feels less
+    like adding models and more like layering intelligence on top of systems
+    that already exist.</p>
+    <p>It’s hard not to think about the same pattern in humans — layers of
+    cognition stacked on top of older systems.</p>
+    <p>At the base of that architecture is structured data — the operational
+    records that reflect what has actually happened. When we use that data to
+    generate predictions — cost ranges, timelines, anomaly detection — we’re
+    working from deterministic history. This layer doesn’t need semantic
+    interpretation. It needs clean schemas, well-defined logic, and
+    disciplined modeling. It produces something close to institutional truth.</p>
     <p>But structured data alone isn’t enough.</p>
-
-    <p>
-      There’s a difference between the system specification and the
-      institutional memory that surrounds it. The specification defines the
-      “what” and the “how” — schemas, APIs, business logic, guarantees. It
-      should be precise and deterministic.
-      <strong>That’s where truth is enforced.</strong>
-    </p>
-
-    <p>
-      The knowledge layer captures the “why” and the “when.” Design tradeoffs.
-      Failure modes. Situations where outputs shouldn’t be trusted blindly. This
-      layer is narrative and meaning-heavy. It’s where semantic search makes
-      sense. Separating the rules of the system from the history of its
-      implementation moves tribal knowledge into infrastructure.
-    </p>
-
-    <p>
-      Above those layers sits the orchestration layer — where LLMs and agents
-      live.
-    </p>
-
+    <p>There’s a difference between the system specification and the
+    institutional memory that surrounds it. The specification defines the
+    “what” and the “how” — schemas, APIs, business logic, guarantees. It
+    should be precise and deterministic.
+    That’s where truth is enforced.</p>
+    <p>The knowledge layer captures the “why” and the “when.” Design tradeoffs.
+    Failure modes. Situations where outputs shouldn’t be trusted blindly. This
+    layer is narrative and meaning-heavy. It’s where semantic search makes
+    sense. Separating the rules of the system from the history of its
+    implementation moves tribal knowledge into infrastructure.</p>
+    <p>Above those layers sits the orchestration layer — where LLMs and agents
+    live.</p>
     <p>Here, in my view, the boundary matters.</p>
-
-    <p>
-      LLMs can reason and translate. They can summarize metrics, interpret
-      natural language, draft explanations. But they don’t decide. Structured
-      systems decide. Humans remain accountable.
-    </p>
-
+    <p>LLMs can reason and translate. They can summarize metrics, interpret
+    natural language, draft explanations. But they don’t decide. Structured
+    systems decide. Humans remain accountable.</p>
     <p>That hierarchy isn’t dramatic — it’s structural.</p>
-
-    <p>
-      If that boundary erodes, the system becomes unstable. If it holds, LLMs
-      remain useful interfaces rather than quiet authorities.
-    </p>
-
-    <p>
-      The intelligence of the system shows up over time through <i>feedback</i>.
-      A prediction is made. An outcome is observed. When it’s wrong, we record
-      why. <i>Structured</i> feedback improves models. <i>Textual</i> feedback
-      updates context. <i>Patterns</i> that repeat eventually move from
-      narrative into code.
-    </p>
-
-    <p>
-      That loop — observation to explanation to structural update — is what
-      gradually turns a tool into a learning system.
-    </p>
-
-    <p>
-      I’m still thinking through this. But it feels less like “adding AI” and
-      more like deciding where intelligence belongs — and making sure the
-      boundaries are clear before the tools get more capable.
-    </p>
-
+    <p>If that boundary erodes, the system becomes unstable. If it holds, LLMs
+    remain useful interfaces rather than quiet authorities.</p>
+    <p>The intelligence of the system shows up over time through feedback .
+    A prediction is made. An outcome is observed. When it’s wrong, we record
+    why. Structured feedback improves models. Textual feedback
+    updates context. Patterns that repeat eventually move from
+    narrative into code.</p>
+    <p>That loop — observation to explanation to structural update — is what
+    gradually turns a tool into a learning system.</p>
+    <p>I’m still thinking through this. But it feels less like “adding AI” and
+    more like deciding where intelligence belongs — and making sure the
+    boundaries are clear before the tools get more capable.</p>
+    
     <script>
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
