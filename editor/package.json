@@ -1,0 +1,11 @@
+{
+  "name": "notes-editor",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "marked": "^15.0.0"
+  }
+}

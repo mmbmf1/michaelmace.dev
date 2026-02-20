@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Notes editor — Michael Mace</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <p><a href="../index.html">← Home</a></p>
+    <h1>Notes editor</h1>
+
+    <form id="note-form">
+      <p>
+        <label for="title">Title</label><br />
+        <input type="text" id="title" name="title" required size="50" />
+      </p>
+      <p>
+        <label for="slug">Slug (optional, derived from title if empty)</label><br />
+        <input type="text" id="slug" name="slug" size="50" placeholder="e.g. on-layering-intel" />
+      </p>
+      <p>
+        <label for="date">Date</label><br />
+        <input type="text" id="date" name="date" size="20" value="February 2026" />
+      </p>
+      <p>
+        <label for="body">Body (markdown)</label><br />
+        <textarea id="body" name="body" rows="20" cols="70"></textarea>
+      </p>
+      <p>
+        <button type="submit">Submit</button>
+      </p>
+    </form>
+
+    <p id="message" aria-live="polite"></p>
+
+    <script>
+      const form = document.getElementById("note-form");
+      const messageEl = document.getElementById("message");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        messageEl.textContent = "";
+        const title = document.getElementById("title").value.trim();
+        const slug = document.getElementById("slug").value.trim();
+        const date = document.getElementById("date").value.trim();
+        const body = document.getElementById("body").value;
+
+        try {
+          const res = await fetch("/api/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, slug: slug || undefined, date: date || "February 2026", body }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            messageEl.textContent = data.error || "Save failed.";
+            return;
+          }
+          messageEl.innerHTML = 'Saved. <a href="../notes/' + data.slug + '.html">Open note</a>';
+        } catch (err) {
+          messageEl.textContent = "Request failed: " + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>
