@@ -12,6 +12,9 @@ body {
 
 .local-edit {
   margin-left: 0.35rem;
+  margin-right: 0.35rem;
+  margin-bottom: 0.35rem;
+  margin-top: 0.35rem;
   text-decoration: none;
 }
 
@@ -19,6 +22,28 @@ h1 .local-edit {
   font-size: 0.75em;
   vertical-align: middle;
   margin-left: 0.35rem;
+}
+
+.new-note-link {
+  font-size: 0.7em;
+  font-weight: normal;
+  color: #666;
+}
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.6rem;
+}
+.notes-header h1 {
+  margin: 0;
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5em 0;
 }
 
 pre {
@@ -63,6 +88,10 @@ li input[type='checkbox'] {
 
   li input[type='checkbox'] {
     accent-color: #8ab4f8;
+  }
+
+  .new-note-link {
+    color: #999;
   }
 
   .gif {

@@ -18,10 +18,16 @@ marked.use({
     code({ text, lang }) {
       const language = (lang || 'plaintext').trim().toLowerCase()
       try {
-        const highlighted = hljs.highlight(text, { language: language === 'plaintext' ? undefined : language }).value
+        const highlighted = hljs.highlight(text, {
+          language: language === 'plaintext' ? undefined : language,
+        }).value
         return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>\n`
       } catch {
-        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        const escaped = text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
         return `<pre><code>${escaped}</code></pre>\n`
       }
     },
@@ -175,39 +181,22 @@ function regenerateIndex() {
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
-    <style>
-      .local-edit { margin-left: 0.35rem; text-decoration: none; }
-      .new-note-btn {
-        display: inline-block;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.9rem;
-        text-decoration: none;
-        color: inherit;
-        background: #e5e5e5;
-        border-radius: 0.25rem;
-        border: 1px solid #ccc;
-      }
-      .new-note-btn:hover { background: #d5d5d5; }
-      @media (prefers-color-scheme: dark) {
-        .new-note-btn { background: #333; border-color: #555; color: #eaeaea; }
-        .new-note-btn:hover { background: #444; }
-      }
-    </style>
   </head>
 
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
+    <div class="notes-header">
     <h1>Notes</h1>
+    <span id="new-note-wrap" style="display:none"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
+    </div>
 
-    <p id="new-note-wrap" style="display:none"><a href="/editor/" class="new-note-btn">New note</a></p>
-
-    <ul>
+    <ul class="notes-list">
 ${listItems}
     </ul>
     <script>
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var w = document.getElementById('new-note-wrap'); if (w) w.style.display = '';
+        var w = document.getElementById('new-note-wrap'); if (w) w.style.display = 'inline';
         document.querySelectorAll('.local-edit').forEach(function (a) { a.style.display = 'inline'; });
       }
     </script>

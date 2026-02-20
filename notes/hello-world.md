@@ -1,11 +1,11 @@
 ---
 title: Markdown demo
-date: February 2026
+date: Friday February 20th, 2026
 ---
 
-# Markdown demo
+<hr />
 
-This note is a quick demo of what the renderer supports — nothing fancy, just the usual markdown bits.
+_This note is a quick demo of what the renderer supports — nothing fancy, just the usual markdown bits._
 
 ## Inline and blocks
 
