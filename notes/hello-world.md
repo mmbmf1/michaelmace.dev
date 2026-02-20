@@ -1,5 +1,5 @@
 ---
-title: hello world
+title: hello world - first note editor
 date: February 2026
 ---
 

@@ -44,7 +44,7 @@ function noteShell(title, date, bodyHtml) {
   </head>
 
   <body>
-    <p><a href="../index.html">← Home</a></p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
     <h1>${escapedTitle}</h1>
     <p><em>${date.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</em></p>
@@ -71,7 +71,10 @@ function extractBodyFromNoteHtml(html) {
   const bodyEnd = html.indexOf('</body>', start)
   if (bodyEnd === -1) return ''
   const raw = html.slice(start, bodyEnd).trim()
-  const withNewlines = raw.replace(/<\/p>\s*/gi, '\n\n').replace(/<br\s*\/?>/gi, '\n').replace(/<hr\s*\/?>/gi, '\n---\n')
+  const withNewlines = raw
+    .replace(/<\/p>\s*/gi, '\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<hr\s*\/?>/gi, '\n---\n')
   const plain = withNewlines
     .replace(/<[^>]+>/g, ' ')
     .replace(/ +/g, ' ')
@@ -132,7 +135,7 @@ function regenerateIndex() {
       (e) =>
         `      <li>
         <a href="${e.slug}.html"> ${e.title} </a>
-        <a href="/editor/?slug=${e.slug}" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
+        <a href="/editor/index.html?slug=${e.slug}" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>${e.date}</small>
       </li>`
@@ -168,11 +171,11 @@ function regenerateIndex() {
   </head>
 
   <body>
-    <p><a href="../index.html">← Home</a></p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
     <h1>Notes</h1>
 
-    <p id="new-note-wrap" style="display:none"><a href="/editor/index.html" class="new-note-btn">New note</a></p>
+    <p id="new-note-wrap" style="display:none"><a href="/editor/" class="new-note-btn">New note</a></p>
 
     <ul>
 ${listItems}
@@ -240,6 +243,24 @@ ${body}
     return res.status(404).json({ error: 'note not found' })
   }
   res.json({ title, slug, date, body })
+})
+
+app.delete('/api/note/:slug', (req, res) => {
+  const slug = req.params.slug
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    return res.status(400).json({ error: 'invalid slug' })
+  }
+  const mdPath = path.join(NOTES_DIR, `${slug}.md`)
+  const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
+  const hasMd = fs.existsSync(mdPath)
+  const hasHtml = fs.existsSync(htmlPath)
+  if (!hasMd && !hasHtml) {
+    return res.status(404).json({ error: 'note not found' })
+  }
+  if (hasMd) fs.unlinkSync(mdPath)
+  if (hasHtml) fs.unlinkSync(htmlPath)
+  regenerateIndex()
+  res.json({ ok: true })
 })
 
 app.post('/api/save', (req, res) => {

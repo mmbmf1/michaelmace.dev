@@ -6,6 +6,10 @@ body {
   line-height: 1.6;
 }
 
+.nav-links {
+  margin-bottom: 1.5rem;
+}
+
 /* GFM task lists: - [ ] and - [x] — only hide bullet on the checkbox item */
 li:has(input[type="checkbox"]) {
   list-style: none;

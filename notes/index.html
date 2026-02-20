@@ -7,10 +7,7 @@
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
     <style>
-      .local-edit {
-        margin-left: 0.35rem;
-        text-decoration: none;
-      }
+      .local-edit { margin-left: 0.35rem; text-decoration: none; }
       .new-note-btn {
         display: inline-block;
         padding: 0.35rem 0.75rem;
@@ -21,94 +18,57 @@
         border-radius: 0.25rem;
         border: 1px solid #ccc;
       }
-      .new-note-btn:hover {
-        background: #d5d5d5;
-      }
+      .new-note-btn:hover { background: #d5d5d5; }
       @media (prefers-color-scheme: dark) {
-        .new-note-btn {
-          background: #333;
-          border-color: #555;
-          color: #eaeaea;
-        }
-        .new-note-btn:hover {
-          background: #444;
-        }
+        .new-note-btn { background: #333; border-color: #555; color: #eaeaea; }
+        .new-note-btn:hover { background: #444; }
       }
     </style>
   </head>
 
   <body>
-    <p><a href="../index.html">← Home</a></p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
     <h1>Notes</h1>
 
-    <p id="new-note-wrap" style="display: none">
-      <a href="/editor/index.html" class="new-note-btn">New note</a>
-    </p>
+    <p id="new-note-wrap" style="display:none"><a href="/editor/" class="new-note-btn">New note</a></p>
 
     <ul>
       <li>
-        <a href="hello-world.html"> hello world </a>
-        <a
-          href="/editor/index.html?slug=hello-world"
-          class="local-edit"
-          style="display: none"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="going-to-delete-this.html"> going to delete this </a>
+        <a href="/editor/index.html?slug=going-to-delete-this" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
+        <br />
+        <small>Friday February 20th 2026</small>
+      </li>
+      <li>
+        <a href="hello-world.html"> hello world - first note editor </a>
+        <a href="/editor/index.html?slug=hello-world" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>February 2026</small>
       </li>
       <li>
         <a href="on-human-thought.html"> On What Makes a Conversation Real </a>
-        <a
-          href="/editor/index.html?slug=on-human-thought"
-          class="local-edit"
-          style="display: none"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="/editor/index.html?slug=on-human-thought" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>February 2026</small>
       </li>
       <li>
         <a href="on-layering-intel.html"> On Layering Intelligence </a>
-        <a
-          href="/editor/index.html?slug=on-layering-intel"
-          class="local-edit"
-          style="display: none"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="/editor/index.html?slug=on-layering-intel" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>February 2026</small>
       </li>
       <li>
-        <a href="test-slug.html"> test slug </a>
-        <a
-          href="/editor/index.html?slug=test-slug"
-          class="local-edit"
-          style="display: none"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="sdafasdfasdf.html"> sdafasdfasdf </a>
+        <a href="/editor/index.html?slug=sdafasdfasdf" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
-        <small>February 2026</small>
+        <small>Friday February 20th 2026</small>
       </li>
     </ul>
     <script>
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
-        document.getElementById('new-note-wrap').style.display = ''
-        document.querySelectorAll('.local-edit').forEach(function (a) {
-          a.style.display = 'inline'
-        })
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var w = document.getElementById('new-note-wrap'); if (w) w.style.display = '';
+        document.querySelectorAll('.local-edit').forEach(function (a) { a.style.display = 'inline'; });
       }
     </script>
   </body>

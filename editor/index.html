@@ -24,10 +24,36 @@
         font-size: 1rem;
         padding: 0.5rem 1rem;
       }
+      #delete-wrap {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #ccc;
+      }
+      #delete-btn {
+        background: #c00;
+        color: #fff;
+        border: none;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.9rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+      }
+      #delete-btn:hover {
+        background: #a00;
+      }
+      @media (prefers-color-scheme: dark) {
+        #delete-wrap {
+          border-color: #444;
+        }
+      }
     </style>
   </head>
   <body>
-    <p><a href="../notes/index.html">← Home</a></p>
+    <p class="nav-links">
+      <a href="../index.html">Home</a> ·
+      <a href="../notes/index.html">Notes</a> ·
+      <a href="../gifs/index.html">Reaction Library</a>
+    </p>
     <h1>Notes editor</h1>
 
     <form id="note-form">
@@ -60,6 +86,10 @@
     </form>
 
     <p id="message" aria-live="polite"></p>
+
+    <p id="delete-wrap" style="display: none">
+      <button type="button" id="delete-btn">Delete note</button>
+    </p>
 
     <script>
       const form = document.getElementById('note-form')
@@ -115,6 +145,7 @@
       }
 
       dateInput.value = formatDateWithDay(new Date())
+      let currentSlug = null
       ;(async function loadNoteFromQuery() {
         const params = new URLSearchParams(window.location.search)
         const slug = params.get('slug')
@@ -127,6 +158,8 @@
             return
           }
           const data = await res.json()
+          currentSlug = data.slug
+          document.getElementById('delete-wrap').style.display = ''
           titleInput.value = data.title || ''
           slugInput.value = data.slug || ''
           dateInput.value = data.date || formatDateWithDay(new Date())
@@ -135,6 +168,26 @@
           messageEl.textContent = 'Request failed: ' + err.message
         }
       })()
+
+      document
+        .getElementById('delete-btn')
+        .addEventListener('click', async function () {
+          if (!currentSlug) return
+          if (!confirm('Delete this note? This cannot be undone.')) return
+          try {
+            const res = await fetch(
+              '/api/note/' + encodeURIComponent(currentSlug),
+              { method: 'DELETE' }
+            )
+            if (!res.ok) {
+              messageEl.textContent = 'Delete failed.'
+              return
+            }
+            window.location.href = '/notes/'
+          } catch (err) {
+            messageEl.textContent = 'Request failed: ' + err.message
+          }
+        })
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault()
