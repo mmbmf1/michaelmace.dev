@@ -368,8 +368,10 @@
         /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
         location.hostname === ''
 
-      // On public site, favorites are read-only (this list); on local you edit via hearts → localStorage
-      const PUBLIC_FAVORITES = []
+      const PUBLIC_FAVORITES = [
+        'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif',
+        'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif',
+      ]
 
       function getFavorites() {
         if (!isLocal) return PUBLIC_FAVORITES.slice(0, MAX_FAVORITES)
