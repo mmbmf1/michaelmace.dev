@@ -6,14 +6,105 @@
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
+
+    <style>
+      /* page-only styles */
+      .gif-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 1.25rem;
+      }
+
+      .gif-card {
+        position: relative;
+        display: block;
+        max-width: 900px;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .gif {
+        width: 100%;
+        max-width: 900px;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        display: block;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+      }
+
+      .gif-card:hover .gif {
+        opacity: 0.92;
+      }
+
+      .card-labels {
+        position: absolute;
+        bottom: 0.5rem;
+        left: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+      }
+      .gif-card:hover .card-labels {
+        opacity: 1;
+      }
+      .card-labels .card-label {
+        font-size: 0.7rem;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        pointer-events: none;
+      }
+      .card-labels .card-label[href] {
+        text-decoration: none;
+        pointer-events: auto;
+      }
+      .card-labels .card-label-title:empty {
+        display: none;
+      }
+
+      .hint {
+        opacity: 0.7;
+        margin: 0.25rem 0 0;
+        font-size: 0.9rem;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translateX(-50%);
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        font-size: 0.9rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+
+      @media (prefers-color-scheme: light) {
+        .toast {
+          background: rgba(0, 0, 0, 0.85);
+        }
+      }
+    </style>
   </head>
 
   <body>
     <p class="nav-links">
       <a href="../index.html">Home</a> ·
-      <a href="../notes/index.html">Notes</a> ·
-      <a href="index.html">GIFs</a>
-      ·
+      <a href="../notes/index.html">Notes</a> · <a href="index.html">GIFs</a> ·
       <a
         href="https://github.com/mmbmf1"
         target="_blank"
@@ -21,76 +112,173 @@
         >GitHub</a
       >
     </p>
-    <h1>GIFs</h1>
-    <p>My reaction vocabulary</p>
 
-    <h2>when you're felling yo-self</h2>
-    <img
-      class="gif"
-      src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
-      alt="les grossman"
-      title="if you dont like les grossman, then fuck you"
-      loading="lazy"
-    />
+    <h1 style="margin-bottom: 0">GIFs</h1>
+    <p
+      style="
+        margin-top: 0;
+        line-height: 0.75;
+        font-size: 1rem;
+        font-style: italic;
+      "
+    >
+      reaction vocabulary
+    </p>
 
-    <hr />
+    <div class="gif-grid">
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
+          src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
+          alt="les grossman"
+          title="if you dont like les grossman, then fuck you"
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
 
-    <h2>when the future is bright</h2>
-    <img
-      class="gif"
-      src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
-      alt="the future is bright"
-      title="the future is bright"
-      loading="lazy"
-    />
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
+          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
+          alt="the future is bright"
+          title="the future is bright"
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
+
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
+          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
+          alt="gathering requirements"
+          title="fucking tell me already, have shit todo"
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
+
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
+          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
+          alt="patriotic"
+          title="you wish you were this badass"
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
+
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
+          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
+          alt="legend"
+          title=""
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <a
+            class="card-label"
+            href="https://www.youtube.com/watch?v=bS5P_LAqiVg&t=64s&pp=ygUJa3VuZyBmdXJ5"
+            target="_blank"
+            rel="noopener"
+            title="open on YouTube"
+          >
+            view on youtube
+          </a>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
+
+      <div class="gif-card">
+        <img
+          class="gif"
+          data-gif="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
+          src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
+          alt="my bad"
+          title="my bad..."
+          loading="lazy"
+        />
+        <div class="card-labels">
+          <span class="card-label">click to copy</span>
+          <span class="card-label card-label-title"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">copied</div>
+
+    <script>
+      const toast = document.getElementById('toast')
+      let toastTimer = null
+
+      // Fill title pills from each img’s title attribute
+      document.querySelectorAll('.gif-card').forEach((card) => {
+        const img = card.querySelector('.gif')
+        const titleEl = card.querySelector('.card-label-title')
+        if (img && titleEl && img.title) titleEl.textContent = img.title
+      })
+
+      function showToast(text = 'copied') {
+        toast.textContent = text
+        toast.classList.add('show')
+        clearTimeout(toastTimer)
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 900)
+      }
+
+      async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text)
+          return
+        }
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.left = '-9999px'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        ta.remove()
+      }
+
+      // If a GIF is wrapped in a link (<a>), we still want click-to-copy on the image.
+      // We'll prevent link navigation only when the image itself is clicked.
+      document.querySelectorAll('img[data-gif]').forEach((img) => {
+        img.addEventListener('click', async (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+
+          const url = img.getAttribute('data-gif')
+          const md = `![](${url})`
+
+          try {
+            await copyText(md)
+            showToast('copied markdown')
+          } catch {
+            showToast('copy failed')
+          }
+        })
+      })
+    </script>
   </body>
-
-  <hr />
-
-  <h2>when you're gathering requirements</h2>
-  <img
-    class="gif"
-    src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
-    alt="it can be frustrating"
-    title="fucking tell me already, have shit todo"
-    loading="lazy"
-  />
-
-  <hr />
-  <h2>when you're feeling patriotic</h2>
-  <img
-    class="gif"
-    src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
-    alt="lfg"
-    title="you wish you were this badass"
-    loading="lazy"
-  />
-
-  <hr />
-
-  <h2>when you're feeling like a legend</h2>
-  <a
-    href="https://www.youtube.com/watch?v=bS5P_LAqiVg&t=64s&pp=ygUJa3VuZyBmdXJ5"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      class="gif"
-      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
-      alt="legend"
-      title="click me: https://www.youtube.com/watch?v=bS5P_LAqiVg&t=64s&pp=ygUJa3VuZyBmdXJ5"
-      loading="lazy"
-    />
-  </a>
-
-  <hr />
-
-  <h2>my bad...</h2>
-  <img
-    class="gif"
-    src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
-    alt="an awesome tv show"
-    title=""
-    loading="lazy"
-  />
 </html>
