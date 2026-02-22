@@ -131,6 +131,10 @@
       .heart-btn.is-fav svg {
         fill: currentColor;
       }
+      .heart-btn[aria-disabled='true'] {
+        cursor: default;
+        pointer-events: none;
+      }
 
       .toast {
         position: fixed;
@@ -360,8 +364,15 @@
 
       const FAVORITES_KEY = 'gif-favorites'
       const MAX_FAVORITES = 10
+      const isLocal =
+        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
+        location.hostname === ''
+
+      // On public site, favorites are read-only (this list); on local you edit via hearts → localStorage
+      const PUBLIC_FAVORITES = []
 
       function getFavorites() {
+        if (!isLocal) return PUBLIC_FAVORITES.slice(0, MAX_FAVORITES)
         try {
           const raw = localStorage.getItem(FAVORITES_KEY)
           const arr = raw ? JSON.parse(raw) : []
@@ -371,6 +382,7 @@
         }
       }
       function setFavorites(arr) {
+        if (!isLocal) return
         localStorage.setItem(
           FAVORITES_KEY,
           JSON.stringify(arr.slice(0, MAX_FAVORITES))
@@ -426,28 +438,32 @@
           let heart = card.querySelector('.heart-btn')
           if (!heart) {
             heart = createHeartButton()
-            heart.addEventListener('click', (e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              const gid = getGifId(card)
-              const fav = getFavorites()
-              const idx = fav.indexOf(gid)
-              if (idx >= 0) {
-                fav.splice(idx, 1)
-                setFavorites(fav)
-                renderRows()
-                showToast('Removed from favorites')
-              } else {
-                if (fav.length >= MAX_FAVORITES) {
-                  showToast('Favorites full (10 max)')
-                  return
+            if (isLocal) {
+              heart.addEventListener('click', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                const gid = getGifId(card)
+                const fav = getFavorites()
+                const idx = fav.indexOf(gid)
+                if (idx >= 0) {
+                  fav.splice(idx, 1)
+                  setFavorites(fav)
+                  renderRows()
+                  showToast('Removed from favorites')
+                } else {
+                  if (fav.length >= MAX_FAVORITES) {
+                    showToast('Favorites full (10 max)')
+                    return
+                  }
+                  fav.push(gid)
+                  setFavorites(fav)
+                  renderRows()
+                  showToast('Added to favorites')
                 }
-                fav.push(gid)
-                setFavorites(fav)
-                renderRows()
-                showToast('Added to favorites')
-              }
-            })
+              })
+            } else {
+              heart.setAttribute('aria-disabled', 'true')
+            }
             card.insertBefore(heart, card.firstChild)
           }
           heart.classList.toggle('is-fav', isFav)
