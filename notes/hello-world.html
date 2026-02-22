@@ -4,98 +4,48 @@
     <meta charset="utf-8" />
     <title>Markdown demo</title>
     <link rel="stylesheet" href="../style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
-      media="(prefers-color-scheme: light)"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css"
-      media="(prefers-color-scheme: dark)"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
 
   <body>
-    <p class="nav-links">
-      <a href="../index.html">Home</a> · <a href="index.html">Notes</a> ·
-      <a href="../gifs/index.html">GIFs</a>
-      ·
-      <a
-        href="https://github.com/mmbmf1"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub</a
-      >
-    </p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
-    <h1>
-      Markdown demo
-      <span id="edit-note-wrap" style="display: none"
-        ><a
-          href="#"
-          id="edit-note-link"
-          class="local-edit"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        ></span
-      >
-    </h1>
+    <h1>Markdown demo <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>Friday February 20th, 2026</em></p>
 
     <hr />
-
-    <p>
-      <em
-        >This note is a quick demo of what the renderer supports — nothing
-        fancy, just the usual markdown bits.</em
-      >
-    </p>
+    
+    <p><em>This note is a quick demo of what the renderer supports — nothing fancy, just the usual markdown bits.</em></p>
     <h2>Inline and blocks</h2>
-    <p>
-      The renderer supports the usual stuff: <em>emphasis</em>,
-      <strong>bold</strong>, <code>inline code</code>, and
-      <a href="https://example.com" target="_blank" rel="noopener">links</a>.
-      Headings, lists, and code blocks work too:
-    </p>
+    <p>The renderer supports the usual stuff: <em>emphasis</em>, <strong>bold</strong>, <code>inline code</code>, and <a href="https://example.com" target="_blank" rel="noopener">links</a>. Headings, lists, and code blocks work too:</p>
     <ul>
-      <li><p>Bullet list</p></li>
-      <li><p>Another item</p></li>
-      <li>
-        <p>
-          <input checked="" disabled="" type="checkbox" /> Task lists (checked)
-        </p>
-      </li>
-      <li>
-        <p><input disabled="" type="checkbox" /> And unchecked</p>
-      </li>
+    <li><p>Bullet list</p>
+    </li>
+    <li><p>Another item</p>
+    </li>
+    <li><p><input checked="" disabled="" type="checkbox"> 
+    Task lists (checked)</p>
+    </li>
+    <li><p><input disabled="" type="checkbox"> 
+    And unchecked</p>
+    </li>
     </ul>
-    <p>A little code with syntax highlighting:</p>
+    <p>with syntax highlighting:</p>
     <pre><code class="hljs language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">greet</span>(<span class="hljs-params">name</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-string">`Hello, <span class="hljs-subst">${name}</span>.`</span>;
     }</code></pre>
-    <p>
-      That’s the idea — write in markdown, get clean HTML and readable code
-      blocks.
-    </p>
-
+    <p>even GIFs</p>
+    <p><img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanF5eXN4b3ljcjByMW9tZHpidDNkZHRndWh6bHhlMGs1bmppOHBrMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/zdjQpEtni7XIX4ncNg/giphy.gif" alt=""></p>
+    <p><em>write in markdown, get clean HTML and readable code blocks</em></p>
+    
     <script>
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
-        var slug = window.location.pathname
-          .split('/')
-          .pop()
-          .replace(/\.html$/, '')
-        var a = document.getElementById('edit-note-link')
-        if (a && slug) {
-          a.href = '/editor/index.html?slug=' + encodeURIComponent(slug)
-          document.getElementById('edit-note-wrap').style.display = ''
-        }
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
       }
     </script>
   </body>

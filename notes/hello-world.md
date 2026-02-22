@@ -17,7 +17,7 @@ The renderer supports the usual stuff: *emphasis*, **bold**, `inline code`, and 
 - [x] Task lists (checked)
 - [ ] And unchecked
 
-A little code with syntax highlighting:
+with syntax highlighting:
 
 ```js
 function greet(name) {
@@ -25,4 +25,8 @@ function greet(name) {
 }
 ```
 
-That’s the idea — write in markdown, get clean HTML and readable code blocks.
+even GIFs
+
+![](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanF5eXN4b3ljcjByMW9tZHpidDNkZHRndWh6bHhlMGs1bmppOHBrMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/zdjQpEtni7XIX4ncNg/giphy.gif)
+
+_write in markdown, get clean HTML and readable code blocks_

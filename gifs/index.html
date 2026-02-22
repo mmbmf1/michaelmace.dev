@@ -8,25 +8,46 @@
     <meta name="color-scheme" content="light dark" />
 
     <style>
-      /* page-only styles */
+      /* page-only styles — horizontal carousel (one row; more rows can be added later) */
+      .carousel-hint {
+        margin: 0.5rem 0 0;
+        font-size: 0.8rem;
+        opacity: 0.6;
+      }
+
       .gif-grid {
         display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        margin-top: 1.25rem;
+        flex-direction: row;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        padding: 0.5rem 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      .gif-grid::-webkit-scrollbar {
+        height: 8px;
+      }
+      .gif-grid::-webkit-scrollbar-thumb {
+        background: rgba(128, 128, 128, 0.4);
+        border-radius: 4px;
       }
 
       .gif-card {
         position: relative;
-        display: block;
-        max-width: 900px;
+        flex: 0 0 auto;
+        width: min(400px, 78vw);
+        min-width: min(400px, 78vw);
+        scroll-snap-align: start;
         border-radius: 10px;
         overflow: hidden;
       }
 
       .gif {
         width: 100%;
-        max-width: 900px;
         aspect-ratio: 16 / 9;
         object-fit: cover;
         display: block;
@@ -43,12 +64,14 @@
         position: absolute;
         bottom: 0.5rem;
         left: 0.5rem;
+        right: 0.5rem;
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.15s ease;
+        z-index: 1;
       }
       .gif-card:hover .card-labels {
         opacity: 1;
@@ -125,7 +148,7 @@
       reaction vocabulary
     </p>
 
-    <div class="gif-grid">
+    <div class="gif-grid" role="region" aria-label="GIF carousel">
       <div class="gif-card">
         <img
           class="gif"
