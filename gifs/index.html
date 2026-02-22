@@ -8,18 +8,23 @@
     <meta name="color-scheme" content="light dark" />
 
     <style>
-      /* page-only styles — horizontal carousel (one row; more rows can be added later) */
-      .carousel-hint {
-        margin: 0.5rem 0 0;
-        font-size: 0.8rem;
-        opacity: 0.6;
+      .gif-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+      }
+      .gif-row-label {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        font-weight: 600;
       }
 
       .gif-grid {
         display: flex;
         flex-direction: row;
         gap: 1rem;
-        margin-top: 0.75rem;
+        margin-top: 0;
         overflow-x: auto;
         overflow-y: hidden;
         scroll-snap-type: x mandatory;
@@ -39,8 +44,8 @@
       .gif-card {
         position: relative;
         flex: 0 0 auto;
-        width: min(400px, 78vw);
-        min-width: min(400px, 78vw);
+        width: min(520px, 92vw);
+        min-width: min(520px, 92vw);
         scroll-snap-align: start;
         border-radius: 10px;
         overflow: hidden;
@@ -92,16 +97,45 @@
         display: none;
       }
 
-      .hint {
-        opacity: 0.7;
-        margin: 0.25rem 0 0;
-        font-size: 0.9rem;
+      .heart-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        z-index: 2;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.4);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .heart-btn:hover {
+        background: rgba(0, 0, 0, 0.6);
+      }
+      .heart-btn.is-fav {
+        color: #e74c3c;
+      }
+      .heart-btn svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+      }
+      .heart-btn.is-fav svg {
+        fill: currentColor;
       }
 
       .toast {
         position: fixed;
         left: 50%;
-        bottom: 24px;
+        top: 24px;
         transform: translateX(-50%);
         padding: 0.5rem 0.75rem;
         border-radius: 10px;
@@ -137,144 +171,183 @@
     </p>
 
     <h1 style="margin-bottom: 0">GIFs</h1>
-    <p
-      style="
-        margin-top: 0;
-        line-height: 0.75;
-        font-size: 1rem;
-        font-style: italic;
-      "
-    >
-      reaction vocabulary
-    </p>
 
-    <div class="gif-grid" role="region" aria-label="GIF carousel">
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
-          src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
-          alt="les grossman"
-          data-title="if you dont like les grossman, then fuck you"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
+    <div class="gif-rows">
+      <div id="gif-favorites-wrap">
+        <p class="gif-row-label">favorites</p>
+        <div
+          id="gif-row-favorites"
+          class="gif-grid"
+          role="region"
+          aria-label="Favorite GIFs"
+        ></div>
       </div>
+      <div id="gif-others-wrap">
+        <p class="gif-row-label">these are good too</p>
+        <div
+          id="gif-row-others"
+          class="gif-grid"
+          role="region"
+          aria-label="GIF carousel"
+        >
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
+              src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif"
+              alt="les grossman"
+              data-title="if you dont like les grossman, then fuck you"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
-          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
-          alt="the future is bright"
-          data-title="the future is bright"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
+              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif"
+              alt="the future is bright"
+              data-title="the future is bright"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
-          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
-          alt="gathering requirements"
-          data-title="fucking tell me already, have shit todo"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
+              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif"
+              alt="gathering requirements"
+              data-title="fucking tell me already, have shit todo"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
-          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
-          alt="patriotic"
-          data-title="you wish you were this badass"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
+              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif"
+              alt="patriotic"
+              data-title="you wish you were this badass"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
-          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
-          alt="legend"
-          data-title=""
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <a
-            class="card-label"
-            href="https://www.youtube.com/watch?v=bS5P_LAqiVg&t=64s&pp=ygUJa3VuZyBmdXJ5"
-            target="_blank"
-            rel="noopener"
-            title="open on YouTube"
-          >
-            view on youtube
-          </a>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif"
+              alt="legend"
+              data-title=""
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <a
+                class="card-label"
+                href="https://www.youtube.com/watch?v=bS5P_LAqiVg&t=64s&pp=ygUJa3VuZyBmdXJ5"
+                target="_blank"
+                rel="noopener"
+                title="open on YouTube"
+              >
+                view on youtube
+              </a>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
-          src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
-          alt="my bad"
-          data-title="my bad..."
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
+              src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif"
+              alt="my bad"
+              data-title="my bad..."
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdhbWk3MzI4ZTNrcTRld2JyM3p3amhnMjlvZWR6NTI5MWRlcW1oYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wi8Ez1mwRcKGI/giphy.gif"
-          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdhbWk3MzI4ZTNrcTRld2JyM3p3amhnMjlvZWR6NTI5MWRlcW1oYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wi8Ez1mwRcKGI/giphy.gif"
-          alt="do it"
-          data-title="hurry up and do it"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
-        </div>
-      </div>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdhbWk3MzI4ZTNrcTRld2JyM3p3amhnMjlvZWR6NTI5MWRlcW1oYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wi8Ez1mwRcKGI/giphy.gif"
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdhbWk3MzI4ZTNrcTRld2JyM3p3amhnMjlvZWR6NTI5MWRlcW1oYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wi8Ez1mwRcKGI/giphy.gif"
+              alt="do it"
+              data-title="hurry up and do it"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
 
-      <div class="gif-card">
-        <img
-          class="gif"
-          data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTgzNzV3d2ZveWNqYmo2Nnl4YThjZ2ptbmxrcnNtazhjYjl0MWl6OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oxahPI4vpzbSE/giphy.gif"
-          src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTgzNzV3d2ZveWNqYmo2Nnl4YThjZ2ptbmxrcnNtazhjYjl0MWl6OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oxahPI4vpzbSE/giphy.gif"
-          alt="for sure"
-          data-title="yup no worries"
-          loading="lazy"
-        />
-        <div class="card-labels">
-          <span class="card-label">click to copy</span>
-          <span class="card-label card-label-title"></span>
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTgzNzV3d2ZveWNqYmo2Nnl4YThjZ2ptbmxrcnNtazhjYjl0MWl6OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oxahPI4vpzbSE/giphy.gif"
+              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTgzNzV3d2ZveWNqYmo2Nnl4YThjZ2ptbmxrcnNtazhjYjl0MWl6OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oxahPI4vpzbSE/giphy.gif"
+              alt="for sure"
+              data-title="yup no worries"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
+
+          <div class="gif-card">
+            <img
+              class="gif"
+              src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDE2M21ic3F2ZzBhdTAwb25mbWJiMm9uODV1MXNyOGY1emd5b2RzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VGJPsBvlsHDyw/giphy.gif"
+              data-gif="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDE2M21ic3F2ZzBhdTAwb25mbWJiMm9uODV1MXNyOGY1emd5b2RzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VGJPsBvlsHDyw/giphy.gif"
+              alt="heck ya"
+              data-title="heck ya"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
+
+          <div class="gif-card">
+            <img
+              class="gif"
+              data-gif="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWlwbWI2NHhoeXZwaWFnZ243eG41ajZtZnF3bWcyNmRxaWxsemVzeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ph0izSl5UidtS/giphy.gif"
+              src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWlwbWI2NHhoeXZwaWFnZ243eG41ajZtZnF3bWcyNmRxaWxsemVzeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ph0izSl5UidtS/giphy.gif"
+              alt="cousin randy"
+              data-title="cousin randy"
+              loading="lazy"
+            />
+            <div class="card-labels">
+              <span class="card-label">click to copy</span>
+              <span class="card-label card-label-title"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -285,13 +358,106 @@
       const toast = document.getElementById('toast')
       let toastTimer = null
 
-      // Fill title pills from each img’s title attribute
-      document.querySelectorAll('.gif-card').forEach((card) => {
+      const FAVORITES_KEY = 'gif-favorites'
+      const MAX_FAVORITES = 10
+
+      function getFavorites() {
+        try {
+          const raw = localStorage.getItem(FAVORITES_KEY)
+          const arr = raw ? JSON.parse(raw) : []
+          return Array.isArray(arr) ? arr.slice(0, MAX_FAVORITES) : []
+        } catch {
+          return []
+        }
+      }
+      function setFavorites(arr) {
+        localStorage.setItem(
+          FAVORITES_KEY,
+          JSON.stringify(arr.slice(0, MAX_FAVORITES))
+        )
+      }
+
+      function getGifId(card) {
         const img = card.querySelector('.gif')
-        const titleEl = card.querySelector('.card-label-title')
-        const title = img && img.getAttribute('data-title')
-        if (img && titleEl && title) titleEl.textContent = title
-      })
+        return img && img.getAttribute('data-gif')
+      }
+
+      function createHeartButton() {
+        const btn = document.createElement('button')
+        btn.type = 'button'
+        btn.className = 'heart-btn'
+        btn.setAttribute('aria-label', 'Add to favorites')
+        btn.innerHTML =
+          '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+        return btn
+      }
+
+      function fillTitlePills() {
+        document.querySelectorAll('.gif-card').forEach((card) => {
+          const img = card.querySelector('.gif')
+          const titleEl = card.querySelector('.card-label-title')
+          const title = img && img.getAttribute('data-title')
+          if (img && titleEl && title) titleEl.textContent = title
+        })
+      }
+
+      function renderRows() {
+        const rowFav = document.getElementById('gif-row-favorites')
+        const rowOthers = document.getElementById('gif-row-others')
+        if (!rowFav || !rowOthers) return
+        const favorites = getFavorites()
+        const cards = [].slice
+          .call(rowFav.querySelectorAll('.gif-card'))
+          .concat([].slice.call(rowOthers.querySelectorAll('.gif-card')))
+        const byId = new Map(cards.map((c) => [getGifId(c), c]))
+        const favOrdered = favorites
+          .filter((id) => byId.has(id))
+          .slice(0, MAX_FAVORITES)
+        const rest = cards.filter((c) => !favorites.includes(getGifId(c)))
+        rowFav.innerHTML = ''
+        rowOthers.innerHTML = ''
+        favOrdered.forEach((id) => rowFav.appendChild(byId.get(id)))
+        rest.forEach((c) => rowOthers.appendChild(c))
+        const wrap = document.getElementById('gif-favorites-wrap')
+        if (wrap) wrap.style.display = rowFav.children.length ? '' : 'none'
+        cards.forEach((card) => {
+          const id = getGifId(card)
+          const isFav = favorites.includes(id)
+          let heart = card.querySelector('.heart-btn')
+          if (!heart) {
+            heart = createHeartButton()
+            heart.addEventListener('click', (e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              const gid = getGifId(card)
+              const fav = getFavorites()
+              const idx = fav.indexOf(gid)
+              if (idx >= 0) {
+                fav.splice(idx, 1)
+                setFavorites(fav)
+                renderRows()
+                showToast('Removed from favorites')
+              } else {
+                if (fav.length >= MAX_FAVORITES) {
+                  showToast('Favorites full (10 max)')
+                  return
+                }
+                fav.push(gid)
+                setFavorites(fav)
+                renderRows()
+                showToast('Added to favorites')
+              }
+            })
+            card.insertBefore(heart, card.firstChild)
+          }
+          heart.classList.toggle('is-fav', isFav)
+          heart.setAttribute(
+            'aria-label',
+            isFav ? 'Remove from favorites' : 'Add to favorites'
+          )
+        })
+        fillTitlePills()
+      }
 
       function showToast(text = 'copied') {
         toast.textContent = text
@@ -315,8 +481,8 @@
         ta.remove()
       }
 
-      // If a GIF is wrapped in a link (<a>), we still want click-to-copy on the image.
-      // We'll prevent link navigation only when the image itself is clicked.
+      renderRows()
+
       document.querySelectorAll('img[data-gif]').forEach((img) => {
         img.addEventListener('click', async (e) => {
           e.preventDefault()
