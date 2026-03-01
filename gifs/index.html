@@ -168,7 +168,8 @@
         }
         if (items.length === 0) {
           try {
-            const res = await fetch('data.json')
+            const dataUrl = new URL('data.json', location.href).href
+            const res = await fetch(dataUrl)
             if (res.ok) {
               const data = await res.json()
               if (Array.isArray(data.items)) items = data.items
@@ -176,6 +177,15 @@
           } catch (_) {}
         }
         renderFromData(items)
+        if (items.length === 0) {
+          const rowOthers = document.getElementById('gif-row-others')
+          if (rowOthers) {
+            const p = document.createElement('p')
+            p.className = 'hint'
+            p.textContent = 'No GIFs loaded. Check that data.json exists and is deployed.'
+            rowOthers.appendChild(p)
+          }
+        }
         if (isLocal) {
           const wrap = document.getElementById('gif-editor-wrap')
           if (wrap) wrap.classList.remove('hidden')
