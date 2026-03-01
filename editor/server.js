@@ -7,9 +7,26 @@ const hljs = require('highlight.js')
 const app = express()
 const EDITOR_DIR = __dirname
 const NOTES_DIR = path.join(EDITOR_DIR, '..', 'notes')
+const GIFS_DIR = path.join(EDITOR_DIR, '..', 'gifs')
+const GIFS_FAVORITES_PATH = path.join(GIFS_DIR, 'favorites.json')
+const GIFS_DATA_PATH = path.join(GIFS_DIR, 'data.json')
+const GIFS_INDEX_PATH = path.join(GIFS_DIR, 'index.html')
+const MAX_FAVORITES = 10
 const PORT = process.env.PORT || 3002
 
 app.use(express.json({ limit: '1mb' }))
+
+// Allow gifs page (e.g. from bun dev on another port) to fetch /api/gifs/favorites
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+  if (origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  if (req.method === 'OPTIONS') return res.sendStatus(204)
+  next()
+})
 
 marked.setOptions({ gfm: true })
 
@@ -79,7 +96,7 @@ function noteShell(title, date, bodyHtml) {
   <body>
     <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
 
-    <h1>${escapedTitle} <span id="edit-note-wrap" style="display:none"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
+    <h1>${escapedTitle} <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>${date.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</em></p>
 
 ${bodyHtml}
@@ -87,7 +104,7 @@ ${bodyHtml}
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         var slug = window.location.pathname.split('/').pop().replace(/\\.html$/, '');
         var a = document.getElementById('edit-note-link');
-        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').style.display = ''; }
+        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
       }
     </script>
   </body>
@@ -175,7 +192,7 @@ function regenerateIndex() {
       (e) =>
         `      <li>
         <a href="${e.slug}.html"> ${escapeHtml(e.title)} </a>
-        <a href="/editor/index.html?slug=${e.slug}" class="local-edit" style="display:none" aria-label="Edit note" title="Edit">&#9998;</a>
+        <a href="/editor/index.html?slug=${e.slug}" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>${escapeHtml(e.date)}</small>
       </li>`
@@ -197,7 +214,7 @@ function regenerateIndex() {
 
     <div class="notes-header">
     <h1>Notes</h1>
-    <span id="new-note-wrap" style="display:none"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
+    <span id="new-note-wrap" class="hidden"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
     </div>
 
     <ul class="notes-list">
@@ -205,8 +222,8 @@ ${listItems}
     </ul>
     <script>
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var w = document.getElementById('new-note-wrap'); if (w) w.style.display = 'inline';
-        document.querySelectorAll('.local-edit').forEach(function (a) { a.style.display = 'inline'; });
+        var w = document.getElementById('new-note-wrap'); if (w) w.classList.remove('hidden');
+        document.querySelectorAll('.local-edit').forEach(function (a) { a.classList.remove('hidden'); });
       }
     </script>
   </body>
@@ -327,6 +344,122 @@ ${body}
   regenerateIndex()
 
   res.json({ ok: true, slug })
+})
+
+app.get('/api/gifs/favorites', (req, res) => {
+  let favorites = []
+  try {
+    if (fs.existsSync(GIFS_DATA_PATH)) {
+      const raw = fs.readFileSync(GIFS_DATA_PATH, 'utf-8')
+      const data = JSON.parse(raw)
+      const items = Array.isArray(data.items) ? data.items : []
+      favorites = items.filter((i) => i.favorite).map((i) => i.url).slice(0, MAX_FAVORITES)
+    } else if (fs.existsSync(GIFS_FAVORITES_PATH)) {
+      const raw = fs.readFileSync(GIFS_FAVORITES_PATH, 'utf-8')
+      const data = JSON.parse(raw)
+      const arr = Array.isArray(data) ? data : data.favorites
+      favorites = (Array.isArray(arr) ? arr : []).slice(0, MAX_FAVORITES).filter((u) => typeof u === 'string')
+    }
+  } catch (_) {}
+  res.json({ favorites })
+})
+
+app.post('/api/gifs/favorites', (req, res) => {
+  let arr = req.body && req.body.favorites
+  if (!Array.isArray(arr)) {
+    return res.status(400).json({ error: 'favorites array required' })
+  }
+  const favorites = arr.filter((u) => typeof u === 'string').slice(0, MAX_FAVORITES)
+  try {
+    if (!fs.existsSync(GIFS_DIR)) {
+      fs.mkdirSync(GIFS_DIR, { recursive: true })
+    }
+    fs.writeFileSync(GIFS_FAVORITES_PATH, JSON.stringify(favorites, null, 2), 'utf-8')
+  } catch (err) {
+    return res.status(500).json({ error: 'failed to write favorites' })
+  }
+  res.json({ ok: true })
+})
+
+function parseGifsFromIndexHtml() {
+  let list = []
+  try {
+    if (fs.existsSync(GIFS_INDEX_PATH)) {
+      const html = fs.readFileSync(GIFS_INDEX_PATH, 'utf-8')
+      const imgRe = /<img[^>]*class="gif"[^>]*>/gi
+      let m
+      while ((m = imgRe.exec(html)) !== null) {
+        const tag = m[0]
+        const url = (tag.match(/data-gif="([^"]*)"/i) || [])[1]
+        const alt = (tag.match(/alt="([^"]*)"/i) || [])[1] || ''
+        const title = (tag.match(/data-title="([^"]*)"/i) || [])[1] || ''
+        if (url) list.push({ url, alt, title })
+      }
+    }
+  } catch (_) {}
+  return list
+}
+
+function getFavoriteUrls() {
+  let favorites = []
+  try {
+    if (fs.existsSync(GIFS_FAVORITES_PATH)) {
+      const raw = fs.readFileSync(GIFS_FAVORITES_PATH, 'utf-8')
+      const data = JSON.parse(raw)
+      const arr = Array.isArray(data) ? data : data.favorites
+      favorites = (Array.isArray(arr) ? arr : []).filter((u) => typeof u === 'string')
+    }
+  } catch (_) {}
+  return favorites
+}
+
+app.get('/api/gifs/data', (req, res) => {
+  let items = []
+  try {
+    if (fs.existsSync(GIFS_DATA_PATH)) {
+      const raw = fs.readFileSync(GIFS_DATA_PATH, 'utf-8')
+      const data = JSON.parse(raw)
+      items = Array.isArray(data.items) ? data.items : []
+    } else {
+      const parsed = parseGifsFromIndexHtml()
+      const favoriteUrls = getFavoriteUrls()
+      items = parsed.map((g) => ({
+        url: g.url,
+        alt: g.alt || '',
+        title: g.title || '',
+        favorite: favoriteUrls.includes(g.url),
+      }))
+    }
+  } catch (_) {}
+  res.json({ items })
+})
+
+app.post('/api/gifs/data', (req, res) => {
+  const body = req.body && req.body.items
+  if (!Array.isArray(body)) {
+    return res.status(400).json({ error: 'items array required' })
+  }
+  const items = body
+    .filter((o) => o && typeof o.url === 'string' && o.url.trim())
+    .map((o) => ({
+      url: o.url.trim(),
+      alt: typeof o.alt === 'string' ? o.alt : '',
+      title: typeof o.title === 'string' ? o.title : '',
+      favorite: Boolean(o.favorite),
+    }))
+  try {
+    if (!fs.existsSync(GIFS_DIR)) {
+      fs.mkdirSync(GIFS_DIR, { recursive: true })
+    }
+    fs.writeFileSync(GIFS_DATA_PATH, JSON.stringify({ items }, null, 2), 'utf-8')
+  } catch (err) {
+    return res.status(500).json({ error: 'failed to write data', detail: err.message })
+  }
+  res.json({ ok: true })
+})
+
+app.get('/api/gifs/list', (req, res) => {
+  res.json(parseGifsFromIndexHtml())
 })
 
 app.use(express.static(REPO_ROOT))

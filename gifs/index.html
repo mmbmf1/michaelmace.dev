@@ -6,160 +6,6 @@
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
-
-    <style>
-      .gif-rows {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        margin-top: 0.75rem;
-      }
-      .gif-row-label {
-        margin: 0 0 0.5rem 0;
-        font-size: 0.9rem;
-        font-weight: 600;
-      }
-
-      .gif-grid {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        margin-top: 0;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        padding: 0.5rem 0;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-      }
-      .gif-grid::-webkit-scrollbar {
-        height: 8px;
-      }
-      .gif-grid::-webkit-scrollbar-thumb {
-        background: rgba(128, 128, 128, 0.4);
-        border-radius: 4px;
-      }
-
-      .gif-card {
-        position: relative;
-        flex: 0 0 auto;
-        width: min(520px, 92vw);
-        min-width: min(520px, 92vw);
-        scroll-snap-align: start;
-        border-radius: 10px;
-        overflow: hidden;
-      }
-
-      .gif {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-        display: block;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: opacity 0.15s ease;
-      }
-
-      .gif-card:hover .gif {
-        opacity: 0.92;
-      }
-
-      .card-labels {
-        position: absolute;
-        bottom: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s ease;
-        z-index: 1;
-      }
-      .gif-card:hover .card-labels {
-        opacity: 1;
-      }
-      .card-labels .card-label {
-        font-size: 0.7rem;
-        color: #fff;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-        pointer-events: none;
-      }
-      .card-labels .card-label[href] {
-        text-decoration: none;
-        pointer-events: auto;
-      }
-      .card-labels .card-label-title:empty {
-        display: none;
-      }
-
-      .heart-btn {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        z-index: 2;
-        width: 2rem;
-        height: 2rem;
-        padding: 0;
-        border: none;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.4);
-        color: #fff;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.15s ease, color 0.15s ease;
-      }
-      .heart-btn:hover {
-        background: rgba(0, 0, 0, 0.6);
-      }
-      .heart-btn.is-fav {
-        color: #e74c3c;
-      }
-      .heart-btn svg {
-        width: 1.1rem;
-        height: 1.1rem;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-      }
-      .heart-btn.is-fav svg {
-        fill: currentColor;
-      }
-      .heart-btn[aria-disabled='true'] {
-        cursor: default;
-        pointer-events: none;
-      }
-
-      .toast {
-        position: fixed;
-        left: 50%;
-        top: 24px;
-        transform: translateX(-50%);
-        padding: 0.5rem 0.75rem;
-        border-radius: 10px;
-        background: rgba(0, 0, 0, 0.75);
-        color: #fff;
-        font-size: 0.9rem;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 150ms ease;
-      }
-      .toast.show {
-        opacity: 1;
-      }
-
-      @media (prefers-color-scheme: light) {
-        .toast {
-          background: rgba(0, 0, 0, 0.85);
-        }
-      }
-    </style>
   </head>
 
   <body>
@@ -174,7 +20,7 @@
       >
     </p>
 
-    <h1 style="margin-bottom: 0">GIFs</h1>
+    <h1 class="no-margin-bottom">GIFs <span id="gif-editor-wrap" class="hidden"><a id="gif-editor-link" href="/editor/gifs.html" class="local-edit" aria-label="Edit GIFs" title="Edit GIFs">&#9998;</a></span></h1>
 
     <div class="gif-rows">
       <div id="gif-favorites-wrap">
@@ -382,6 +228,11 @@
       const isLocal =
         /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
         location.hostname === ''
+      const EDITOR_PORT = 3002
+      const editorOrigin =
+        isLocal && String(location.port) !== String(EDITOR_PORT)
+          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
+          : ''
 
       const PUBLIC_FAVORITES = [
         'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif',
@@ -399,6 +250,30 @@
           return []
         }
       }
+      async function syncFromApi() {
+        if (!isLocal) return false
+        const base = editorOrigin || ''
+        try {
+          const res = await fetch(base + '/api/gifs/data')
+          if (!res.ok) return false
+          const data = await res.json()
+          if (Array.isArray(data.items)) {
+            renderRowsFromEditorData(data.items)
+            return true
+          }
+        } catch (_) {}
+        try {
+          const res = await fetch(base + '/api/gifs/favorites')
+          if (!res.ok) return false
+          const data = await res.json()
+          const arr = (data.favorites || data) || []
+          if (Array.isArray(arr) && arr.length > 0) {
+            const list = arr.filter((u) => typeof u === 'string').slice(0, MAX_FAVORITES)
+            setFavorites(list)
+          }
+        } catch (_) {}
+        return false
+      }
       function setFavorites(arr) {
         if (!isLocal) return
         localStorage.setItem(
@@ -412,14 +287,42 @@
         return img && img.getAttribute('data-gif')
       }
 
-      function createHeartButton() {
-        const btn = document.createElement('button')
-        btn.type = 'button'
-        btn.className = 'heart-btn'
-        btn.setAttribute('aria-label', 'Add to favorites')
-        btn.innerHTML =
-          '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
-        return btn
+      function createCardForUrl(url, title, alt) {
+        const card = document.createElement('div')
+        card.className = 'gif-card'
+        const img = document.createElement('img')
+        img.className = 'gif'
+        img.src = url
+        img.setAttribute('data-gif', url)
+        img.alt = alt || ''
+        img.loading = 'lazy'
+        if (title) img.setAttribute('data-title', title)
+        const labels = document.createElement('div')
+        labels.className = 'card-labels'
+        labels.innerHTML = '<span class="card-label">click to copy</span><span class="card-label card-label-title"></span>'
+        card.appendChild(img)
+        card.appendChild(labels)
+        return card
+      }
+
+      function createCardFromItem(item) {
+        return createCardForUrl(item.url, item.title, item.alt)
+      }
+
+      function renderRowsFromEditorData(items) {
+        const rowFav = document.getElementById('gif-row-favorites')
+        const rowOthers = document.getElementById('gif-row-others')
+        const wrap = document.getElementById('gif-favorites-wrap')
+        if (!rowFav || !rowOthers) return
+        const favorites = items.filter((i) => i.favorite).slice(0, MAX_FAVORITES)
+        const others = items.filter((i) => !i.favorite)
+        rowFav.innerHTML = ''
+        rowOthers.innerHTML = ''
+        favorites.forEach((item) => rowFav.appendChild(createCardFromItem(item)))
+        others.forEach((item) => rowOthers.appendChild(createCardFromItem(item)))
+        if (wrap) wrap.style.display = rowFav.children.length ? '' : 'none'
+        fillTitlePills()
+        attachCopyHandlers()
       }
 
       function fillTitlePills() {
@@ -435,62 +338,44 @@
         const rowFav = document.getElementById('gif-row-favorites')
         const rowOthers = document.getElementById('gif-row-others')
         if (!rowFav || !rowOthers) return
-        const favorites = getFavorites()
+        const favorites = getFavorites().slice(0, MAX_FAVORITES)
         const cards = [].slice
           .call(rowFav.querySelectorAll('.gif-card'))
           .concat([].slice.call(rowOthers.querySelectorAll('.gif-card')))
         const byId = new Map(cards.map((c) => [getGifId(c), c]))
-        const favOrdered = favorites
-          .filter((id) => byId.has(id))
-          .slice(0, MAX_FAVORITES)
         const rest = cards.filter((c) => !favorites.includes(getGifId(c)))
         rowFav.innerHTML = ''
         rowOthers.innerHTML = ''
-        favOrdered.forEach((id) => rowFav.appendChild(byId.get(id)))
+        favorites.forEach((id) => {
+          const card = byId.get(id)
+          if (card) {
+            rowFav.appendChild(card)
+          } else {
+            rowFav.appendChild(createCardForUrl(id, '', ''))
+          }
+        })
         rest.forEach((c) => rowOthers.appendChild(c))
         const wrap = document.getElementById('gif-favorites-wrap')
         if (wrap) wrap.style.display = rowFav.children.length ? '' : 'none'
-        cards.forEach((card) => {
-          const id = getGifId(card)
-          const isFav = favorites.includes(id)
-          let heart = card.querySelector('.heart-btn')
-          if (!heart) {
-            heart = createHeartButton()
-            if (isLocal) {
-              heart.addEventListener('click', (e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                const gid = getGifId(card)
-                const fav = getFavorites()
-                const idx = fav.indexOf(gid)
-                if (idx >= 0) {
-                  fav.splice(idx, 1)
-                  setFavorites(fav)
-                  renderRows()
-                  showToast('Removed from favorites')
-                } else {
-                  if (fav.length >= MAX_FAVORITES) {
-                    showToast('Favorites full (10 max)')
-                    return
-                  }
-                  fav.push(gid)
-                  setFavorites(fav)
-                  renderRows()
-                  showToast('Added to favorites')
-                }
-              })
-            } else {
-              heart.setAttribute('aria-disabled', 'true')
-            }
-            card.insertBefore(heart, card.firstChild)
-          }
-          heart.classList.toggle('is-fav', isFav)
-          heart.setAttribute(
-            'aria-label',
-            isFav ? 'Remove from favorites' : 'Add to favorites'
-          )
-        })
         fillTitlePills()
+        attachCopyHandlers()
+      }
+
+      function attachCopyHandlers() {
+        document.querySelectorAll('img[data-gif]').forEach((img) => {
+          img.onclick = async (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            const url = img.getAttribute('data-gif')
+            const md = `![](${url})`
+            try {
+              await copyText(md)
+              showToast('copied markdown')
+            } catch {
+              showToast('copy failed')
+            }
+          }
+        })
       }
 
       function showToast(text = 'copied') {
@@ -515,24 +400,16 @@
         ta.remove()
       }
 
-      renderRows()
-
-      document.querySelectorAll('img[data-gif]').forEach((img) => {
-        img.addEventListener('click', async (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-
-          const url = img.getAttribute('data-gif')
-          const md = `![](${url})`
-
-          try {
-            await copyText(md)
-            showToast('copied markdown')
-          } catch {
-            showToast('copy failed')
-          }
-        })
-      })
+      ;(async function init() {
+        const usedEditorData = await syncFromApi()
+        if (!usedEditorData) renderRows()
+        if (isLocal) {
+          const wrap = document.getElementById('gif-editor-wrap')
+          if (wrap) wrap.classList.remove('hidden')
+          const link = document.getElementById('gif-editor-link')
+          if (link && editorOrigin) link.href = editorOrigin + '/editor/gifs.html'
+        }
+      })()
     </script>
   </body>
 </html>

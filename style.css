@@ -100,3 +100,208 @@ li input[type='checkbox'] {
     gap: 1rem;
   }
 }
+
+/* Utilities */
+.no-margin-bottom {
+  margin-bottom: 0;
+}
+.hidden {
+  display: none !important;
+}
+.slug-hint {
+  font-size: 0.7em;
+}
+
+/* ——— GIFs page ——— */
+.gif-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+.gif-row-label {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.gif-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.gif-grid::-webkit-scrollbar {
+  height: 8px;
+}
+.gif-grid::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.4);
+  border-radius: 4px;
+}
+
+.gif-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(520px, 92vw);
+  min-width: min(520px, 92vw);
+  scroll-snap-align: start;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.gif {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.gif-card:hover .gif {
+  opacity: 0.92;
+}
+
+.card-labels {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 1;
+}
+.gif-card:hover .card-labels {
+  opacity: 1;
+}
+.card-labels .card-label {
+  font-size: 0.7rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.card-labels .card-label[href] {
+  text-decoration: none;
+  pointer-events: auto;
+}
+.card-labels .card-label-title:empty {
+  display: none;
+}
+
+.heart-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.heart-btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+.heart-btn.is-fav {
+  color: #e74c3c;
+}
+.heart-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.heart-btn.is-fav svg {
+  fill: currentColor;
+}
+.heart-btn[aria-disabled='true'] {
+  cursor: default;
+  pointer-events: none;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 24px;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+.toast.show {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  .toast {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* ——— Note editor ——— */
+#note-form input,
+#note-form textarea {
+  font-size: 1rem;
+  padding: 0.4rem 0.5rem;
+  width: 100%;
+  max-width: 36rem;
+  box-sizing: border-box;
+}
+#note-form textarea {
+  min-height: 16rem;
+  resize: vertical;
+}
+#note-form button {
+  margin-top: 1rem;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+#delete-wrap {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ccc;
+}
+#delete-btn {
+  background: #c00;
+  color: #fff;
+  border: none;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.9rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+#delete-btn:hover {
+  background: #a00;
+}
+@media (prefers-color-scheme: dark) {
+  #delete-wrap {
+    border-color: #444;
+  }
+}

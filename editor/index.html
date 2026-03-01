@@ -6,53 +6,13 @@
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
-    <style>
-      #note-form input,
-      #note-form textarea {
-        font-size: 1rem;
-        padding: 0.4rem 0.5rem;
-        width: 100%;
-        max-width: 36rem;
-        box-sizing: border-box;
-      }
-      #note-form textarea {
-        min-height: 16rem;
-        resize: vertical;
-      }
-      #note-form button {
-        margin-top: 1rem;
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-      }
-      #delete-wrap {
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: 1px solid #ccc;
-      }
-      #delete-btn {
-        background: #c00;
-        color: #fff;
-        border: none;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.9rem;
-        border-radius: 0.25rem;
-        cursor: pointer;
-      }
-      #delete-btn:hover {
-        background: #a00;
-      }
-      @media (prefers-color-scheme: dark) {
-        #delete-wrap {
-          border-color: #444;
-        }
-      }
-    </style>
   </head>
   <body>
     <p class="nav-links">
       <a href="../index.html">Home</a> ·
       <a href="../notes/index.html">Notes</a> ·
-      <a href="../gifs/index.html">GIFs</a>
+      <a href="../gifs/index.html">GIFs</a> ·
+      <a href="gifs.html">GIF editor</a>
       ·
       <a
         href="https://github.com/mmbmf1"
@@ -61,7 +21,7 @@
         >GitHub</a
       >
     </p>
-    <h1>Note editor</h1>
+    <h1 class="no-margin-bottom">Note editor</h1>
 
     <form id="note-form">
       <p>
@@ -71,7 +31,7 @@
       <p>
         <label for="slug"
           >Url slug
-          <em style="font-size: 0.7em"
+          <em class="slug-hint"
             >(optional, derived from title if empty)</em
           ></label
         ><br />
@@ -97,7 +57,7 @@
 
     <p id="message" aria-live="polite"></p>
 
-    <p id="delete-wrap" style="display: none">
+    <p id="delete-wrap" class="hidden">
       <button type="button" id="delete-btn">Delete note</button>
     </p>
 
@@ -169,7 +129,7 @@
           }
           const data = await res.json()
           currentSlug = data.slug
-          document.getElementById('delete-wrap').style.display = ''
+          document.getElementById('delete-wrap').classList.remove('hidden')
           titleInput.value = data.title || ''
           slugInput.value = data.slug || ''
           dateInput.value = data.date || formatDateWithDay(new Date())

@@ -2,3 +2,5 @@
 node_modules
 editor/node_modules
 .cursor
+gifs/favorites.json
+gifs/data.json

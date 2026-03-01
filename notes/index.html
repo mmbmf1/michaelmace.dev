@@ -23,7 +23,7 @@
 
     <div class="notes-header">
       <h1>Notes</h1>
-      <span id="new-note-wrap" style="display: none"
+      <span id="new-note-wrap" class="hidden"
         ><a
           href="/editor/index.html"
           class="local-edit new-note-link"
@@ -40,8 +40,7 @@
         <a href="hello-world.html"> Markdown demo </a>
         <a
           href="/editor/index.html?slug=hello-world"
-          class="local-edit"
-          style="display: none"
+          class="local-edit hidden"
           aria-label="Edit note"
           title="Edit"
           >&#9998;</a
@@ -53,8 +52,7 @@
         <a href="on-layering-intel.html"> On Layering Intelligence </a>
         <a
           href="/editor/index.html?slug=on-layering-intel"
-          class="local-edit"
-          style="display: none"
+          class="local-edit hidden"
           aria-label="Edit note"
           title="Edit"
           >&#9998;</a
@@ -69,9 +67,9 @@
         window.location.hostname === '127.0.0.1'
       ) {
         var w = document.getElementById('new-note-wrap')
-        if (w) w.style.display = 'inline'
+        if (w) w.classList.remove('hidden')
         document.querySelectorAll('.local-edit').forEach(function (a) {
-          a.style.display = 'inline'
+          a.classList.remove('hidden')
         })
       }
     </script>

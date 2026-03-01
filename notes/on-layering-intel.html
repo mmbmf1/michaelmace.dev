@@ -33,7 +33,7 @@
 
     <h1>
       On Layering Intelligence
-      <span id="edit-note-wrap" style="display: none"
+      <span id="edit-note-wrap" class="hidden"
         ><a
           href="#"
           id="edit-note-link"
@@ -128,7 +128,7 @@
         var a = document.getElementById('edit-note-link')
         if (a && slug) {
           a.href = '/editor/index.html?slug=' + encodeURIComponent(slug)
-          document.getElementById('edit-note-wrap').style.display = ''
+          document.getElementById('edit-note-wrap').classList.remove('hidden')
         }
       }
     </script>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>GIF editor — Michael Mace</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <p class="nav-links">
+      <a href="../index.html">Home</a> ·
+      <a href="../notes/index.html">Notes</a> ·
+      <a href="../gifs/index.html">GIFs</a>
+      ·
+      <a
+        href="https://github.com/mmbmf1"
+        target="_blank"
+        rel="noopener noreferrer"
+        >GitHub</a
+      >
+    </p>
+    <h1 class="no-margin-bottom">GIF editor</h1>
+    <p class="gif-row-label" style="margin-top: 0.5rem">All GIFs. Star = favorite (max 10). Order is used on the GIFs page.</p>
+
+    <div id="all-list" class="gif-grid" style="margin-top: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem"></div>
+
+    <p style="margin-bottom: 1rem">
+      <label for="paste-url">Add GIF: paste URL</label>
+      <input type="url" id="paste-url" placeholder="https://..." style="width: 100%; max-width: 28rem; padding: 0.4rem; box-sizing: border-box" />
+      <button type="button" id="paste-add-btn" style="margin-top: 0.35rem">Add</button>
+    </p>
+    <p>
+      <button type="button" id="save-btn">Save</button>
+    </p>
+    <p id="message" aria-live="polite" style="margin-top: 1rem"></p>
+
+    <script>
+      const MAX_FAVORITES = 10
+      const EDITOR_PORT = 3002
+      const isLocal = /^localhost$|^127\.0\.0\.1$/.test(location.hostname) || location.hostname === ''
+      const apiBase = isLocal && String(location.port) !== String(EDITOR_PORT) ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT : ''
+      const allList = document.getElementById('all-list')
+      const pasteUrl = document.getElementById('paste-url')
+      const pasteAddBtn = document.getElementById('paste-add-btn')
+      const saveBtn = document.getElementById('save-btn')
+      const messageEl = document.getElementById('message')
+
+      let items = []
+
+      function setMessage(text, isError) {
+        messageEl.textContent = text
+        messageEl.style.color = isError ? '#c00' : ''
+      }
+
+      function favCount() {
+        return items.filter((i) => i.favorite).length
+      }
+
+      function renderList() {
+        allList.innerHTML = ''
+        items.forEach((item, i) => {
+          const card = document.createElement('div')
+          card.className = 'gif-card'
+          card.style.marginBottom = '0.5rem'
+          const img = document.createElement('img')
+          img.className = 'gif'
+          img.src = item.url
+          img.alt = item.alt || ''
+          img.setAttribute('data-gif', item.url)
+          if (item.title) img.setAttribute('data-title', item.title)
+          card.appendChild(img)
+          const controls = document.createElement('div')
+          controls.style.marginTop = '0.35rem'
+          const starBtn = document.createElement('button')
+          starBtn.type = 'button'
+          starBtn.className = 'heart-btn' + (item.favorite ? ' is-fav' : '')
+          starBtn.style.position = 'static'
+          starBtn.style.marginRight = '0.35rem'
+          starBtn.setAttribute('aria-label', item.favorite ? 'Remove from favorites' : 'Add to favorites')
+          starBtn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+          starBtn.addEventListener('click', () => {
+            if (item.favorite) {
+              item.favorite = false
+            } else {
+              if (favCount() >= MAX_FAVORITES) {
+                setMessage('Max 10 favorites', true)
+                return
+              }
+              item.favorite = true
+            }
+            renderList()
+            setMessage('')
+          })
+          const removeBtn = document.createElement('button')
+          removeBtn.type = 'button'
+          removeBtn.textContent = 'Remove'
+          removeBtn.style.fontSize = '0.85rem'
+          removeBtn.style.marginLeft = '0.2rem'
+          removeBtn.addEventListener('click', () => {
+            items.splice(i, 1)
+            renderList()
+            setMessage('')
+          })
+          const upBtn = document.createElement('button')
+          upBtn.type = 'button'
+          upBtn.textContent = '↑'
+          upBtn.style.marginLeft = '0.35rem'
+          upBtn.disabled = i === 0
+          upBtn.addEventListener('click', () => {
+            ;[items[i - 1], items[i]] = [items[i], items[i - 1]]
+            renderList()
+            setMessage('')
+          })
+          const downBtn = document.createElement('button')
+          downBtn.type = 'button'
+          downBtn.textContent = '↓'
+          downBtn.style.marginLeft = '0.2rem'
+          downBtn.disabled = i === items.length - 1
+          downBtn.addEventListener('click', () => {
+            ;[items[i], items[i + 1]] = [items[i + 1], items[i]]
+            renderList()
+            setMessage('')
+          })
+          const titleLabel = document.createElement('label')
+          titleLabel.style.display = 'block'
+          titleLabel.style.marginTop = '0.25rem'
+          titleLabel.style.fontSize = '0.8rem'
+          titleLabel.textContent = 'Title'
+          const titleInput = document.createElement('input')
+          titleInput.type = 'text'
+          titleInput.value = item.title || ''
+          titleInput.placeholder = 'optional'
+          titleInput.style.width = '100%'
+          titleInput.style.maxWidth = '100%'
+          titleInput.style.padding = '0.25rem'
+          titleInput.style.boxSizing = 'border-box'
+          titleInput.style.fontSize = '0.9rem'
+          titleInput.addEventListener('change', () => {
+            item.title = titleInput.value.trim()
+          })
+          titleInput.addEventListener('blur', () => {
+            item.title = titleInput.value.trim()
+          })
+          controls.appendChild(starBtn)
+          controls.appendChild(removeBtn)
+          controls.appendChild(upBtn)
+          controls.appendChild(downBtn)
+          card.appendChild(controls)
+          card.appendChild(titleLabel)
+          card.appendChild(titleInput)
+          allList.appendChild(card)
+        })
+      }
+
+      function addItem(url, alt = '', title = '') {
+        const u = (url || '').trim()
+        if (!u) return
+        if (items.some((i) => i.url === u)) {
+          setMessage('Already in list', true)
+          return
+        }
+        items.push({ url: u, alt, title, favorite: false })
+        renderList()
+        setMessage('')
+      }
+
+      pasteAddBtn.addEventListener('click', () => {
+        addItem(pasteUrl.value)
+        pasteUrl.value = ''
+      })
+      saveBtn.addEventListener('click', async () => {
+        setMessage('')
+        try {
+          const res = await fetch(apiBase + '/api/gifs/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items }),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            const msg = data.detail ? data.error + ': ' + data.detail : (data.error || 'Save failed')
+            setMessage(msg + ' (' + res.status + ')', true)
+            return
+          }
+          setMessage('Saved.')
+        } catch (err) {
+          setMessage('Request failed: ' + err.message + '. Is the editor server running on port 3002?', true)
+        }
+      })
+
+      ;(async function load() {
+        setMessage('Loading…')
+        try {
+          const res = await fetch(apiBase + '/api/gifs/data')
+          const data = await res.json().catch(() => ({}))
+          items = Array.isArray(data.items) ? data.items : []
+          if (items.length === 0) {
+            const [listRes, favRes] = await Promise.all([fetch(apiBase + '/api/gifs/list'), fetch(apiBase + '/api/gifs/favorites')])
+            const list = await listRes.json().catch(() => [])
+            const favData = await favRes.json().catch(() => ({}))
+            const favUrls = new Set((favData.favorites || []).slice(0, MAX_FAVORITES))
+            items = list.map((g) => ({ url: g.url, alt: g.alt || '', title: g.title || '', favorite: favUrls.has(g.url) }))
+          }
+          renderList()
+          setMessage('')
+        } catch (err) {
+          setMessage('Load failed: ' + err.message, true)
+        }
+      })()
+    </script>
+  </body>
+</html>
