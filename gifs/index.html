@@ -22,26 +22,7 @@
 
     <h1 class="no-margin-bottom">GIFs <span id="gif-editor-wrap" class="hidden"><a id="gif-editor-link" href="/editor/gifs.html" class="local-edit" aria-label="Edit GIFs" title="Edit GIFs">&#9998;</a></span></h1>
 
-    <div class="gif-rows">
-      <div id="gif-favorites-wrap">
-        <p class="gif-row-label">favorites</p>
-        <div
-          id="gif-row-favorites"
-          class="gif-grid"
-          role="region"
-          aria-label="Favorite GIFs"
-        ></div>
-      </div>
-      <div id="gif-others-wrap">
-        <p class="gif-row-label">these are good too</p>
-        <div
-          id="gif-row-others"
-          class="gif-grid"
-          role="region"
-          aria-label="GIF carousel"
-        ></div>
-      </div>
-    </div>
+    <div class="gif-rows" id="gif-rows"></div>
 
     <div id="toast" class="toast" role="status" aria-live="polite">copied</div>
 
@@ -49,7 +30,10 @@
       const toast = document.getElementById('toast')
       let toastTimer = null
 
-      const MAX_FAVORITES = 10
+      const DEFAULT_LISTS = [
+        { id: 'favs', label: 'favorites' },
+        { id: 'others', label: 'these are good too' },
+      ]
       const isLocal =
         /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
         location.hostname === ''
@@ -91,18 +75,41 @@
         )
       }
 
-      function renderFromData(items) {
-        const rowFav = document.getElementById('gif-row-favorites')
-        const rowOthers = document.getElementById('gif-row-others')
-        const wrap = document.getElementById('gif-favorites-wrap')
-        if (!rowFav || !rowOthers) return
-        const favorites = items.filter((i) => i.favorite).slice(0, MAX_FAVORITES)
-        const others = items.filter((i) => !i.favorite)
-        rowFav.innerHTML = ''
-        rowOthers.innerHTML = ''
-        favorites.forEach((item) => rowFav.appendChild(createCardFromItem(item)))
-        others.forEach((item) => rowOthers.appendChild(createCardFromItem(item)))
-        if (wrap) wrap.style.display = rowFav.children.length ? '' : 'none'
+      function normalizeItem(item) {
+        const listId = (item && item.listId) || (item && item.favorite ? 'favs' : 'others')
+        return {
+          url: (item && item.url) || '',
+          alt: (item && item.alt) || '',
+          title: (item && item.title) || '',
+          youtubeUrl: item && item.youtubeUrl,
+          listId,
+        }
+      }
+
+      function renderFromData(lists, items) {
+        const container = document.getElementById('gif-rows')
+        if (!container) return
+        container.innerHTML = ''
+        const normalized = (Array.isArray(items) ? items : []).map(normalizeItem)
+        const listOrder = Array.isArray(lists) && lists.length > 0
+          ? lists.filter((l) => l && l.id && l.label)
+          : DEFAULT_LISTS.slice()
+        listOrder.forEach((list) => {
+          const listItems = normalized.filter((i) => i.listId === list.id)
+          const wrap = document.createElement('div')
+          wrap.className = 'gif-list-wrap'
+          const label = document.createElement('p')
+          label.className = 'gif-row-label'
+          label.textContent = list.label
+          const grid = document.createElement('div')
+          grid.className = 'gif-grid'
+          grid.setAttribute('role', 'region')
+          grid.setAttribute('aria-label', list.label)
+          listItems.forEach((item) => grid.appendChild(createCardFromItem(item)))
+          wrap.appendChild(label)
+          wrap.appendChild(grid)
+          container.appendChild(wrap)
+        })
         fillTitlePills()
         attachCopyHandlers()
       }
@@ -156,12 +163,14 @@
       }
 
       ;(async function init() {
+        let lists = DEFAULT_LISTS.slice()
         let items = []
         if (isLocal && editorOrigin) {
           try {
             const res = await fetch(editorOrigin + '/api/gifs/data')
             if (res.ok) {
               const data = await res.json()
+              if (Array.isArray(data.lists)) lists = data.lists
               if (Array.isArray(data.items)) items = data.items
             }
           } catch (_) {}
@@ -172,18 +181,19 @@
             const res = await fetch(dataUrl)
             if (res.ok) {
               const data = await res.json()
+              if (Array.isArray(data.lists)) lists = data.lists
               if (Array.isArray(data.items)) items = data.items
             }
           } catch (_) {}
         }
-        renderFromData(items)
+        renderFromData(lists, items)
         if (items.length === 0) {
-          const rowOthers = document.getElementById('gif-row-others')
-          if (rowOthers) {
+          const container = document.getElementById('gif-rows')
+          if (container) {
             const p = document.createElement('p')
             p.className = 'hint'
             p.textContent = 'No GIFs loaded. Check that data.json exists and is deployed.'
-            rowOthers.appendChild(p)
+            container.appendChild(p)
           }
         }
         if (isLocal) {

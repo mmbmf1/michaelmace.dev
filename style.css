@@ -1,13 +1,29 @@
 body {
   max-width: 50rem;
-  margin: 3rem auto;
+  margin: 4.5rem auto;
+  padding: 0 1.25rem;
   font-family: system-ui, sans-serif;
-  font-size: 1.342069rem;
-  line-height: 1.6;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+h1 {
+  letter-spacing: -0.01em;
 }
 
 .nav-links {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
 }
 
 .local-edit {
@@ -44,6 +60,14 @@ h1 .local-edit {
   list-style: none;
   padding: 0;
   margin: 0.5em 0;
+}
+
+.tagline {
+  font-size: 1.05em;
+  opacity: 0.9;
+}
+.subtle {
+  opacity: 0.8;
 }
 
 pre {

@@ -413,13 +413,38 @@ function getFavoriteUrls() {
   return favorites
 }
 
+const DEFAULT_LISTS = [
+  { id: 'favs', label: 'favorites' },
+  { id: 'others', label: 'these are good too' },
+]
+
+function normalizeItemToListId(item) {
+  if (item && typeof item.listId === 'string' && item.listId.trim()) {
+    return item.listId.trim()
+  }
+  return item && item.favorite ? 'favs' : 'others'
+}
+
+function normalizeItems(items) {
+  return (Array.isArray(items) ? items : []).map((o) => ({
+    url: o && typeof o.url === 'string' ? o.url.trim() : '',
+    alt: typeof (o && o.alt) === 'string' ? o.alt : '',
+    title: typeof (o && o.title) === 'string' ? o.title : '',
+    listId: normalizeItemToListId(o),
+  }))
+}
+
 app.get('/api/gifs/data', (req, res) => {
+  let lists = DEFAULT_LISTS.slice()
   let items = []
   try {
     if (fs.existsSync(GIFS_DATA_PATH)) {
       const raw = fs.readFileSync(GIFS_DATA_PATH, 'utf-8')
       const data = JSON.parse(raw)
-      items = Array.isArray(data.items) ? data.items : []
+      if (Array.isArray(data.lists) && data.lists.length > 0) {
+        lists = data.lists.filter((l) => l && l.id && l.label)
+      }
+      items = normalizeItems(Array.isArray(data.items) ? data.items : [])
     } else {
       const parsed = parseGifsFromIndexHtml()
       const favoriteUrls = getFavoriteUrls()
@@ -427,31 +452,40 @@ app.get('/api/gifs/data', (req, res) => {
         url: g.url,
         alt: g.alt || '',
         title: g.title || '',
-        favorite: favoriteUrls.includes(g.url),
+        listId: favoriteUrls.includes(g.url) ? 'favs' : 'others',
       }))
     }
   } catch (_) {}
-  res.json({ items })
+  res.json({ lists, items })
 })
 
 app.post('/api/gifs/data', (req, res) => {
-  const body = req.body && req.body.items
-  if (!Array.isArray(body)) {
+  const body = req.body
+  const rawItems = body && body.items
+  if (!Array.isArray(rawItems)) {
     return res.status(400).json({ error: 'items array required' })
   }
-  const items = body
+  let lists = DEFAULT_LISTS.slice()
+  if (Array.isArray(body.lists) && body.lists.length > 0) {
+    const parsed = body.lists
+      .filter((l) => l != null)
+      .map((l) => ({ id: String(l.id ?? '').trim(), label: String(l.label ?? '').trim() }))
+      .filter((l) => l.id && l.label)
+    if (parsed.length > 0) lists = parsed
+  }
+  const items = rawItems
     .filter((o) => o && typeof o.url === 'string' && o.url.trim())
     .map((o) => ({
       url: o.url.trim(),
       alt: typeof o.alt === 'string' ? o.alt : '',
       title: typeof o.title === 'string' ? o.title : '',
-      favorite: Boolean(o.favorite),
+      listId: normalizeItemToListId(o),
     }))
   try {
     if (!fs.existsSync(GIFS_DIR)) {
       fs.mkdirSync(GIFS_DIR, { recursive: true })
     }
-    fs.writeFileSync(GIFS_DATA_PATH, JSON.stringify({ items }, null, 2), 'utf-8')
+    fs.writeFileSync(GIFS_DATA_PATH, JSON.stringify({ lists, items }, null, 2), 'utf-8')
   } catch (err) {
     return res.status(500).json({ error: 'failed to write data', detail: err.message })
   }

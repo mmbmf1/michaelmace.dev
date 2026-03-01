@@ -21,8 +21,11 @@
       >
     </p>
     <h1 class="no-margin-bottom">GIF editor</h1>
-    <p class="gif-row-label" style="margin-top: 0.5rem">All GIFs. Star = favorite (max 10). Order is used on the GIFs page.</p>
+    <p class="gif-row-label" style="margin-top: 0.5rem">All GIFs. Pick a list per item. Favorites list has max 10. Order is used on the GIFs page.</p>
 
+    <p style="margin-bottom: 0.5rem">
+      <button type="button" id="add-list-btn" disabled>Add list</button>
+    </p>
     <div id="all-list" class="gif-grid" style="margin-top: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem"></div>
 
     <p style="margin-bottom: 1rem">
@@ -37,15 +40,21 @@
 
     <script>
       const MAX_FAVORITES = 10
+      const DEFAULT_LISTS = [
+        { id: 'favs', label: 'favorites' },
+        { id: 'others', label: 'these are good too' },
+      ]
       const EDITOR_PORT = 3002
       const isLocal = /^localhost$|^127\.0\.0\.1$/.test(location.hostname) || location.hostname === ''
       const apiBase = isLocal && String(location.port) !== String(EDITOR_PORT) ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT : ''
       const allList = document.getElementById('all-list')
+      const addListBtn = document.getElementById('add-list-btn')
       const pasteUrl = document.getElementById('paste-url')
       const pasteAddBtn = document.getElementById('paste-add-btn')
       const saveBtn = document.getElementById('save-btn')
       const messageEl = document.getElementById('message')
 
+      let lists = DEFAULT_LISTS.slice()
       let items = []
 
       function setMessage(text, isError) {
@@ -53,13 +62,25 @@
         messageEl.style.color = isError ? '#c00' : ''
       }
 
+      function listIdForItem(item) {
+        if (item && typeof item.listId === 'string' && item.listId.trim()) return item.listId.trim()
+        return item && item.favorite ? 'favs' : 'others'
+      }
+
       function favCount() {
-        return items.filter((i) => i.favorite).length
+        return items.filter((i) => listIdForItem(i) === 'favs').length
+      }
+
+      function ensureListId(item) {
+        if (!item.listId) item.listId = item.favorite ? 'favs' : 'others'
       }
 
       function renderList() {
         allList.innerHTML = ''
         items.forEach((item, i) => {
+          ensureListId(item)
+          const listId = listIdForItem(item)
+          item.listId = listId
           const card = document.createElement('div')
           card.className = 'gif-card'
           card.style.marginBottom = '0.5rem'
@@ -72,24 +93,27 @@
           card.appendChild(img)
           const controls = document.createElement('div')
           controls.style.marginTop = '0.35rem'
-          const starBtn = document.createElement('button')
-          starBtn.type = 'button'
-          starBtn.className = 'heart-btn' + (item.favorite ? ' is-fav' : '')
-          starBtn.style.position = 'static'
-          starBtn.style.marginRight = '0.35rem'
-          starBtn.setAttribute('aria-label', item.favorite ? 'Remove from favorites' : 'Add to favorites')
-          starBtn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
-          starBtn.addEventListener('click', () => {
-            if (item.favorite) {
-              item.favorite = false
-            } else {
-              if (favCount() >= MAX_FAVORITES) {
-                setMessage('Max 10 favorites', true)
-                return
-              }
-              item.favorite = true
+          const listSelect = document.createElement('select')
+          listSelect.style.fontSize = '0.85rem'
+          listSelect.style.marginRight = '0.35rem'
+          lists.forEach((l) => {
+            const opt = document.createElement('option')
+            opt.value = l.id
+            opt.textContent = l.label
+            if (l.id === listId) opt.selected = true
+            listSelect.appendChild(opt)
+          })
+          listSelect.addEventListener('change', () => {
+            const newId = (listSelect.value || '').trim() || 'others'
+            const currentId = (listId || listIdForItem(item) || 'others').trim()
+            const wouldAddToFavs = newId === 'favs' && currentId !== 'favs'
+            const favsAfter = favCount() + (wouldAddToFavs ? 1 : 0)
+            if (newId === 'favs' && favsAfter > MAX_FAVORITES) {
+              setMessage('Max 10 in favorites', true)
+              listSelect.value = currentId
+              return
             }
-            renderList()
+            item.listId = newId
             setMessage('')
           })
           const removeBtn = document.createElement('button')
@@ -136,13 +160,9 @@
           titleInput.style.padding = '0.25rem'
           titleInput.style.boxSizing = 'border-box'
           titleInput.style.fontSize = '0.9rem'
-          titleInput.addEventListener('change', () => {
-            item.title = titleInput.value.trim()
-          })
-          titleInput.addEventListener('blur', () => {
-            item.title = titleInput.value.trim()
-          })
-          controls.appendChild(starBtn)
+          titleInput.addEventListener('change', () => { item.title = titleInput.value.trim() })
+          titleInput.addEventListener('blur', () => { item.title = titleInput.value.trim() })
+          controls.appendChild(listSelect)
           controls.appendChild(removeBtn)
           controls.appendChild(upBtn)
           controls.appendChild(downBtn)
@@ -160,10 +180,28 @@
           setMessage('Already in list', true)
           return
         }
-        items.push({ url: u, alt, title, favorite: false })
+        items.push({ url: u, alt, title, listId: 'others' })
         renderList()
         setMessage('')
       }
+
+      if (!addListBtn) {
+        setMessage('Add list button not found', true)
+      }
+      addListBtn && addListBtn.addEventListener('click', () => {
+        const name = window.prompt('New list name')
+        if (!name || !name.trim()) return
+        const label = name.trim()
+        let id = label.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        if (!id) id = 'list-' + Date.now()
+        if (lists.some((l) => l.id === id)) {
+          setMessage('A list with that name already exists', true)
+          return
+        }
+        lists.push({ id: String(id), label: String(label) })
+        renderList()
+        setMessage('Added list: ' + label)
+      })
 
       pasteAddBtn.addEventListener('click', () => {
         addItem(pasteUrl.value)
@@ -172,10 +210,15 @@
       saveBtn.addEventListener('click', async () => {
         setMessage('')
         try {
+          items.forEach(ensureListId)
+          const payload = {
+            lists: lists.map((l) => ({ id: String(l.id), label: String(l.label) })),
+            items: items.map((i) => ({ url: i.url, alt: i.alt || '', title: i.title || '', listId: String(i.listId || 'others') })),
+          }
           const res = await fetch(apiBase + '/api/gifs/data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items }),
+            body: JSON.stringify(payload),
           })
           const data = await res.json().catch(() => ({}))
           if (!res.ok) {
@@ -194,18 +237,35 @@
         try {
           const res = await fetch(apiBase + '/api/gifs/data')
           const data = await res.json().catch(() => ({}))
-          items = Array.isArray(data.items) ? data.items : []
-          if (items.length === 0) {
+          const serverLists = Array.isArray(data.lists) && data.lists.length > 0 ? data.lists : DEFAULT_LISTS.slice()
+          const serverItems = Array.isArray(data.items) ? data.items : []
+          if (serverItems.length === 0) {
             const [listRes, favRes] = await Promise.all([fetch(apiBase + '/api/gifs/list'), fetch(apiBase + '/api/gifs/favorites')])
             const list = await listRes.json().catch(() => [])
             const favData = await favRes.json().catch(() => ({}))
             const favUrls = new Set((favData.favorites || []).slice(0, MAX_FAVORITES))
-            items = list.map((g) => ({ url: g.url, alt: g.alt || '', title: g.title || '', favorite: favUrls.has(g.url) }))
+            items = list.map((g) => ({ url: g.url, alt: g.alt || '', title: g.title || '', listId: favUrls.has(g.url) ? 'favs' : 'others' }))
+          } else {
+            items = serverItems
+          }
+          items.forEach(ensureListId)
+          if (serverLists.length >= lists.length) {
+            lists = serverLists
+          } else if (lists.length <= DEFAULT_LISTS.length) {
+            lists = serverLists
+          }
+          if (!lists.some((l) => l && l.id === 'favs')) {
+            lists = [DEFAULT_LISTS[0], ...lists.filter((l) => l && l.id !== 'favs')]
+          }
+          if (!lists.some((l) => l && l.id === 'others')) {
+            lists = [...lists.filter((l) => l && l.id !== 'others'), DEFAULT_LISTS[1]]
           }
           renderList()
+          if (addListBtn) addListBtn.disabled = false
           setMessage('')
         } catch (err) {
           setMessage('Load failed: ' + err.message, true)
+          if (addListBtn) addListBtn.disabled = false
         }
       })()
     </script>

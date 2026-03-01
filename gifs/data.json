@@ -1,76 +1,102 @@
 {
+  "lists": [
+    {
+      "id": "favs",
+      "label": "favorites"
+    },
+    {
+      "id": "others",
+      "label": "these are good too"
+    },
+    {
+      "id": "dad-life",
+      "label": "dad life"
+    }
+  ],
   "items": [
     {
       "url": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjV2bjh4bDIybml4cmJ5MTV4dzl5M2J0eWt3NWpqbTc4Yng0ODQ4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/kUgUnmqig0X3q/giphy.gif",
       "alt": "les grossman",
       "title": "if you dont like les grossman, then fuck you",
-      "favorite": true
+      "listId": "favs"
     },
     {
       "url": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHdpb2l2bjNlcDZ6cTBsMXZzcHZ5cHFlM2tleHN5eTU5MHU2ZHFuaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7buiQeyYFamzRoR2/giphy.gif",
       "alt": "",
       "title": "my go to dance",
-      "favorite": true
+      "listId": "others"
     },
     {
       "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzV3cjF5Y2pibmpiaGl0ejNtZTJzdG1waTJiaHk4YWdkbzJpZWNpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qOhzfrkMzQO8U/giphy.gif",
       "alt": "the future is bright",
       "title": "the future is bright",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExamZsdWRxbDJlbXFmYTBpeDI5MmliNmMwbGhvYTRrcXRzN3c2dm4wZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E87jjnSCANThe/giphy.gif",
       "alt": "gathering requirements",
       "title": "fucking tell me already, have shit todo",
-      "favorite": true
+      "listId": "favs"
     },
     {
       "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmw2Z2c0YWN0MHJ4OGVnb2Y5NnV0bHJ0Y2wyY25oZnJtbnQzMDVpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dIV7HapCtAzHE6N3j1/giphy.gif",
       "alt": "patriotic",
       "title": "you wish you were this badass",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXNsajA5bHNrZXIxdDl0aGtwbWVlYWdjeHk2OW91bGZkbHRzdW91YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MM0Jrc8BHKx3y/giphy.gif",
       "alt": "legend",
       "title": "",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWFpenZpNXozZmlzc3ZweHBsaDVkajAzNHdxOHRwYjVhaWJweTBibSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jUwpNzg9IcyrK/giphy.gif",
       "alt": "my bad",
       "title": "my bad...",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXdhbWk3MzI4ZTNrcTRld2JyM3p3amhnMjlvZWR6NTI5MWRlcW1oYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wi8Ez1mwRcKGI/giphy.gif",
       "alt": "do it",
       "title": "hurry up and do it",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTgzNzV3d2ZveWNqYmo2Nnl4YThjZ2ptbmxrcnNtazhjYjl0MWl6OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oxahPI4vpzbSE/giphy.gif",
       "alt": "for sure",
       "title": "yup no worries",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDE2M21ic3F2ZzBhdTAwb25mbWJiMm9uODV1MXNyOGY1emd5b2RzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VGJPsBvlsHDyw/giphy.gif",
       "alt": "heck ya",
       "title": "heck ya",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWlwbWI2NHhoeXZwaWFnZ243eG41ajZtZnF3bWcyNmRxaWxsemVzeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ph0izSl5UidtS/giphy.gif",
       "alt": "cousin randy",
       "title": "cousin eddie",
-      "favorite": false
+      "listId": "others"
     },
     {
       "url": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExM211bHVpcTl0cGJmeHprdDV2YTM4Y2FyZGFhbzVjcGRqbzQ0ZHA5MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0MHgWp8xxjdd0TW0n6/giphy.gif",
       "alt": "nice work",
       "title": "nice work",
-      "favorite": false
+      "listId": "others"
+    },
+    {
+      "url": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbG80YWF5Y3FjaHFwcGF3cWwzYW1lb3FmOTBqYmVod3pzMnlsbXljMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l44MFygXghq3xvvI7o/giphy.gif",
+      "alt": "",
+      "title": "there is not enough therapy in the world",
+      "listId": "dad-life"
+    },
+    {
+      "url": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHV0MjA2djN6b3Z4Mjh1MWd5ZzM4anNxd2Z6ZHBoZXhsNDVjZzA1ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l378rrt5tAawaCQ9i/giphy.gif",
+      "alt": "",
+      "title": "gotta be kidding me",
+      "listId": "dad-life"
     }
   ]
 }
