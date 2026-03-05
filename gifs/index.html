@@ -76,7 +76,7 @@
       }
 
       function normalizeItem(item) {
-        const listId = (item && item.listId) || (item && item.favorite ? 'favs' : 'others')
+        const listId = (item && item.listId) || 'others'
         return {
           url: (item && item.url) || '',
           alt: (item && item.alt) || '',
