@@ -4,11 +4,12 @@ Static personal site deployed to Vercel.
 
 - **Home** - `index.html`
 - **Notes** - Markdown-authored notes rendered to `notes/*.html`
+- **Feed** - JSON-authored logbook rendered by `feed/index.html`
 - **GIFs** - reaction library rendered from `gifs/data.json`
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON (`gifs/data.json`).
+- Production is static HTML/CSS plus JSON (`gifs/data.json`, `feed/data.json`).
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes) and `/editor/gifs.html` (GIFs)
@@ -63,6 +64,20 @@ Editor behavior (`editor/gifs.html`):
 - New lists can be added by name (ID is slugified in-browser).
 - `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
 - Save writes `gifs/data.json` via `POST /api/gifs/data`.
+
+## Feed workflow (MVP)
+
+`feed/data.json` is the source of truth for feed items.
+
+- Data shape (MVP): `items[]` with fields like:
+  - `id`, `date`, `title` (optional)
+  - `body_md`
+  - `source_url` (optional, but recommended for external content)
+  - `tags[]`
+  - `related_links[]` (`{ label, url }`)
+  - optional `embed` object (currently supports YouTube URL input)
+- `feed/index.html` reads `feed/data.json` at runtime and renders the feed.
+- If a YouTube URL is present (`source_url` or `embed.url`), the page embeds it and still shows the visible source link.
 
 ## Local API reference
 

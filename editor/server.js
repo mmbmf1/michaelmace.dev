@@ -91,7 +91,7 @@ function noteShell(title, date, bodyHtml) {
   </head>
 
   <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../feed/index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a></p>
 
     <h1>${escapedTitle} <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>${date.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</em></p>
@@ -179,7 +179,7 @@ function regenerateIndex() {
   </head>
 
   <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../feed/index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a></p>
 
     <div class="notes-header">
     <h1>Notes</h1>

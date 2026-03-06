@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Feed — Michael Mace</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+
+  <body>
+    <p class="nav-links">
+      <a href="../index.html">Home</a> · <a href="../notes/index.html">Notes</a> ·
+      <a href="index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a> ·
+      <a href="https://github.com/mmbmf1" target="_blank" rel="noopener noreferrer"
+        >GitHub</a
+      >
+    </p>
+
+    <h1 class="no-margin-bottom">feed</h1>
+    <p class="subtle">logbook mode. links, fragments, artifacts.</p>
+
+    <section id="feed-list" class="feed-list" aria-live="polite"></section>
+
+    <script>
+      function escapeHtml(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+      }
+
+      function formatDate(isoDate) {
+        if (!isoDate) return ''
+        const d = new Date(isoDate + 'T00:00:00')
+        if (Number.isNaN(d.getTime())) return escapeHtml(isoDate)
+        return d.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        })
+      }
+
+      function isExternal(url) {
+        return /^https?:\/\//i.test(url || '')
+      }
+
+      function renderMarkdown(md) {
+        const escaped = escapeHtml(md || '')
+        const linked = escaped.replace(
+          /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
+          function (_, label, url) {
+            const attrs = isExternal(url)
+              ? ' target="_blank" rel="noopener noreferrer"'
+              : ''
+            return '<a href="' + url + '"' + attrs + '>' + label + '</a>'
+          }
+        )
+        const withCode = linked.replace(/`([^`]+)`/g, '<code>$1</code>')
+        const withStrong = withCode.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        const withEm = withStrong.replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        return withEm
+          .split(/\n{2,}/)
+          .map(function (p) {
+            return '<p>' + p.replace(/\n/g, '<br />') + '</p>'
+          })
+          .join('\n')
+      }
+
+      function youtubeIdFromUrl(rawUrl) {
+        if (!rawUrl) return ''
+        try {
+          const u = new URL(rawUrl)
+          const host = u.hostname.replace(/^www\./, '')
+          if (host === 'youtu.be') {
+            return u.pathname.replace(/^\/+/, '').split('/')[0] || ''
+          }
+          if (host === 'youtube.com' || host === 'm.youtube.com') {
+            if (u.pathname === '/watch') return u.searchParams.get('v') || ''
+            const parts = u.pathname.split('/').filter(Boolean)
+            if (parts[0] === 'shorts' || parts[0] === 'embed') return parts[1] || ''
+          }
+        } catch (_) {}
+        return ''
+      }
+
+      function youtubeSourceForItem(item) {
+        const embedUrl =
+          item &&
+          item.embed &&
+          item.embed.type === 'youtube' &&
+          typeof item.embed.url === 'string'
+            ? item.embed.url
+            : ''
+        const sourceUrl = item && typeof item.source_url === 'string' ? item.source_url : ''
+        return youtubeIdFromUrl(embedUrl) ? embedUrl : youtubeIdFromUrl(sourceUrl) ? sourceUrl : ''
+      }
+
+      function itemHtml(item) {
+        const title = item && item.title ? '<h2 class="feed-title">' + escapeHtml(item.title) + '</h2>' : ''
+        const dateLabel = formatDate(item && item.date)
+        const tags = Array.isArray(item && item.tags)
+          ? item.tags
+              .filter(function (t) {
+                return typeof t === 'string' && t.trim()
+              })
+              .map(function (t) {
+                return '<span class="feed-tag">' + escapeHtml(t.trim()) + '</span>'
+              })
+              .join('')
+          : ''
+        const meta = dateLabel || tags
+          ? '<p class="feed-meta"><time>' +
+            dateLabel +
+            '</time>' +
+            (tags ? '<span class="feed-tags">' + tags + '</span>' : '') +
+            '</p>'
+          : ''
+        const body = '<div class="feed-body">' + renderMarkdown(item && item.body_md) + '</div>'
+
+        const youtubeUrl = youtubeSourceForItem(item)
+        const youtubeId = youtubeIdFromUrl(youtubeUrl)
+        const embed = youtubeId
+          ? '<div class="feed-embed"><iframe src="https://www.youtube-nocookie.com/embed/' +
+            encodeURIComponent(youtubeId) +
+            '" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>'
+          : ''
+
+        const related = Array.isArray(item && item.related_links) && item.related_links.length
+          ? '<p class="feed-related">related: ' +
+            item.related_links
+              .filter(function (r) {
+                return r && typeof r.url === 'string' && r.url.trim()
+              })
+              .map(function (r) {
+                const label =
+                  typeof r.label === 'string' && r.label.trim() ? r.label.trim() : r.url
+                const attrs = isExternal(r.url) ? ' target="_blank" rel="noopener noreferrer"' : ''
+                return '<a href="' + escapeHtml(r.url) + '"' + attrs + '>' + escapeHtml(label) + '</a>'
+              })
+              .join(' · ') +
+            '</p>'
+          : ''
+
+        const source =
+          item && item.source_url
+            ? '<p class="feed-source">source: <a href="' +
+              escapeHtml(item.source_url) +
+              '" target="_blank" rel="noopener noreferrer">' +
+              escapeHtml(item.source_url) +
+              '</a></p>'
+            : ''
+
+        return (
+          '<article class="feed-item">' +
+          meta +
+          title +
+          body +
+          embed +
+          related +
+          source +
+          '</article>'
+        )
+      }
+
+      async function loadFeed() {
+        const list = document.getElementById('feed-list')
+        if (!list) return
+        try {
+          const res = await fetch('./data.json')
+          if (!res.ok) throw new Error('feed data request failed')
+          const data = await res.json()
+          const items = Array.isArray(data.items) ? data.items.slice() : []
+          items.sort(function (a, b) {
+            const da = (a && a.date) || ''
+            const db = (b && b.date) || ''
+            return db.localeCompare(da)
+          })
+          if (items.length === 0) {
+            list.innerHTML = '<p class="subtle">nothing here yet.</p>'
+            return
+          }
+          list.innerHTML = items.map(itemHtml).join('\n')
+        } catch (err) {
+          list.innerHTML =
+            '<p class="subtle">feed is unavailable right now. check feed/data.json.</p>'
+        }
+      }
+
+      loadFeed()
+    </script>
+  </body>
+</html>

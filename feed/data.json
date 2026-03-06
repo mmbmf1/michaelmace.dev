@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "2026-03-06-feed-stub",
+      "date": "2026-03-06",
+      "title": "feed starts here",
+      "body_md": "small entries. links. scraps. build notes.\n\nthis is the first pass at a logbook layer.",
+      "tags": ["build", "logbook"],
+      "related_links": [
+        {
+          "label": "markdown demo note",
+          "url": "/notes/hello-world.html"
+        }
+      ]
+    },
+    {
+      "id": "2026-03-05-video",
+      "date": "2026-03-05",
+      "title": "watched",
+      "body_md": "good reminder that pacing matters more than intensity.",
+      "source_url": "https://www.youtube.com/watch?v=R2L8f2n2nA8",
+      "tags": ["watching"]
+    },
+    {
+      "id": "2026-03-03-link-note",
+      "date": "2026-03-03",
+      "body_md": "read this and kept thinking about where deterministic systems should stop and language layers should start.",
+      "source_url": "https://martinfowler.com/articles/2025-ai-engineering-practices.html",
+      "tags": ["reading", "systems"],
+      "related_links": [
+        {
+          "label": "on layering intelligence",
+          "url": "/notes/on-layering-intel.html"
+        }
+      ]
+    }
+  ]
+}
