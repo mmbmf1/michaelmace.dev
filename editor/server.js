@@ -118,34 +118,6 @@ function extractTitleAndDate(htmlPath) {
   return { title, date }
 }
 
-function extractBodyFromNoteHtml(html) {
-  const dateClose = html.indexOf('</em></p>')
-  if (dateClose === -1) return ''
-  const start = dateClose + '</em></p>'.length
-  const bodyEnd = html.indexOf('</body>', start)
-  if (bodyEnd === -1) return ''
-  const raw = html.slice(start, bodyEnd).trim()
-  const withNewlines = raw
-    .replace(/<\/p>\s*/gi, '\n\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<hr\s*\/?>/gi, '\n---\n')
-  const plain = withNewlines
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/ +/g, ' ')
-    .replace(/\n +/g, '\n')
-    .replace(/ +\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-  return plain
-}
-
-function loadNoteFromHtml(htmlPath) {
-  const html = fs.readFileSync(htmlPath, 'utf-8')
-  const { title, date } = extractTitleAndDate(htmlPath)
-  const body = extractBodyFromNoteHtml(html)
-  return { title, date, body }
-}
-
 function dateToSortKey(dateStr) {
   const months = {
     january: '01',
@@ -261,23 +233,10 @@ app.get('/api/note/:slug', (req, res) => {
     return res.status(400).json({ error: 'invalid slug' })
   }
   const mdPath = path.join(NOTES_DIR, `${slug}.md`)
-  const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
   let title, date, body
   if (fs.existsSync(mdPath)) {
     const content = fs.readFileSync(mdPath, 'utf-8')
     ;({ title, date, body } = parseNoteMd(content))
-  } else if (fs.existsSync(htmlPath)) {
-    ;({ title, date, body } = loadNoteFromHtml(htmlPath))
-    const safeTitle = String(title).replace(/\r?\n/g, ' ').trim()
-    const safeDate = String(date).replace(/\r?\n/g, ' ').trim()
-    const mdContent = `---
-title: ${safeTitle}
-date: ${safeDate}
----
-
-${body}
-`
-    fs.writeFileSync(mdPath, mdContent, 'utf-8')
   } else {
     return res.status(404).json({ error: 'note not found' })
   }
