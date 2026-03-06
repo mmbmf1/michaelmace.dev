@@ -1,19 +1,91 @@
 # michaelmace.dev
 
-Static personal site. Deploys to Vercel.
+Static personal site deployed to Vercel.
 
-- **Home** — index
-- **Notes** — short essays and updates (markdown → HTML)
-- **Reaction Library** — gifs
+- **Home** - `index.html`
+- **Notes** - Markdown-authored notes rendered to `notes/*.html`
+- **GIFs** - reaction library rendered from `gifs/data.json`
 
-## Notes and the local editor
+## Architecture at a glance
 
-Notes live in `notes/` as Markdown (`.md`) and generated HTML (`.html`). They are edited with a **local-only** web editor that is not deployed.
+- Production is static HTML/CSS plus JSON (`gifs/data.json`).
+- `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
+- The editor serves:
+  - HTML UIs at `/editor/index.html` (notes) and `/editor/gifs.html` (GIFs)
+  - JSON APIs under `/api/*`
+  - Static repo files from the repository root
 
-To run the editor:
+## Local setup
 
 ```bash
-cd editor && npm install && npm start
+cd editor
+npm install
+npm start
 ```
 
-Open `http://localhost:3002/`, go to Notes, and use “New note” or the edit pencil on a note. Saving writes the `.md` and regenerates the `.html`. The editor is listed in `.vercelignore` so it never ships.
+Then open:
+
+- Site: `http://localhost:3002/`
+- Notes editor: `http://localhost:3002/editor/index.html`
+- GIF editor: `http://localhost:3002/editor/gifs.html`
+
+## Notes workflow
+
+Source files live in `notes/`:
+
+- Canonical authored file: `notes/<slug>.md` (frontmatter: `title`, `date`)
+- Generated file: `notes/<slug>.html`
+- Generated listing: `notes/index.html` (regenerated on save/delete)
+
+Behavior:
+
+- Saving a note (`POST /api/save`) writes both `.md` and `.html`.
+- Deleting a note (`DELETE /api/note/:slug`) removes `.md` and `.html`, then regenerates `notes/index.html`.
+- If a note only has HTML, loading it (`GET /api/note/:slug`) backfills a matching `.md` file.
+
+## GIF workflow (current system)
+
+`gifs/data.json` is the single source of truth for GIF lists and items.
+
+- `gifs/favorites.json` is no longer used.
+- Data shape:
+  - `lists[]`: `{ id, label }`
+  - `items[]`: `{ url, alt, title, listId }`
+
+Load order in `gifs/index.html`:
+
+1. When running locally, try editor API (`http://localhost:3002/api/gifs/data`).
+2. Fallback to static `gifs/data.json`.
+
+Editor behavior (`editor/gifs.html`):
+
+- Reordering controls (`up`/`down`) set display order.
+- New lists can be added by name (ID is slugified in-browser).
+- `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
+- Save writes `gifs/data.json` via `POST /api/gifs/data`.
+
+## Local API reference
+
+These endpoints are provided by `editor/server.js`:
+
+- `GET /api/note/:slug`
+  - Returns `{ title, slug, date, body }`
+  - Slug must match `^[a-z0-9-]+$`
+- `POST /api/save`
+  - Body: `{ title, slug?, date?, body }`
+  - Writes `notes/<slug>.md`, `notes/<slug>.html`, and regenerates `notes/index.html`
+- `DELETE /api/note/:slug`
+  - Deletes note files and regenerates `notes/index.html`
+- `GET /api/gifs/data`
+  - Returns `{ lists, items }` (defaults if file missing/invalid)
+- `POST /api/gifs/data`
+  - Body: `{ lists?, items }`
+  - Persists `gifs/data.json`
+
+## Troubleshooting and pitfalls
+
+- **"Request failed ... port 3002" in editor UI**: start `editor/server.js` (`npm start` in `editor/`).
+- **No local edit pencil on notes/GIF pages**: edit links only show on `localhost` / `127.0.0.1`.
+- **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`.
+- **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
+- **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
