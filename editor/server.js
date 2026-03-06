@@ -8,15 +8,12 @@ const app = express()
 const EDITOR_DIR = __dirname
 const NOTES_DIR = path.join(EDITOR_DIR, '..', 'notes')
 const GIFS_DIR = path.join(EDITOR_DIR, '..', 'gifs')
-const GIFS_FAVORITES_PATH = path.join(GIFS_DIR, 'favorites.json')
 const GIFS_DATA_PATH = path.join(GIFS_DIR, 'data.json')
-const GIFS_INDEX_PATH = path.join(GIFS_DIR, 'index.html')
-const MAX_FAVORITES = 10
 const PORT = process.env.PORT || 3002
 
 app.use(express.json({ limit: '1mb' }))
 
-// Allow gifs page (e.g. from bun dev on another port) to fetch /api/gifs/favorites
+// Allow gifs page (e.g. from bun dev on another port) to fetch editor APIs
 app.use((req, res, next) => {
   const origin = req.headers.origin
   if (origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
@@ -346,73 +343,6 @@ ${body}
   res.json({ ok: true, slug })
 })
 
-app.get('/api/gifs/favorites', (req, res) => {
-  let favorites = []
-  try {
-    if (fs.existsSync(GIFS_DATA_PATH)) {
-      const raw = fs.readFileSync(GIFS_DATA_PATH, 'utf-8')
-      const data = JSON.parse(raw)
-      const items = Array.isArray(data.items) ? data.items : []
-      favorites = items.filter((i) => i.favorite).map((i) => i.url).slice(0, MAX_FAVORITES)
-    } else if (fs.existsSync(GIFS_FAVORITES_PATH)) {
-      const raw = fs.readFileSync(GIFS_FAVORITES_PATH, 'utf-8')
-      const data = JSON.parse(raw)
-      const arr = Array.isArray(data) ? data : data.favorites
-      favorites = (Array.isArray(arr) ? arr : []).slice(0, MAX_FAVORITES).filter((u) => typeof u === 'string')
-    }
-  } catch (_) {}
-  res.json({ favorites })
-})
-
-app.post('/api/gifs/favorites', (req, res) => {
-  let arr = req.body && req.body.favorites
-  if (!Array.isArray(arr)) {
-    return res.status(400).json({ error: 'favorites array required' })
-  }
-  const favorites = arr.filter((u) => typeof u === 'string').slice(0, MAX_FAVORITES)
-  try {
-    if (!fs.existsSync(GIFS_DIR)) {
-      fs.mkdirSync(GIFS_DIR, { recursive: true })
-    }
-    fs.writeFileSync(GIFS_FAVORITES_PATH, JSON.stringify(favorites, null, 2), 'utf-8')
-  } catch (err) {
-    return res.status(500).json({ error: 'failed to write favorites' })
-  }
-  res.json({ ok: true })
-})
-
-function parseGifsFromIndexHtml() {
-  let list = []
-  try {
-    if (fs.existsSync(GIFS_INDEX_PATH)) {
-      const html = fs.readFileSync(GIFS_INDEX_PATH, 'utf-8')
-      const imgRe = /<img[^>]*class="gif"[^>]*>/gi
-      let m
-      while ((m = imgRe.exec(html)) !== null) {
-        const tag = m[0]
-        const url = (tag.match(/data-gif="([^"]*)"/i) || [])[1]
-        const alt = (tag.match(/alt="([^"]*)"/i) || [])[1] || ''
-        const title = (tag.match(/data-title="([^"]*)"/i) || [])[1] || ''
-        if (url) list.push({ url, alt, title })
-      }
-    }
-  } catch (_) {}
-  return list
-}
-
-function getFavoriteUrls() {
-  let favorites = []
-  try {
-    if (fs.existsSync(GIFS_FAVORITES_PATH)) {
-      const raw = fs.readFileSync(GIFS_FAVORITES_PATH, 'utf-8')
-      const data = JSON.parse(raw)
-      const arr = Array.isArray(data) ? data : data.favorites
-      favorites = (Array.isArray(arr) ? arr : []).filter((u) => typeof u === 'string')
-    }
-  } catch (_) {}
-  return favorites
-}
-
 const DEFAULT_LISTS = [
   { id: 'favs', label: 'favorites' },
   { id: 'others', label: 'these are good too' },
@@ -422,7 +352,7 @@ function normalizeItemToListId(item) {
   if (item && typeof item.listId === 'string' && item.listId.trim()) {
     return item.listId.trim()
   }
-  return item && item.favorite ? 'favs' : 'others'
+  return 'others'
 }
 
 function normalizeItems(items) {
@@ -445,15 +375,6 @@ app.get('/api/gifs/data', (req, res) => {
         lists = data.lists.filter((l) => l && l.id && l.label)
       }
       items = normalizeItems(Array.isArray(data.items) ? data.items : [])
-    } else {
-      const parsed = parseGifsFromIndexHtml()
-      const favoriteUrls = getFavoriteUrls()
-      items = parsed.map((g) => ({
-        url: g.url,
-        alt: g.alt || '',
-        title: g.title || '',
-        listId: favoriteUrls.includes(g.url) ? 'favs' : 'others',
-      }))
     }
   } catch (_) {}
   res.json({ lists, items })
@@ -490,10 +411,6 @@ app.post('/api/gifs/data', (req, res) => {
     return res.status(500).json({ error: 'failed to write data', detail: err.message })
   }
   res.json({ ok: true })
-})
-
-app.get('/api/gifs/list', (req, res) => {
-  res.json(parseGifsFromIndexHtml())
 })
 
 app.use(express.static(REPO_ROOT))

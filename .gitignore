@@ -2,6 +2,5 @@
 node_modules
 editor/node_modules
 .cursor
-# gifs/data.json and gifs/favorites.json are committed for the public GIFs page
+# gifs/data.json is committed for the public GIFs page
 !gifs/data.json
-!gifs/favorites.json
