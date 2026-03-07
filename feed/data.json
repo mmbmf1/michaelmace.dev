@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "2026-03-06-build-note",
+      "date": "2026-03-06",
+      "title": "build note",
+      "body_md": "set up the first pass of a feed page. static data, no auth, no db.",
+      "tags": ["build", "site"]
+    },
+    {
+      "id": "2026-03-05-youtube",
+      "date": "2026-03-05",
+      "title": "watched",
+      "body_md": "good walkthrough on local-first tooling. wrote down two ideas to test later.",
+      "source_url": "https://www.youtube.com/watch?v=oHg5SJYRHA0",
+      "tags": ["watching", "tools"]
+    },
+    {
+      "id": "2026-03-04-read",
+      "date": "2026-03-04",
+      "title": "read",
+      "body_md": "reread this and left myself a short note in the margin.",
+      "source_url": "https://www.robinsloan.com/notes/home-cooked-app/",
+      "related_links": [
+        {
+          "label": "note: on layering intelligence",
+          "url": "/notes/on-layering-intel.html"
+        }
+      ],
+      "tags": ["reading", "notes"]
+    },
+    {
+      "id": "2026-03-03-small-artifact",
+      "date": "2026-03-03",
+      "body_md": "tiny artifact: [reaction vocabulary](/gifs/index.html) keeps getting more useful than expected.",
+      "tags": ["artifact", "gifs"]
+    }
+  ]
+}
