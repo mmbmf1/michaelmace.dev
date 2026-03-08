@@ -185,10 +185,7 @@
         setMessage('')
       }
 
-      if (!addListBtn) {
-        setMessage('Add list button not found', true)
-      }
-      addListBtn && addListBtn.addEventListener('click', () => {
+      addListBtn.addEventListener('click', () => {
         const name = window.prompt('New list name')
         if (!name || !name.trim()) return
         const label = name.trim()
@@ -253,11 +250,11 @@
             lists = [...lists.filter((l) => l && l.id !== 'others'), DEFAULT_LISTS[1]]
           }
           renderList()
-          if (addListBtn) addListBtn.disabled = false
+          addListBtn.disabled = false
           setMessage('')
         } catch (err) {
           setMessage('Load failed: ' + err.message, true)
-          if (addListBtn) addListBtn.disabled = false
+          addListBtn.disabled = false
         }
       })()
     </script>

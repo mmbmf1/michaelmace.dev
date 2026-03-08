@@ -10,8 +10,10 @@
 
   <body>
     <p class="nav-links">
-      <a href="../index.html">Home</a> · <a href="../notes/index.html">Notes</a> ·
-      <a href="index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a> ·
+      <a href="../index.html">Home</a> ·
+      <a href="../notes/index.html">Notes</a> ·
+      <a href="index.html">Feed</a> ·
+      <a href="../gifs/index.html">GIFs</a> ·
       <a href="https://github.com/mmbmf1" target="_blank" rel="noopener noreferrer"
         >GitHub</a
       >
@@ -23,63 +25,94 @@
     <section id="feed-list" class="feed-list" aria-live="polite"></section>
 
     <script>
-      function escapeHtml(s) {
-        return String(s || '')
+      function escapeHtml(text) {
+        return String(text == null ? '' : text)
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
       }
 
-      function formatDate(isoDate) {
-        if (!isoDate) return ''
-        const d = new Date(isoDate + 'T00:00:00')
-        if (Number.isNaN(d.getTime())) return escapeHtml(isoDate)
-        return d.toLocaleDateString(undefined, {
+      function isSafeHref(href) {
+        if (typeof href !== 'string') return false
+        return /^(https?:\/\/|\/|\.{1,2}\/)/i.test(href.trim())
+      }
+
+      function isExternal(href) {
+        return /^https?:\/\//i.test(href || '')
+      }
+
+      function formatDate(value) {
+        if (typeof value !== 'string' || !value.trim()) return ''
+        const date = new Date(value + 'T00:00:00')
+        if (Number.isNaN(date.getTime())) return escapeHtml(value)
+        return new Intl.DateTimeFormat(undefined, {
           year: 'numeric',
           month: 'short',
           day: 'numeric',
-        })
+        }).format(date)
       }
 
-      function isExternal(url) {
-        return /^https?:\/\//i.test(url || '')
+      function addInlineStyles(text) {
+        return text
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*([^*]+)\*/g, '<em>$1</em>')
       }
 
-      function renderMarkdown(md) {
-        const escaped = escapeHtml(md || '')
-        const linked = escaped.replace(
-          /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
-          function (_, label, url) {
-            const attrs = isExternal(url)
-              ? ' target="_blank" rel="noopener noreferrer"'
-              : ''
-            return '<a href="' + url + '"' + attrs + '>' + label + '</a>'
+      function renderInlineMd(text) {
+        const raw = String(text == null ? '' : text)
+        const linkRegex = /\[([^\]]+)\]\(([^)\s]+)\)/g
+        let html = ''
+        let last = 0
+        let match
+
+        while ((match = linkRegex.exec(raw))) {
+          html += addInlineStyles(escapeHtml(raw.slice(last, match.index)))
+          const label = addInlineStyles(escapeHtml(match[1]))
+          const href = match[2].trim()
+          if (isSafeHref(href)) {
+            html += `<a href="${escapeHtml(href)}"${
+              isExternal(href) ? ' target="_blank" rel="noopener noreferrer"' : ''
+            }>${label}</a>`
+          } else {
+            html += addInlineStyles(escapeHtml(match[0]))
           }
-        )
-        const withCode = linked.replace(/`([^`]+)`/g, '<code>$1</code>')
-        const withStrong = withCode.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        const withEm = withStrong.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-        return withEm
-          .split(/\n{2,}/)
-          .map(function (p) {
-            return '<p>' + p.replace(/\n/g, '<br />') + '</p>'
+          last = match.index + match[0].length
+        }
+
+        html += addInlineStyles(escapeHtml(raw.slice(last)))
+        return html
+      }
+
+      function renderBodyMd(bodyMd) {
+        const content = String(bodyMd == null ? '' : bodyMd).trim()
+        if (!content) return ''
+        const blocks = content.split(/\n{2,}/)
+        return blocks
+          .map((block) => {
+            const lines = block.split('\n')
+            if (lines.every((line) => line.trim().startsWith('- '))) {
+              const items = lines
+                .map((line) => `<li>${renderInlineMd(line.trim().slice(2))}</li>`)
+                .join('')
+              return `<ul>${items}</ul>`
+            }
+            return `<p>${lines.map(renderInlineMd).join('<br />')}</p>`
           })
-          .join('\n')
+          .join('')
       }
 
-      function youtubeIdFromUrl(rawUrl) {
-        if (!rawUrl) return ''
+      function extractYouTubeId(urlValue) {
+        if (typeof urlValue !== 'string' || !urlValue.trim()) return ''
         try {
-          const u = new URL(rawUrl)
-          const host = u.hostname.replace(/^www\./, '')
-          if (host === 'youtu.be') {
-            return u.pathname.replace(/^\/+/, '').split('/')[0] || ''
-          }
+          const url = new URL(urlValue)
+          const host = url.hostname.replace(/^www\./, '')
+          if (host === 'youtu.be') return url.pathname.replace(/^\/+/, '').split('/')[0] || ''
           if (host === 'youtube.com' || host === 'm.youtube.com') {
-            if (u.pathname === '/watch') return u.searchParams.get('v') || ''
-            const parts = u.pathname.split('/').filter(Boolean)
-            if (parts[0] === 'shorts' || parts[0] === 'embed') return parts[1] || ''
+            if (url.pathname === '/watch') return (url.searchParams.get('v') || '').trim()
+            if (url.pathname.startsWith('/shorts/')) return url.pathname.split('/')[2] || ''
+            if (url.pathname.startsWith('/embed/')) return url.pathname.split('/')[2] || ''
           }
         } catch (_) {}
         return ''
@@ -87,108 +120,95 @@
 
       function youtubeSourceForItem(item) {
         const embedUrl =
-          item &&
-          item.embed &&
-          item.embed.type === 'youtube' &&
-          typeof item.embed.url === 'string'
-            ? item.embed.url
+          item && item.embed && item.embed.type === 'youtube' && typeof item.embed.url === 'string'
+            ? item.embed.url.trim()
             : ''
-        const sourceUrl = item && typeof item.source_url === 'string' ? item.source_url : ''
-        return youtubeIdFromUrl(embedUrl) ? embedUrl : youtubeIdFromUrl(sourceUrl) ? sourceUrl : ''
+        const sourceUrl =
+          item && typeof item.source_url === 'string' ? item.source_url.trim() : ''
+        return extractYouTubeId(embedUrl) ? embedUrl : extractYouTubeId(sourceUrl) ? sourceUrl : ''
       }
 
-      function itemHtml(item) {
-        const title = item && item.title ? '<h2 class="feed-title">' + escapeHtml(item.title) + '</h2>' : ''
-        const dateLabel = formatDate(item && item.date)
-        const tags = Array.isArray(item && item.tags)
-          ? item.tags
-              .filter(function (t) {
-                return typeof t === 'string' && t.trim()
-              })
-              .map(function (t) {
-                return '<span class="feed-tag">' + escapeHtml(t.trim()) + '</span>'
-              })
-              .join('')
-          : ''
-        const meta = dateLabel || tags
-          ? '<p class="feed-meta"><time>' +
-            dateLabel +
-            '</time>' +
-            (tags ? '<span class="feed-tags">' + tags + '</span>' : '') +
-            '</p>'
-          : ''
-        const body = '<div class="feed-body">' + renderMarkdown(item && item.body_md) + '</div>'
-
-        const youtubeUrl = youtubeSourceForItem(item)
-        const youtubeId = youtubeIdFromUrl(youtubeUrl)
-        const embed = youtubeId
-          ? '<div class="feed-embed"><iframe src="https://www.youtube-nocookie.com/embed/' +
-            encodeURIComponent(youtubeId) +
-            '" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>'
-          : ''
-
-        const related = Array.isArray(item && item.related_links) && item.related_links.length
-          ? '<p class="feed-related">related: ' +
-            item.related_links
-              .filter(function (r) {
-                return r && typeof r.url === 'string' && r.url.trim()
-              })
-              .map(function (r) {
-                const label =
-                  typeof r.label === 'string' && r.label.trim() ? r.label.trim() : r.url
-                const attrs = isExternal(r.url) ? ' target="_blank" rel="noopener noreferrer"' : ''
-                return '<a href="' + escapeHtml(r.url) + '"' + attrs + '>' + escapeHtml(label) + '</a>'
-              })
-              .join(' · ') +
-            '</p>'
-          : ''
-
-        const source =
-          item && item.source_url
-            ? '<p class="feed-source">source: <a href="' +
-              escapeHtml(item.source_url) +
-              '" target="_blank" rel="noopener noreferrer">' +
-              escapeHtml(item.source_url) +
-              '</a></p>'
-            : ''
-
-        return (
-          '<article class="feed-item">' +
-          meta +
-          title +
-          body +
-          embed +
-          related +
-          source +
-          '</article>'
-        )
+      function renderYouTubeEmbed(urlValue) {
+        const id = extractYouTubeId(urlValue)
+        if (!id) return ''
+        return `<div class="feed-embed"><iframe class="youtube-embed" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(
+          id
+        )}" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
       }
 
-      async function loadFeed() {
+      function renderRelatedLinks(links) {
+        if (!Array.isArray(links) || links.length === 0) return ''
+        const rendered = links
+          .filter((link) => link && typeof link.url === 'string' && isSafeHref(link.url))
+          .map((link) => {
+            const href = link.url.trim()
+            const label = String(link.label || href)
+            return `<a href="${escapeHtml(href)}"${
+              isExternal(href) ? ' target="_blank" rel="noopener noreferrer"' : ''
+            }>${escapeHtml(label)}</a>`
+          })
+          .join(' · ')
+        return rendered ? `<p class="feed-related">related: ${rendered}</p>` : ''
+      }
+
+      function renderTags(tags) {
+        if (!Array.isArray(tags)) return ''
+        const rendered = tags
+          .map((tag) => String(tag || '').trim())
+          .filter(Boolean)
+          .map((tag) => `<span class="feed-tag">${escapeHtml(tag)}</span>`)
+          .join('')
+        return rendered ? `<span class="feed-tags">${rendered}</span>` : ''
+      }
+
+      function renderSource(sourceUrl) {
+        if (!isSafeHref(sourceUrl || '')) return ''
+        return `<p class="feed-source">source: <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          sourceUrl
+        )}</a></p>`
+      }
+
+      function renderItem(item) {
+        const title =
+          item && item.title ? `<h2 class="feed-title">${escapeHtml(item.title)}</h2>` : ''
+        const date = formatDate(item && item.date ? item.date : '')
+        const tagLine = renderTags(item && item.tags)
+        const meta =
+          date || tagLine
+            ? `<p class="feed-meta"><time>${escapeHtml(date)}</time>${tagLine}</p>`
+            : ''
+
+        const sourceUrl =
+          item && typeof item.source_url === 'string' ? item.source_url.trim() : ''
+        const body = renderBodyMd(item && item.body_md ? item.body_md : '')
+        const embed = renderYouTubeEmbed(youtubeSourceForItem(item))
+
+        return `<article class="feed-item">${meta}${title}<div class="feed-body">${body}</div>${embed}${renderRelatedLinks(
+          item && item.related_links
+        )}${renderSource(sourceUrl)}</article>`
+      }
+
+      async function initFeed() {
         const list = document.getElementById('feed-list')
         if (!list) return
         try {
-          const res = await fetch('./data.json')
-          if (!res.ok) throw new Error('feed data request failed')
-          const data = await res.json()
-          const items = Array.isArray(data.items) ? data.items.slice() : []
-          items.sort(function (a, b) {
-            const da = (a && a.date) || ''
-            const db = (b && b.date) || ''
-            return db.localeCompare(da)
-          })
+          const response = await fetch('./data.json')
+          if (!response.ok) throw new Error('bad response')
+          const data = await response.json()
+          const items = (Array.isArray(data.items) ? data.items : []).slice()
+          items.sort((a, b) => String((b && b.date) || '').localeCompare(String((a && a.date) || '')))
           if (items.length === 0) {
             list.innerHTML = '<p class="subtle">nothing here yet.</p>'
             return
           }
-          list.innerHTML = items.map(itemHtml).join('\n')
-        } catch (err) {
+          list.innerHTML = items.map(renderItem).join('')
+        } catch (_) {
           list.innerHTML =
-            '<p class="subtle">feed is unavailable right now. check feed/data.json.</p>'
+            '<p class="subtle">feed data did not load. check feed/data.json.</p>'
         }
       }
 
-      loadFeed()
+      initFeed()
     </script>
   </body>
 </html>

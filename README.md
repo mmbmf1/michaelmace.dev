@@ -4,12 +4,13 @@ Static personal site deployed to Vercel.
 
 - **Home** - `index.html`
 - **Notes** - Markdown-authored notes rendered to `notes/*.html`
-- **Feed** - JSON-authored logbook rendered by `feed/index.html`
+- **Feed** - Static logbook rendered from `feed/data.json`
 - **GIFs** - reaction library rendered from `gifs/data.json`
 
 ## Architecture at a glance
 
 - Production is static HTML/CSS plus JSON (`gifs/data.json`, `feed/data.json`).
+- Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes) and `/editor/gifs.html` (GIFs)
