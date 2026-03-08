@@ -291,45 +291,6 @@ li input[type='checkbox'] {
   display: none;
 }
 
-.heart-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 2;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.heart-btn:hover {
-  background: rgba(0, 0, 0, 0.6);
-}
-.heart-btn.is-fav {
-  color: #e74c3c;
-}
-.heart-btn svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-}
-.heart-btn.is-fav svg {
-  fill: currentColor;
-}
-.heart-btn[aria-disabled='true'] {
-  cursor: default;
-  pointer-events: none;
-}
-
 .toast {
   position: fixed;
   left: 50%;
