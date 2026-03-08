@@ -195,7 +195,22 @@
           const response = await fetch('./data.json')
           if (!response.ok) throw new Error('bad response')
           const data = await response.json()
-          const items = (Array.isArray(data.items) ? data.items : []).slice()
+          const seen = new Set()
+          const items = (Array.isArray(data.items) ? data.items : []).filter((item) => {
+            const key =
+              (item && item.id) ||
+              [
+                item && item.date,
+                item && item.title,
+                item && item.source_url,
+                item && item.body_md,
+              ]
+                .map((v) => String(v || '').trim().toLowerCase())
+                .join('|')
+            if (seen.has(key)) return false
+            seen.add(key)
+            return true
+          })
           items.sort((a, b) => String((b && b.date) || '').localeCompare(String((a && a.date) || '')))
           if (items.length === 0) {
             list.innerHTML = '<p class="subtle">nothing here yet.</p>'
