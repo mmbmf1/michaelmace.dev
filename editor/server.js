@@ -9,6 +9,8 @@ const EDITOR_DIR = __dirname
 const NOTES_DIR = path.join(EDITOR_DIR, '..', 'notes')
 const GIFS_DIR = path.join(EDITOR_DIR, '..', 'gifs')
 const GIFS_DATA_PATH = path.join(GIFS_DIR, 'data.json')
+const FEED_DIR = path.join(EDITOR_DIR, '..', 'feed')
+const FEED_DATA_PATH = path.join(FEED_DIR, 'data.json')
 const PORT = process.env.PORT || 3002
 
 app.use(express.json({ limit: '1mb' }))
@@ -323,6 +325,67 @@ function normalizeItems(items) {
   }))
 }
 
+function normalizeFeedItem(item, index) {
+  const date =
+    item && typeof item.date === 'string' ? item.date.replace(/\r?\n/g, ' ').trim() : ''
+  const idInput =
+    item && typeof item.id === 'string' ? item.id.replace(/\r?\n/g, ' ').trim() : ''
+  const fallbackIdBase = date || 'feed-item'
+  const fallbackId = `${fallbackIdBase}-${index + 1}`
+  const id = idInput || fallbackId
+  const title =
+    item && typeof item.title === 'string'
+      ? item.title.replace(/\r?\n/g, ' ').trim()
+      : ''
+  const bodyMd =
+    item && typeof item.body_md === 'string' ? item.body_md.replace(/\r/g, '') : ''
+  const sourceUrl =
+    item && typeof item.source_url === 'string' ? item.source_url.trim() : ''
+  const embedType =
+    item &&
+    item.embed &&
+    typeof item.embed === 'object' &&
+    typeof item.embed.type === 'string'
+      ? item.embed.type.trim()
+      : ''
+  const embedUrl =
+    item &&
+    item.embed &&
+    typeof item.embed === 'object' &&
+    typeof item.embed.url === 'string'
+      ? item.embed.url.trim()
+      : ''
+  const tags = Array.isArray(item && item.tags)
+    ? item.tags.map((tag) => String(tag || '').trim()).filter(Boolean)
+    : []
+  const relatedLinks = Array.isArray(item && item.related_links)
+    ? item.related_links
+        .map((link) => {
+          const url =
+            link && typeof link.url === 'string' ? link.url.replace(/\r?\n/g, '').trim() : ''
+          if (!url) return null
+          const label =
+            link && typeof link.label === 'string'
+              ? link.label.replace(/\r?\n/g, ' ').trim()
+              : ''
+          return label ? { label, url } : { url }
+        })
+        .filter(Boolean)
+    : []
+
+  const normalized = {
+    id,
+    date,
+  }
+  if (title) normalized.title = title
+  if (bodyMd) normalized.body_md = bodyMd
+  if (sourceUrl) normalized.source_url = sourceUrl
+  if (embedType && embedUrl) normalized.embed = { type: embedType, url: embedUrl }
+  if (tags.length > 0) normalized.tags = tags
+  if (relatedLinks.length > 0) normalized.related_links = relatedLinks
+  return normalized
+}
+
 app.get('/api/gifs/data', (req, res) => {
   let lists = DEFAULT_LISTS.slice()
   let items = []
@@ -370,6 +433,48 @@ app.post('/api/gifs/data', (req, res) => {
     return res.status(500).json({ error: 'failed to write data', detail: err.message })
   }
   res.json({ ok: true })
+})
+
+app.get('/api/feed/data', (req, res) => {
+  let items = []
+  try {
+    if (fs.existsSync(FEED_DATA_PATH)) {
+      const raw = fs.readFileSync(FEED_DATA_PATH, 'utf-8')
+      const data = JSON.parse(raw)
+      if (Array.isArray(data.items)) {
+        items = data.items.map(normalizeFeedItem)
+      }
+    }
+  } catch (_) {}
+  res.json({ items })
+})
+
+app.post('/api/feed/data', (req, res) => {
+  const body = req.body
+  const rawItems = body && body.items
+  if (!Array.isArray(rawItems)) {
+    return res.status(400).json({ error: 'items array required' })
+  }
+  const items = rawItems
+    .map(normalizeFeedItem)
+    .filter(
+      (item) =>
+        item.title ||
+        item.body_md ||
+        item.source_url ||
+        (item.embed && item.embed.url) ||
+        (Array.isArray(item.tags) && item.tags.length > 0) ||
+        (Array.isArray(item.related_links) && item.related_links.length > 0)
+    )
+  try {
+    if (!fs.existsSync(FEED_DIR)) {
+      fs.mkdirSync(FEED_DIR, { recursive: true })
+    }
+    fs.writeFileSync(FEED_DATA_PATH, JSON.stringify({ items }, null, 2), 'utf-8')
+  } catch (err) {
+    return res.status(500).json({ error: 'failed to write data', detail: err.message })
+  }
+  res.json({ ok: true, count: items.length })
 })
 
 app.use(express.static(REPO_ROOT))
