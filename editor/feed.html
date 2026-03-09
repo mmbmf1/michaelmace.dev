@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Feed editor - Michael Mace</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <p class="nav-links">
+      <a href="../index.html">Home</a> ·
+      <a href="../notes/index.html">Notes</a> ·
+      <a href="../feed/index.html">Feed</a> ·
+      <a href="../gifs/index.html">GIFs</a> ·
+      <a href="index.html">Note editor</a> ·
+      <a href="gifs.html">GIF editor</a>
+      ·
+      <a
+        href="https://github.com/mmbmf1"
+        target="_blank"
+        rel="noopener noreferrer"
+        >GitHub</a
+      >
+    </p>
+
+    <h1 class="no-margin-bottom">feed editor</h1>
+    <p class="subtle" style="margin-top: 0.45rem">
+      local-only helper for <code>feed/data.json</code>. keep source urls when
+      you embed external content.
+    </p>
+
+    <p style="margin-bottom: 0.75rem">
+      <button type="button" id="load-btn">reload</button>
+      <button type="button" id="template-btn">+ starter item</button>
+      <button type="button" id="save-btn">save</button>
+      <a href="../feed/index.html" style="margin-left: 0.35rem">open feed</a>
+    </p>
+
+    <textarea
+      id="feed-json"
+      rows="28"
+      spellcheck="false"
+      style="width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; line-height: 1.45"
+    ></textarea>
+
+    <p id="message" aria-live="polite"></p>
+
+    <script>
+      const EDITOR_PORT = 3002
+      const isLocal =
+        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
+        location.hostname === ''
+      const apiBase =
+        isLocal && String(location.port) !== String(EDITOR_PORT)
+          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
+          : ''
+
+      const jsonEl = document.getElementById('feed-json')
+      const messageEl = document.getElementById('message')
+      const loadBtn = document.getElementById('load-btn')
+      const templateBtn = document.getElementById('template-btn')
+      const saveBtn = document.getElementById('save-btn')
+
+      function setMessage(text, isError) {
+        messageEl.textContent = text
+        messageEl.style.color = isError ? '#c00' : ''
+      }
+
+      function todayIso() {
+        return new Date().toISOString().slice(0, 10)
+      }
+
+      function parseEditorJson() {
+        try {
+          const parsed = JSON.parse(jsonEl.value)
+          if (!parsed || typeof parsed !== 'object') {
+            throw new Error('Top-level value must be an object.')
+          }
+          if (!Array.isArray(parsed.items)) {
+            throw new Error('Expected an items array.')
+          }
+          return { ok: true, data: parsed }
+        } catch (err) {
+          return { ok: false, error: err.message }
+        }
+      }
+
+      async function loadData() {
+        setMessage('Loading...')
+        try {
+          const res = await fetch(apiBase + '/api/feed/data')
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            const detail = data.detail ? ': ' + data.detail : ''
+            setMessage((data.error || 'Load failed') + detail, true)
+            return
+          }
+          jsonEl.value = JSON.stringify(
+            { items: Array.isArray(data.items) ? data.items : [] },
+            null,
+            2
+          )
+          setMessage('')
+        } catch (err) {
+          setMessage(
+            'Request failed: ' +
+              err.message +
+              '. Is the editor server running on port 3002?',
+            true
+          )
+        }
+      }
+
+      templateBtn.addEventListener('click', () => {
+        const current = parseEditorJson()
+        const data = current.ok ? current.data : { items: [] }
+        if (!Array.isArray(data.items)) data.items = []
+        const stamp = todayIso()
+        data.items.unshift({
+          id: `${stamp}-entry-${data.items.length + 1}`,
+          date: stamp,
+          body_md: '',
+          tags: [],
+        })
+        jsonEl.value = JSON.stringify(data, null, 2)
+        setMessage('Added starter item at the top.')
+      })
+
+      saveBtn.addEventListener('click', async () => {
+        const parsed = parseEditorJson()
+        if (!parsed.ok) {
+          setMessage('Invalid JSON: ' + parsed.error, true)
+          return
+        }
+        setMessage('Saving...')
+        try {
+          const res = await fetch(apiBase + '/api/feed/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsed.data),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            const detail = data.detail ? ': ' + data.detail : ''
+            setMessage((data.error || 'Save failed') + detail, true)
+            return
+          }
+          jsonEl.value = JSON.stringify(
+            { items: Array.isArray(parsed.data.items) ? parsed.data.items : [] },
+            null,
+            2
+          )
+          const count = typeof data.count === 'number' ? data.count : null
+          setMessage(count == null ? 'Saved.' : `Saved ${count} item(s).`)
+        } catch (err) {
+          setMessage('Request failed: ' + err.message, true)
+        }
+      })
+
+      loadBtn.addEventListener('click', loadData)
+      loadData()
+    </script>
+  </body>
+</html>

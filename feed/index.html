@@ -25,6 +25,11 @@
 
     <h1 class="no-margin-bottom">Feed</h1>
     <p class="subtle">a small logbook of links, notes, and artifacts.</p>
+    <p id="feed-edit-wrap" class="hidden">
+      <a href="/editor/feed.html" class="local-edit new-note-link"
+        >( + edit feed )</a
+      >
+    </p>
 
     <section id="feed-list" class="feed-list" aria-live="polite"></section>
 
@@ -204,6 +209,13 @@
       }
 
       initFeed()
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
+        const editWrap = document.getElementById('feed-edit-wrap')
+        if (editWrap) editWrap.classList.remove('hidden')
+      }
     </script>
   </body>
 </html>

@@ -13,7 +13,7 @@ Static personal site deployed to Vercel.
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
-  - HTML UIs at `/editor/index.html` (notes) and `/editor/gifs.html` (GIFs)
+  - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
   - JSON APIs under `/api/*`
   - Static repo files from the repository root
 
@@ -29,6 +29,7 @@ Then open:
 
 - Site: `http://localhost:3002/`
 - Notes editor: `http://localhost:3002/editor/index.html`
+- Feed editor: `http://localhost:3002/editor/feed.html`
 - GIF editor: `http://localhost:3002/editor/gifs.html`
 
 ## Notes workflow
@@ -66,6 +67,20 @@ Editor behavior (`editor/gifs.html`):
 - `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
 - Save writes `gifs/data.json` via `POST /api/gifs/data`.
 
+## Feed workflow
+
+`feed/data.json` is the single source of truth for feed entries.
+
+- Public feed page (`feed/index.html`) is static and read-only.
+- Local edits can be made in `editor/feed.html`.
+- Save writes `feed/data.json` via `POST /api/feed/data`.
+- Data shape centers on `items[]` and supports keys like:
+  - `id`, `date`, `title`, `body_md`
+  - `source_url`
+  - `embed` (for example `{ "type": "youtube", "url": "..." }`)
+  - `tags`
+  - `related_links`
+
 ## Local API reference
 
 These endpoints are provided by `editor/server.js`:
@@ -83,6 +98,11 @@ These endpoints are provided by `editor/server.js`:
 - `POST /api/gifs/data`
   - Body: `{ lists?, items }`
   - Persists `gifs/data.json`
+- `GET /api/feed/data`
+  - Returns `{ items }` from `feed/data.json` (or empty array if missing/invalid)
+- `POST /api/feed/data`
+  - Body: `{ items }`
+  - Normalizes supported feed item fields and persists `feed/data.json`
 
 ## Troubleshooting and pitfalls
 
