@@ -92,6 +92,13 @@ Editor behavior (`editor/gifs.html`):
   - `progress_pct` (number)
   - `updated_at` (`YYYY-MM-DD`)
 - `index.html` fetches this file and renders a small "10k progress" block.
+- Local helper script: `scripts/update-git-hours.js`
+  - Parse tracker output from stdin and write the snapshot:
+    - `git-hours-tracker | node scripts/update-git-hours.js`
+  - Parse from a saved file:
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt`
+  - Preview parsed JSON without writing:
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --stdout`
 
 ## Local API reference
 
