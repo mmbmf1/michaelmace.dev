@@ -70,6 +70,29 @@ h1 .local-edit {
   opacity: 0.8;
 }
 
+.hours-widget {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.35);
+}
+.hours-widget h2 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1rem;
+}
+.hours-summary {
+  margin: 0;
+}
+.hours-meta {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+.hours-source {
+  margin: 0.45rem 0 0 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
 pre {
   overflow-x: auto;
   padding: 1rem;

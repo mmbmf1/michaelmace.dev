@@ -6,11 +6,13 @@ Static personal site deployed to Vercel.
 - **Notes** - Markdown-authored notes rendered to `notes/*.html`
 - **Feed** - Static logbook rendered from `feed/data.json`
 - **GIFs** - reaction library rendered from `gifs/data.json`
+- **10k progress snapshot** - homepage widget reads `data/git-hours.json`
 
 ## Architecture at a glance
 
 - Production is static HTML/CSS plus JSON (`gifs/data.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
+- Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
@@ -80,6 +82,23 @@ Editor behavior (`editor/gifs.html`):
   - `embed` (for example `{ "type": "youtube", "url": "..." }`)
   - `tags`
   - `related_links`
+
+## Git-hours snapshot workflow
+
+`data/git-hours.json` is a manually updated static artifact used by the homepage widget.
+
+- Shape:
+  - `hours` (number)
+  - `progress_pct` (number)
+  - `updated_at` (`YYYY-MM-DD`)
+- `index.html` fetches this file and renders a small "10k progress" block.
+- Local helper script: `scripts/update-git-hours.js`
+  - Parse tracker output from stdin and write the snapshot:
+    - `git-hours-tracker | node scripts/update-git-hours.js`
+  - Parse from a saved file:
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt`
+  - Preview parsed JSON without writing:
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --stdout`
 
 ## Local API reference
 
