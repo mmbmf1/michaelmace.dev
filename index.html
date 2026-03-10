@@ -23,5 +23,81 @@
     <h1 class="no-margin-bottom">Michael Mace</h1>
     <p class="tagline">a lab for systems and experiments.</p>
     <p class="subtle">notes as i go. sometimes gifs.</p>
+
+    <section class="hours-widget" aria-labelledby="hours-widget-heading">
+      <h2 id="hours-widget-heading">10k progress</h2>
+      <div id="hours-widget-body">
+        <p class="subtle">loading hours snapshot...</p>
+      </div>
+    </section>
+
+    <script>
+      function formatHours(value) {
+        return new Intl.NumberFormat(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value)
+      }
+
+      function formatPercent(value) {
+        return new Intl.NumberFormat(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value)
+      }
+
+      function formatUpdatedAt(value) {
+        if (typeof value !== 'string' || !value.trim()) return ''
+        const parsed = new Date(value)
+        if (Number.isNaN(parsed.getTime())) return value
+        return new Intl.DateTimeFormat(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }).format(parsed)
+      }
+
+      async function initHoursWidget() {
+        const container = document.getElementById('hours-widget-body')
+        if (!container) return
+        try {
+          const response = await fetch('data/git-hours.json')
+          if (!response.ok) throw new Error('bad response')
+          const data = await response.json()
+          const hours =
+            typeof data.hours === 'number' && Number.isFinite(data.hours)
+              ? data.hours
+              : null
+          const progress =
+            typeof data.progress_pct === 'number' &&
+            Number.isFinite(data.progress_pct)
+              ? data.progress_pct
+              : null
+          const updatedAt = formatUpdatedAt(data.updated_at)
+
+          if (hours == null || progress == null) {
+            container.innerHTML =
+              '<p class="subtle">hours snapshot is incomplete.</p>'
+            return
+          }
+
+          container.innerHTML =
+            '<p class="hours-summary"><strong>' +
+            formatHours(hours) +
+            ' hours</strong> · ' +
+            formatPercent(progress) +
+            '% toward 10,000</p>' +
+            '<p class="hours-meta">updated ' +
+            (updatedAt || 'recently') +
+            '</p>' +
+            '<p class="hours-source">source: <a href="data/git-hours.json">/data/git-hours.json</a></p>'
+        } catch (_) {
+          container.innerHTML =
+            '<p class="subtle">hours snapshot unavailable right now.</p>'
+        }
+      }
+
+      initHoursWidget()
+    </script>
   </body>
 </html>
