@@ -57,7 +57,7 @@ function parseArgs(argv) {
 function extractNumber(text, regex) {
   const match = text.match(regex)
   if (!match) return null
-  const value = Number.parseFloat(match[1])
+  const value = Number.parseFloat(match[1].replace(/,/g, ''))
   if (!Number.isFinite(value)) return null
   return value
 }
@@ -65,16 +65,19 @@ function extractNumber(text, regex) {
 function extractInt(text, regex) {
   const match = text.match(regex)
   if (!match) return null
-  const value = Number.parseInt(match[1], 10)
+  const value = Number.parseInt(match[1].replace(/,/g, ''), 10)
   if (!Number.isFinite(value)) return null
   return value
 }
 
 function parseTrackerOutput(raw) {
-  const hours = extractNumber(raw, /Total credited hours:\s*([0-9]+(?:\.[0-9]+)?)/i)
+  const hours = extractNumber(
+    raw,
+    /Total credited hours:\s*([0-9][0-9,]*(?:\.[0-9]+)?)/i
+  )
   const progressPct = extractNumber(
     raw,
-    /Progress toward 10,000 hours:\s*([0-9]+(?:\.[0-9]+)?)%/i
+    /Progress toward 10,000 hours:\s*([0-9][0-9,]*(?:\.[0-9]+)?)%/i
   )
 
   if (hours == null || progressPct == null) {
@@ -83,19 +86,22 @@ function parseTrackerOutput(raw) {
     )
   }
 
-  const repositoriesScanned = extractInt(raw, /Repositories scanned:\s*([0-9]+)/i)
-  const totalSessions = extractInt(raw, /Total sessions:\s*([0-9]+)/i)
+  const repositoriesScanned = extractInt(
+    raw,
+    /Repositories scanned:\s*([0-9][0-9,]*)/i
+  )
+  const totalSessions = extractInt(raw, /Total sessions:\s*([0-9][0-9,]*)/i)
   const sessionsAssignedFloorDuration = extractInt(
     raw,
-    /Sessions assigned floor duration:\s*([0-9]+)/i
+    /Sessions assigned floor duration:\s*([0-9][0-9,]*)/i
   )
   const gapThresholdMinutes = extractInt(
     raw,
-    /Gap threshold used:\s*([0-9]+)\s+minutes/i
+    /Gap threshold used:\s*([0-9][0-9,]*)\s+minutes/i
   )
   const floorThresholdMinutes = extractInt(
     raw,
-    /Floor threshold used:\s*([0-9]+)\s+minutes/i
+    /Floor threshold used:\s*([0-9][0-9,]*)\s+minutes/i
   )
 
   const stats = {}
