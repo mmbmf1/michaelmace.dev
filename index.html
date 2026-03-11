@@ -31,7 +31,22 @@
       </div>
     </section>
 
+    <section class="home-feed-preview" aria-labelledby="home-feed-heading">
+      <h2 id="home-feed-heading">from the feed</h2>
+      <div id="home-feed-body">
+        <p class="subtle">loading recent entries...</p>
+      </div>
+    </section>
+
     <script>
+      function escapeHtml(text) {
+        return String(text == null ? '' : text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+      }
+
       function formatHours(value) {
         return new Intl.NumberFormat(undefined, {
           minimumFractionDigits: 2,
@@ -55,6 +70,33 @@
           month: 'short',
           day: 'numeric',
         }).format(parsed)
+      }
+
+      function normalizeFeedItemId(rawId, index) {
+        const fallback = `item-${index + 1}`
+        if (typeof rawId !== 'string') return fallback
+        const clean = rawId.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-')
+        return clean.replace(/^-+|-+$/g, '') || fallback
+      }
+
+      function stripInlineMarkdown(text) {
+        return String(text == null ? '' : text)
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+          .replace(/`([^`]+)`/g, '$1')
+          .replace(/\*\*([^*]+)\*\*/g, '$1')
+          .replace(/\*([^*]+)\*/g, '$1')
+      }
+
+      function firstLineSnippet(item) {
+        const title = item && typeof item.title === 'string' ? item.title.trim() : ''
+        if (title) return title
+        const body = item && typeof item.body_md === 'string' ? item.body_md.trim() : ''
+        if (!body) return 'untitled entry'
+        const firstLine = body.split('\n').find((line) => line.trim()) || body
+        const cleaned = stripInlineMarkdown(firstLine).replace(/^-+\s*/, '').trim()
+        if (!cleaned) return 'untitled entry'
+        if (cleaned.length <= 120) return cleaned
+        return cleaned.slice(0, 117).trimEnd() + '...'
       }
 
       async function initHoursWidget() {
@@ -97,7 +139,36 @@
         }
       }
 
+      async function initHomeFeedPreview() {
+        const container = document.getElementById('home-feed-body')
+        if (!container) return
+        try {
+          const response = await fetch('feed/data.json')
+          if (!response.ok) throw new Error('bad response')
+          const data = await response.json()
+          const items = Array.isArray(data.items) ? data.items.slice(0, 3) : []
+          if (items.length === 0) {
+            container.innerHTML =
+              '<p class="subtle">feed is quiet right now.</p><p><a href="feed/index.html">open feed</a></p>'
+            return
+          }
+          const listHtml = items
+            .map((item, index) => {
+              const itemId = normalizeFeedItemId(item && item.id, index)
+              const label = firstLineSnippet(item)
+              const date = formatUpdatedAt(item && item.date)
+              const datePrefix = date ? `<span class="home-feed-date">${escapeHtml(date)} · </span>` : ''
+              return `<li><a href="feed/index.html#${escapeHtml(itemId)}">${datePrefix}${escapeHtml(label)}</a></li>`
+            })
+            .join('')
+          container.innerHTML = `<ul class="home-feed-list">${listHtml}</ul><p class="home-feed-more"><a href="feed/index.html">open full feed</a></p>`
+        } catch (_) {
+          container.innerHTML = '<p class="subtle">could not load feed preview.</p>'
+        }
+      }
+
       initHoursWidget()
+      initHomeFeedPreview()
     </script>
   </body>
 </html>

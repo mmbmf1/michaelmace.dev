@@ -135,6 +135,13 @@
         }).format(date)
       }
 
+      function normalizeFeedItemId(rawId, index) {
+        const fallback = `item-${index + 1}`
+        if (typeof rawId !== 'string') return fallback
+        const clean = rawId.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-')
+        return clean.replace(/^-+|-+$/g, '') || fallback
+      }
+
       function renderRelatedLinks(links) {
         if (!Array.isArray(links) || links.length === 0) return ''
         const safeLinks = links
@@ -169,7 +176,7 @@
         return clean ? `<ul class="feed-tags">${clean}</ul>` : ''
       }
 
-      function renderItem(item) {
+      function renderItem(item, index) {
         const title = item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
         const body = renderBodyMd(item && item.body_md ? item.body_md : '')
         const sourceUrl =
@@ -180,8 +187,12 @@
             : sourceUrl
         const embed = renderYouTubeEmbed(embedUrl)
         const date = formatDate(item && item.date ? item.date : '')
-        return `<article class="feed-item">${title}<p class="feed-date">${escapeHtml(
-          date
+        const itemId = normalizeFeedItemId(item && item.id, index)
+        const dateLabel = date || 'undated'
+        return `<article id="${escapeHtml(itemId)}" class="feed-item">${title}<p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
+          itemId
+        )}" aria-label="link to this entry">#</a> ${escapeHtml(
+          dateLabel
         )}</p><div class="feed-body">${body}</div>${embed}${renderSource(
           sourceUrl
         )}${renderRelatedLinks(item && item.related_links)}${renderTags(
@@ -201,7 +212,7 @@
             list.innerHTML = '<p class="subtle">no feed items yet.</p>'
             return
           }
-          list.innerHTML = items.map(renderItem).join('')
+          list.innerHTML = items.map((item, index) => renderItem(item, index)).join('')
         } catch (_) {
           list.innerHTML =
             '<p class="subtle">feed data did not load. check feed/data.json.</p>'
