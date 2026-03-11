@@ -93,6 +93,30 @@ h1 .local-edit {
   opacity: 0.75;
 }
 
+.home-feed-preview {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.35);
+}
+.home-feed-preview h2 {
+  margin: 0 0 0.45rem 0;
+  font-size: 1rem;
+}
+.home-feed-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.home-feed-list li {
+  margin: 0.3rem 0;
+}
+.home-feed-date {
+  opacity: 0.75;
+}
+.home-feed-more {
+  margin: 0.6rem 0 0 0;
+  font-size: 0.9rem;
+}
+
 pre {
   overflow-x: auto;
   padding: 1rem;
@@ -178,6 +202,13 @@ li input[type='checkbox'] {
   margin: 0 0 0.75rem 0;
   font-size: 0.9rem;
   opacity: 0.72;
+}
+.feed-permalink {
+  text-decoration: none;
+  opacity: 0.75;
+}
+.feed-permalink:hover {
+  opacity: 1;
 }
 .feed-body p,
 .feed-body ul {
