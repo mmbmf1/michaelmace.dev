@@ -1,12 +1,12 @@
 {
-  "hours": 1138.65,
-  "progress_pct": 11.39,
-  "updated_at": "2026-03-10",
+  "hours": 1644.9,
+  "progress_pct": 16.45,
+  "updated_at": "2026-03-12",
   "stats": {
     "repositories_scanned": 55,
-    "total_sessions": 3300,
-    "sessions_assigned_floor_duration": 2365,
-    "gap_threshold_minutes": 34,
-    "floor_threshold_minutes": 12
+    "total_sessions": 2764,
+    "sessions_assigned_floor_duration": 2240,
+    "gap_threshold_minutes": 60,
+    "floor_threshold_minutes": 30
   }
 }
