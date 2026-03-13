@@ -205,14 +205,8 @@ li input[type='checkbox'] {
   margin: 0;
   font-size: 1.15rem;
 }
-.feed-item-head .feed-related,
 .feed-item-head .feed-tags {
   margin-top: 0;
-}
-.feed-item-head .feed-related ul {
-  margin: 0.25rem 0 0 1.2rem;
-}
-.feed-item-head .feed-tags {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.4rem;

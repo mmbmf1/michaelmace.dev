@@ -213,16 +213,15 @@
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
-        const relatedAndTags =
-          renderRelatedLinks(item && item.related_links) +
-          renderTags(item && item.tags)
+        const tagsOnly = renderTags(item && item.tags)
+        const relatedLinks = renderRelatedLinks(item && item.related_links)
         return `<article id="${escapeHtml(
           itemId
-        )}" class="feed-item"><div class="feed-item-head">${title}${relatedAndTags}</div><p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
+        )}" class="feed-item"><div class="feed-item-head">${title}${tagsOnly}</div><p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
-        )}</p><div class="feed-body">${body}</div>${image}${embed}${renderSource(
+        )}</p>${relatedLinks}<div class="feed-body">${body}</div>${image}${embed}${renderSource(
           sourceUrl
         )}</article>`
       }
