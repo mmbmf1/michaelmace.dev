@@ -71,9 +71,13 @@
         return new Date().toISOString().slice(0, 10)
       }
 
+      function stripTrailingCommas(jsonStr) {
+        return jsonStr.replace(/,(\s*[}\]])/g, '$1')
+      }
+
       function parseEditorJson() {
         try {
-          const parsed = JSON.parse(jsonEl.value)
+          const parsed = JSON.parse(stripTrailingCommas(jsonEl.value))
           if (!parsed || typeof parsed !== 'object') {
             throw new Error('Top-level value must be an object.')
           }
@@ -86,7 +90,9 @@
         }
       }
 
+      let saveInProgress = false
       async function loadData() {
+        if (saveInProgress) return
         setMessage('Loading...')
         try {
           const res = await fetch(apiBase + '/api/feed/data')
@@ -128,11 +134,14 @@
       })
 
       saveBtn.addEventListener('click', async () => {
+        if (saveInProgress) return
         const parsed = parseEditorJson()
         if (!parsed.ok) {
           setMessage('Invalid JSON: ' + parsed.error, true)
           return
         }
+        saveInProgress = true
+        saveBtn.disabled = true
         setMessage('Saving...')
         try {
           const res = await fetch(apiBase + '/api/feed/data', {
@@ -155,6 +164,9 @@
           setMessage(count == null ? 'Saved.' : `Saved ${count} item(s).`)
         } catch (err) {
           setMessage('Request failed: ' + err.message, true)
+        } finally {
+          saveInProgress = false
+          saveBtn.disabled = false
         }
       })
 
