@@ -175,11 +175,12 @@
 
       function renderSource(sourceUrl) {
         if (!isSafeHref(sourceUrl || '')) return ''
+        const external = /^https?:\/\//i.test(sourceUrl)
         return `<p class="feed-source">source: <a href="${escapeHtml(
           sourceUrl
-        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-          sourceUrl
-        )}</a></p>`
+        )}"${
+          external ? ' target="_blank" rel="noopener noreferrer"' : ''
+        }>${escapeHtml(sourceUrl)}</a></p>`
       }
 
       function renderTags(tags) {
@@ -196,15 +197,18 @@
         const title =
           item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
         const body = renderBodyMd(item && item.body_md ? item.body_md : '')
-        const sourceUrl =
+        const sourceUrlInput =
           item && typeof item.source_url === 'string'
             ? item.source_url.trim()
             : ''
-        const embedUrl =
+        const embedUrlCandidate =
           item && item.embed && item.embed.type === 'youtube' && item.embed.url
             ? String(item.embed.url)
-            : sourceUrl
-        const embed = renderYouTubeEmbed(embedUrl)
+            : sourceUrlInput
+        const embed = renderYouTubeEmbed(embedUrlCandidate)
+        const sourceUrl =
+          sourceUrlInput ||
+          (/^https?:\/\//i.test(embedUrlCandidate) ? embedUrlCandidate : '')
         const imageUrl =
           item && typeof item.image_url === 'string'
             ? item.image_url.trim()
