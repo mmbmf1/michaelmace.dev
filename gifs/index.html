@@ -9,23 +9,27 @@
   </head>
 
   <body>
-    <p class="nav-links">
-      <a href="../index.html">Home</a> ·
-      <a href="../notes/index.html">Notes</a> ·
-      <a href="../feed/index.html">Feed</a> · <a href="index.html">GIFs</a> ·
-      <a
-        href="https://github.com/mmbmf1"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub</a
-      >
-    </p>
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="../index.html">Home</a> ·
+        <a href="../notes/index.html">Notes</a> ·
+        <a href="../feed/index.html">Feed</a> · <a href="index.html" class="active">GIFs</a> ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
+    </header>
 
-    <h1 class="no-margin-bottom">GIFs <span id="gif-editor-wrap" class="hidden"><a id="gif-editor-link" href="/editor/gifs.html" class="local-edit" aria-label="Edit GIFs" title="Edit GIFs">&#9998;</a></span></h1>
+    <main class="page-body">
+    <p id="gif-editor-wrap" class="hidden" style="margin-top: 0.5rem;"><a id="gif-editor-link" href="/editor/gifs.html" class="local-edit" aria-label="Edit GIFs" title="Edit GIFs">&#9998; edit GIFs</a></p>
 
     <div class="gif-rows" id="gif-rows"></div>
 
     <div id="toast" class="toast" role="status" aria-live="polite">copied</div>
+    </main>
 
     <script>
       const toast = document.getElementById('toast')

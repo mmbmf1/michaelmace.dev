@@ -5,6 +5,13 @@ body {
   font-family: system-ui, sans-serif;
   font-size: 1.15rem;
   line-height: 1.65;
+  background: #fff;
+}
+
+.page-body {
+  max-width: 47rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 a {
@@ -21,9 +28,27 @@ h1 {
 }
 
 .nav-links {
-  margin-bottom: 2rem;
-  font-size: 0.95rem;
-  opacity: 0.85;
+  margin-bottom: 0.5rem;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  padding-bottom: 0.35rem;
+}
+.nav-links a {
+  opacity: 0.8;
+  text-decoration: none;
+}
+.nav-links a:hover {
+  opacity: 1;
+}
+.nav-links a.active {
+  font-weight: 600;
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.nav-links a.active:hover {
+  opacity: 1;
 }
 
 .local-edit {
@@ -41,7 +66,7 @@ h1 .local-edit {
 }
 
 .new-note-link {
-  font-size: 0.7em;
+  font-size: 0.95em;
   font-weight: normal;
   color: #666;
 }
@@ -197,6 +222,16 @@ li input[type='checkbox'] {
   font-size: 0.7em;
 }
 
+/* -- Sticky page header (nav + title) on all main pages -- */
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: inherit;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0;
+}
+
 /* -- Feed -- */
 .feed-list {
   display: flex;
@@ -227,9 +262,9 @@ li input[type='checkbox'] {
   margin: 0;
 }
 .feed-date {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.9rem;
-  opacity: 0.72;
+  margin: 0.15rem 0 0.75rem 0;
+  font-size: 1rem;
+  opacity: 0.8;
 }
 .feed-permalink {
   text-decoration: none;

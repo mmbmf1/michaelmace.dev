@@ -9,31 +9,29 @@
   </head>
 
   <body>
-    <p class="nav-links">
-      <a href="../index.html">Home</a> · <a href="index.html">Notes</a> ·
-      <a href="../feed/index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a>
-      ·
-      <a
-        href="https://github.com/mmbmf1"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub</a
-      >
-    </p>
-
-    <div class="notes-header">
-      <h1>Notes</h1>
-      <span id="new-note-wrap" class="hidden"
-        ><a
-          href="/editor/index.html"
-          class="local-edit new-note-link"
-          aria-label="New note"
-          title="New note"
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="../index.html">Home</a> · <a href="index.html" class="active">Notes</a> ·
+        <a href="../feed/index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a>
+        ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
         >
-          ( + add note )</a
-        ></span
-      >
-    </div>
+      </p>
+    </header>
+
+    <main class="page-body">
+    <p id="new-note-wrap" class="hidden" style="margin-top: 0.5rem;">
+      <a
+        href="/editor/index.html"
+        class="local-edit new-note-link"
+        aria-label="New note"
+        title="New note"
+      >( + add note )</a>
+    </p>
 
     <ul class="notes-list">
       <li>
@@ -61,6 +59,7 @@
         <small>February 2026</small>
       </li>
     </ul>
+    </main>
     <script>
       if (
         window.location.hostname === 'localhost' ||

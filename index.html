@@ -9,23 +9,26 @@
   </head>
 
   <body>
-    <p class="nav-links">
-      <a href="index.html">Home</a> · <a href="notes/index.html">Notes</a> ·
-      <a href="feed/index.html">Feed</a> · <a href="gifs/index.html">GIFs</a>
-      ·
-      <a
-        href="https://github.com/mmbmf1"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub</a
-      >
-    </p>
-    <h1 class="no-margin-bottom">Michael Mace</h1>
-    <div class="home-intro">
-      <p class="tagline">notes, systems, and small experiments.</p>
-      <p class="subtle">sometimes gifs.</p>
-    </div>
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="index.html" class="active">Home</a> · <a href="notes/index.html">Notes</a> ·
+        <a href="feed/index.html">Feed</a> · <a href="gifs/index.html">GIFs</a>
+        ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
+      <h1 class="no-margin-bottom">Michael Mace</h1>
+      <div class="home-intro">
+        <p class="tagline">notes, systems, and small experiments.</p>
+        <p class="subtle">sometimes gifs.</p>
+      </div>
+    </header>
 
+    <main class="page-body">
     <section
       class="home-section home-feed-preview"
       aria-labelledby="home-recent-heading"
@@ -43,6 +46,7 @@
         <p class="subtle">loading hours snapshot...</p>
       </div>
     </section>
+    </main>
 
     <script>
       function escapeHtml(text) {
