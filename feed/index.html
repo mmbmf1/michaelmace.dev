@@ -11,8 +11,7 @@
   <body>
     <p class="nav-links">
       <a href="../index.html">Home</a> ·
-      <a href="../notes/index.html">Notes</a> ·
-      <a href="index.html">Feed</a> ·
+      <a href="../notes/index.html">Notes</a> · <a href="index.html">Feed</a> ·
       <a href="../gifs/index.html">GIFs</a>
       ·
       <a
@@ -87,7 +86,9 @@
             const lines = block.split('\n')
             if (lines.every((line) => line.trim().startsWith('- '))) {
               const items = lines
-                .map((line) => `<li>${renderInlineMd(line.trim().slice(2))}</li>`)
+                .map(
+                  (line) => `<li>${renderInlineMd(line.trim().slice(2))}</li>`
+                )
                 .join('')
               return `<ul>${items}</ul>`
             }
@@ -145,14 +146,20 @@
       function normalizeFeedItemId(rawId, index) {
         const fallback = `item-${index + 1}`
         if (typeof rawId !== 'string') return fallback
-        const clean = rawId.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-')
+        const clean = rawId
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]+/g, '-')
         return clean.replace(/^-+|-+$/g, '') || fallback
       }
 
       function renderRelatedLinks(links) {
         if (!Array.isArray(links) || links.length === 0) return ''
         const safeLinks = links
-          .filter((link) => link && typeof link.url === 'string' && isSafeHref(link.url))
+          .filter(
+            (link) =>
+              link && typeof link.url === 'string' && isSafeHref(link.url)
+          )
           .map((link) => {
             const label = link.label ? String(link.label) : String(link.url)
             const external = /^https?:\/\//i.test(link.url)
@@ -170,7 +177,9 @@
         if (!isSafeHref(sourceUrl || '')) return ''
         return `<p class="feed-source">source: <a href="${escapeHtml(
           sourceUrl
-        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceUrl)}</a></p>`
+        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          sourceUrl
+        )}</a></p>`
       }
 
       function renderTags(tags) {
@@ -184,29 +193,37 @@
       }
 
       function renderItem(item, index) {
-        const title = item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
+        const title =
+          item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
         const body = renderBodyMd(item && item.body_md ? item.body_md : '')
         const sourceUrl =
-          item && typeof item.source_url === 'string' ? item.source_url.trim() : ''
+          item && typeof item.source_url === 'string'
+            ? item.source_url.trim()
+            : ''
         const embedUrl =
           item && item.embed && item.embed.type === 'youtube' && item.embed.url
             ? String(item.embed.url)
             : sourceUrl
         const embed = renderYouTubeEmbed(embedUrl)
         const imageUrl =
-          item && typeof item.image_url === 'string' ? item.image_url.trim() : ''
+          item && typeof item.image_url === 'string'
+            ? item.image_url.trim()
+            : ''
         const image = renderImage(imageUrl)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
-        return `<article id="${escapeHtml(itemId)}" class="feed-item">${title}<p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
+        const relatedAndTags =
+          renderRelatedLinks(item && item.related_links) +
+          renderTags(item && item.tags)
+        return `<article id="${escapeHtml(
+          itemId
+        )}" class="feed-item"><div class="feed-item-head">${title}${relatedAndTags}</div><p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
         )}</p><div class="feed-body">${body}</div>${image}${embed}${renderSource(
           sourceUrl
-        )}${renderRelatedLinks(item && item.related_links)}${renderTags(
-          item && item.tags
         )}</article>`
       }
 
@@ -222,7 +239,9 @@
             list.innerHTML = '<p class="subtle">no feed items yet.</p>'
             return
           }
-          list.innerHTML = items.map((item, index) => renderItem(item, index)).join('')
+          list.innerHTML = items
+            .map((item, index) => renderItem(item, index))
+            .join('')
         } catch (_) {
           list.innerHTML =
             '<p class="subtle">feed data did not load. check feed/data.json.</p>'

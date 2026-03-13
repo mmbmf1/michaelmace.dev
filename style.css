@@ -194,9 +194,29 @@ li input[type='checkbox'] {
   border-top: 1px solid rgba(127, 127, 127, 0.35);
   padding-top: 1rem;
 }
-.feed-item h2 {
-  margin: 0 0 0.25rem 0;
+.feed-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
+}
+.feed-item-head h2 {
+  margin: 0;
   font-size: 1.15rem;
+}
+.feed-item-head .feed-related,
+.feed-item-head .feed-tags {
+  margin-top: 0;
+}
+.feed-item-head .feed-related ul {
+  margin: 0.25rem 0 0 1.2rem;
+}
+.feed-item-head .feed-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
 }
 .feed-date {
   margin: 0 0 0.75rem 0;
