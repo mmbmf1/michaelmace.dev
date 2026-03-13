@@ -76,6 +76,8 @@ Editor behavior (`editor/gifs.html`):
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
 - Save writes `feed/data.json` via `POST /api/feed/data`.
+- `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
+  unordered/ordered lists, links, inline code, and fenced code blocks.
 - If an item includes an external `embed.url` and no `source_url`, save uses the
   embed URL as `source_url` so attribution stays visible on the feed page.
 - Data shape centers on `items[]` and supports keys like:
