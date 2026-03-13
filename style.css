@@ -70,17 +70,40 @@ h1 .local-edit {
   opacity: 0.8;
 }
 
-.hours-widget {
-  margin-top: 2rem;
+.home-intro {
+  margin-bottom: 0.5rem;
+}
+
+.home-section {
+  margin-top: 2.5rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(127, 127, 127, 0.35);
 }
-.hours-widget h2 {
-  margin: 0 0 0.35rem 0;
+.home-section h2 {
+  margin: 0 0 0.5rem 0;
   font-size: 1rem;
 }
-.hours-summary {
+
+.hours-widget .hours-summary {
   margin: 0;
+}
+.hours-progress {
+  margin-top: 0.5rem;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.35);
+  overflow: hidden;
+}
+.hours-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: width 0.3s ease;
+}
+@media (prefers-color-scheme: light) {
+  .hours-progress-fill {
+    background: rgba(0, 0, 0, 0.35);
+  }
 }
 .hours-meta {
   margin: 0.35rem 0 0 0;
@@ -93,21 +116,12 @@ h1 .local-edit {
   opacity: 0.75;
 }
 
-.home-feed-preview {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(127, 127, 127, 0.35);
-}
-.home-feed-preview h2 {
-  margin: 0 0 0.45rem 0;
-  font-size: 1rem;
-}
 .home-feed-list {
   margin: 0;
   padding-left: 1.2rem;
 }
 .home-feed-list li {
-  margin: 0.3rem 0;
+  margin: 0.35rem 0;
 }
 .home-feed-date {
   opacity: 0.75;

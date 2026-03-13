@@ -21,17 +21,19 @@
       >
     </p>
     <h1 class="no-margin-bottom">Michael Mace</h1>
-    <p class="tagline">a lab for systems and experiments.</p>
-    <p class="subtle">notes as i go. sometimes gifs.</p>
+    <div class="home-intro">
+      <p class="tagline">a lab for systems and experiments.</p>
+      <p class="subtle">notes as i go. sometimes gifs.</p>
+    </div>
 
-    <section class="home-feed-preview" aria-labelledby="home-feed-heading">
-      <h2 id="home-feed-heading">from the feed</h2>
+    <section class="home-section home-feed-preview" aria-labelledby="home-recent-heading">
+      <h2 id="home-recent-heading">recent</h2>
       <div id="home-feed-body">
         <p class="subtle">loading recent entries...</p>
       </div>
     </section>
 
-    <section class="hours-widget" aria-labelledby="hours-widget-heading">
+    <section class="home-section hours-widget" aria-labelledby="hours-widget-heading">
       <h2 id="hours-widget-heading">10k progress</h2>
       <div id="hours-widget-body">
         <p class="subtle">loading hours snapshot...</p>
@@ -130,12 +132,19 @@
             return
           }
 
+          const pct = Math.min(100, Math.max(0, progress))
           container.innerHTML =
             '<p class="hours-summary"><strong>' +
             formatHours(hours) +
             ' hours</strong> · ' +
             formatPercent(progress) +
             '% toward 10,000</p>' +
+            '<div class="hours-progress" role="progressbar" aria-valuenow="' +
+            String(pct) +
+            '" aria-valuemin="0" aria-valuemax="100" aria-label="Progress toward 10,000 hours">' +
+            '<div class="hours-progress-fill" style="width:' +
+            String(pct) +
+            '%"></div></div>' +
             '<p class="hours-meta">updated ' +
             (updatedAt || 'recently') +
             '</p>' +
