@@ -1,11 +1,32 @@
 {
   "items": [
     {
+      "id": "2026-03-13-entry-6",
+      "date": "2026-03-13",
+      "title": "🐇🕳️",
+      "body_md": "i warned you, its a 🐇🕳️",
+      "source_url": "https://youtu.be/x36UmiSiEzc?si=iQ04LxBC9dSd70lA"
+    },
+    {
+      "id": "2026-03-13-trail-thot",
+      "date": "2026-03-12",
+      "title": "trail thot",
+      "body_md": "i thot that ground hog was a literal term. whistle pig in a tree right here!",
+      "image_url": "/feed/images/landahl_whistle_pig_20260312.jpg",
+      "tags": [
+        "trails",
+        "wildlife"
+      ]
+    },
+    {
       "id": "2026-03-06-build-note",
       "date": "2026-03-06",
       "title": "build note",
       "body_md": "set up the first pass of a feed page. static data, no auth, no db.",
-      "tags": ["build", "site"]
+      "tags": [
+        "build",
+        "site"
+      ]
     },
     {
       "id": "2026-03-05-youtube",
@@ -13,7 +34,10 @@
       "title": "watched",
       "body_md": "good walkthrough on local-first tooling. wrote down two ideas to test later.",
       "source_url": "https://www.youtube.com/watch?v=oHg5SJYRHA0",
-      "tags": ["watching", "tools"]
+      "tags": [
+        "watching",
+        "tools"
+      ]
     },
     {
       "id": "2026-03-04-read",
@@ -21,19 +45,25 @@
       "title": "read",
       "body_md": "reread this and left myself a short note in the margin.",
       "source_url": "https://www.robinsloan.com/notes/home-cooked-app/",
+      "tags": [
+        "reading",
+        "notes"
+      ],
       "related_links": [
         {
           "label": "note: on layering intelligence",
           "url": "/notes/on-layering-intel.html"
         }
-      ],
-      "tags": ["reading", "notes"]
+      ]
     },
     {
       "id": "2026-03-03-small-artifact",
       "date": "2026-03-03",
       "body_md": "tiny artifact: [reaction vocabulary](/gifs/index.html) keeps getting more useful than expected.",
-      "tags": ["artifact", "gifs"]
+      "tags": [
+        "artifact",
+        "gifs"
+      ]
     }
   ]
 }

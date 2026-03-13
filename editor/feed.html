@@ -159,6 +159,12 @@
       })
 
       loadBtn.addEventListener('click', loadData)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') loadData()
+      })
+      window.addEventListener('pageshow', (e) => {
+        if (e.persisted) loadData()
+      })
       loadData()
     </script>
   </body>

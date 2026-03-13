@@ -372,6 +372,8 @@ function normalizeFeedItem(item, index) {
         })
         .filter(Boolean)
     : []
+  const imageUrl =
+    item && typeof item.image_url === 'string' ? item.image_url.replace(/\r?\n/g, '').trim() : ''
 
   const normalized = {
     id,
@@ -381,6 +383,7 @@ function normalizeFeedItem(item, index) {
   if (bodyMd) normalized.body_md = bodyMd
   if (sourceUrl) normalized.source_url = sourceUrl
   if (embedType && embedUrl) normalized.embed = { type: embedType, url: embedUrl }
+  if (imageUrl) normalized.image_url = imageUrl
   if (tags.length > 0) normalized.tags = tags
   if (relatedLinks.length > 0) normalized.related_links = relatedLinks
   return normalized
@@ -457,15 +460,7 @@ app.post('/api/feed/data', (req, res) => {
   }
   const items = rawItems
     .map(normalizeFeedItem)
-    .filter(
-      (item) =>
-        item.title ||
-        item.body_md ||
-        item.source_url ||
-        (item.embed && item.embed.url) ||
-        (Array.isArray(item.tags) && item.tags.length > 0) ||
-        (Array.isArray(item.related_links) && item.related_links.length > 0)
-    )
+    .filter((item) => item.id)
   try {
     if (!fs.existsSync(FEED_DIR)) {
       fs.mkdirSync(FEED_DIR, { recursive: true })

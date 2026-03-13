@@ -254,6 +254,12 @@ li input[type='checkbox'] {
   border: 0;
   border-radius: 8px;
 }
+.feed-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
 
 /* ——— GIFs page ——— */
 .gif-rows {

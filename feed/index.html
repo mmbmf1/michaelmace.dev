@@ -124,6 +124,13 @@
         return `<div class="feed-embed"><iframe class="youtube-embed" src="${src}" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
       }
 
+      function renderImage(imageUrl) {
+        if (!imageUrl || !isSafeHref(imageUrl)) return ''
+        return `<div class="feed-embed"><img class="feed-image" src="${escapeHtml(
+          imageUrl
+        )}" alt="" loading="lazy"></div>`
+      }
+
       function formatDate(value) {
         if (typeof value !== 'string' || !value.trim()) return ''
         const date = new Date(value)
@@ -186,6 +193,9 @@
             ? String(item.embed.url)
             : sourceUrl
         const embed = renderYouTubeEmbed(embedUrl)
+        const imageUrl =
+          item && typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        const image = renderImage(imageUrl)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
@@ -193,7 +203,7 @@
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
-        )}</p><div class="feed-body">${body}</div>${embed}${renderSource(
+        )}</p><div class="feed-body">${body}</div>${image}${embed}${renderSource(
           sourceUrl
         )}${renderRelatedLinks(item && item.related_links)}${renderTags(
           item && item.tags
