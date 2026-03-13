@@ -1,7 +1,7 @@
 body {
   max-width: 50rem;
-  margin: 4.5rem auto;
-  padding: 0 1.25rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 4.5rem;
   font-family: system-ui, sans-serif;
   font-size: 1.15rem;
   line-height: 1.65;
@@ -28,10 +28,11 @@ h1 {
 }
 
 .nav-links {
-  margin-bottom: 0.5rem;
-  font-size: 1.85rem;
-  line-height: 1.2;
-  padding-bottom: 0.35rem;
+  margin-bottom: 0.35rem;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  letter-spacing: 0.035em;
+  padding-bottom: 0.25rem;
 }
 .nav-links a {
   opacity: 0.8;
@@ -222,14 +223,22 @@ li input[type='checkbox'] {
   font-size: 0.7em;
 }
 
-/* -- Sticky page header (nav + title) on all main pages -- */
 .page-header {
   position: sticky;
   top: 0;
-  z-index: 1;
-  background: inherit;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0;
+  z-index: 10;
+  background: #fff;
+  padding-top: 1.25rem;
+  padding-bottom: 0.6rem;
+  margin: 0 0 1.75rem 0;
+  border-bottom: 1px solid rgba(138, 180, 248, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .page-header {
+    background: #111;
+    border-bottom-color: rgba(138, 180, 248, 0.6);
+  }
 }
 
 /* -- Feed -- */
