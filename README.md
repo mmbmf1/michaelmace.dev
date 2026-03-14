@@ -76,8 +76,8 @@ Editor behavior (`editor/gifs.html`):
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
 - Save writes `feed/data.json` via `POST /api/feed/data`.
-- If an item includes an external `embed.url` and no `source_url`, save uses the
-  embed URL as `source_url` so attribution stays visible on the feed page.
+- If an item has no `source_url`, save falls back to an external `embed.url` or
+  external `image_url` so attribution stays visible on the feed page.
 - Data shape centers on `items[]` and supports keys like:
   - `id`, `date`, `title`, `body_md`
   - `source_url`

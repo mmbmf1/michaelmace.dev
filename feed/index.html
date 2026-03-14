@@ -208,13 +208,17 @@
             ? String(item.embed.url)
             : sourceUrlInput
         const embed = renderYouTubeEmbed(embedUrlCandidate)
-        const sourceUrl =
-          sourceUrlInput ||
-          (/^https?:\/\//i.test(embedUrlCandidate) ? embedUrlCandidate : '')
         const imageUrl =
           item && typeof item.image_url === 'string'
             ? item.image_url.trim()
             : ''
+        const sourceUrl =
+          sourceUrlInput ||
+          (/^https?:\/\//i.test(embedUrlCandidate)
+            ? embedUrlCandidate
+            : /^https?:\/\//i.test(imageUrl)
+            ? imageUrl
+            : '')
         const image = renderImage(imageUrl)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)

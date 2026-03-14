@@ -329,6 +329,13 @@ function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value.trim())
 }
 
+function preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl) {
+  if (sourceUrlInput) return sourceUrlInput
+  if (embedType && isHttpUrl(embedUrl)) return embedUrl
+  if (isHttpUrl(imageUrl)) return imageUrl
+  return ''
+}
+
 function normalizeFeedItem(item, index) {
   const date =
     item && typeof item.date === 'string' ? item.date.replace(/\r?\n/g, ' ').trim() : ''
@@ -378,7 +385,7 @@ function normalizeFeedItem(item, index) {
     : []
   const imageUrl =
     item && typeof item.image_url === 'string' ? item.image_url.replace(/\r?\n/g, '').trim() : ''
-  const sourceUrl = sourceUrlInput || (embedType && isHttpUrl(embedUrl) ? embedUrl : '')
+  const sourceUrl = preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl)
 
   const normalized = {
     id,
