@@ -283,8 +283,37 @@ li input[type='checkbox'] {
   opacity: 1;
 }
 .feed-body p,
-.feed-body ul {
+.feed-body ul,
+.feed-body ol {
   margin: 0.65rem 0;
+}
+.feed-body h1,
+.feed-body h2,
+.feed-body h3,
+.feed-body h4,
+.feed-body h5,
+.feed-body h6 {
+  margin: 0.8rem 0 0.35rem 0;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+.feed-body blockquote {
+  margin: 0.75rem 0;
+  padding-left: 0.85rem;
+  border-left: 2px solid rgba(127, 127, 127, 0.45);
+  opacity: 0.9;
+}
+.feed-body blockquote p {
+  margin: 0;
+}
+.feed-body pre {
+  margin: 0.85rem 0;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.9rem;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+}
+.feed-body pre code {
+  white-space: pre-wrap;
 }
 .feed-source {
   margin: 0.85rem 0 0 0;
