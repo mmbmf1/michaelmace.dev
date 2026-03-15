@@ -79,8 +79,8 @@ Editor behavior (`editor/gifs.html`):
 - Save writes `feed/data.json` via `POST /api/feed/data`.
 - `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
   unordered/ordered lists, links, inline code, and fenced code blocks.
-- If an item includes an external `embed.url` and no `source_url`, save uses the
-  embed URL as `source_url` so attribution stays visible on the feed page.
+- If an item has no `source_url`, save falls back to an external `embed.url` or
+  external `image_url` so attribution stays visible on the feed page.
 - Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
 - Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
 - Data shape centers on `items[]` and supports keys like:
