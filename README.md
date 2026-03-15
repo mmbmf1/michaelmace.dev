@@ -10,9 +10,11 @@ Static personal site deployed to Vercel.
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON (`gifs/data.json`).
+- Production is static HTML/CSS plus JSON snapshots (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
+- `index.html` reads `feed/data.json` for the recent-entry preview (first 3 items) and links each row to a feed anchor.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
+- Home page preview cards read the first three entries from `feed/data.json` and link to `feed/index.html#<item-id>`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
@@ -46,7 +48,7 @@ Behavior:
 
 - Saving a note (`POST /api/save`) writes both `.md` and `.html`.
 - Deleting a note (`DELETE /api/note/:slug`) removes `.md` and `.html`, then regenerates `notes/index.html`.
-- If a note only has HTML, loading it (`GET /api/note/:slug`) backfills a matching `.md` file.
+- Loading a note (`GET /api/note/:slug`) reads `notes/<slug>.md`; if the markdown file is missing, the API returns `404`. The editor does not load notes that have only `.html` (no `.md`).
 
 ## GIF workflow (current system)
 
@@ -78,14 +80,46 @@ Editor behavior (`editor/gifs.html`):
 - Feed editor includes a "quick add item" composer that inserts a new entry at
   the top of the JSON while keeping full manual JSON editing available.
 - Save writes `feed/data.json` via `POST /api/feed/data`.
-- If an item includes an external `embed.url` and no `source_url`, save uses the
-  embed URL as `source_url` so attribution stays visible on the feed page.
+- `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
+  unordered/ordered lists, links, inline code, and fenced code blocks.
+- If an item has no `source_url`, save falls back to an external `embed.url` or
+  external `image_url` so attribution stays visible on the feed page.
+- Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
+- Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
 - Data shape centers on `items[]` and supports keys like:
   - `id`, `date`, `title`, `body_md`
   - `source_url`
   - `embed` (for example `{ "type": "youtube", "url": "..." }`)
+  - `image_url`
   - `tags`
   - `related_links`
+
+Example item:
+
+```json
+{
+  "id": "2026-03-13-entry-7",
+  "date": "2026-03-13",
+  "title": "trail thot",
+  "body_md": "- first point\n- second point\n\n[reaction vocabulary](/gifs/index.html)",
+  "image_url": "/feed/images/landahl_whistle_pig_20260312.jpg",
+  "embed": { "type": "youtube", "url": "https://youtu.be/x36UmiSiEzc" },
+  "source_url": "https://youtu.be/x36UmiSiEzc",
+  "tags": ["trails", "wildlife"],
+  "related_links": [{ "label": "note: on layering intelligence", "url": "/notes/on-layering-intel.html" }]
+}
+```
+
+Feed rendering constraints (`feed/index.html`):
+
+- `body_md` supports a compact markdown subset:
+  - paragraphs split by blank lines
+  - unordered lists only when each line starts with `- `
+  - inline `code`, `*italic*`, `**bold**`, and `[label](url)` links
+- Link URLs are rendered only if they are `http(s)://`, `/...`, `./...`, or `../...`.
+- `embed.type: "youtube"` supports `youtu.be`, `youtube.com/watch`, `/shorts/`, and `/embed/` URLs.
+- `image_url` must also pass the same safe URL check (`http(s)://`, `/`, `./`, `../`).
+- Entry anchors/permalinks are generated from `id` after lowercasing and replacing unsupported characters.
 
 ## Git-hours snapshot workflow
 
@@ -95,12 +129,16 @@ Editor behavior (`editor/gifs.html`):
   - `hours` (number)
   - `progress_pct` (number)
   - `updated_at` (`YYYY-MM-DD`)
+  - optional `stats` object (e.g. `repositories_scanned`, `total_sessions`, `sessions_assigned_floor_duration`, `gap_threshold_minutes`, `floor_threshold_minutes`)
 - `index.html` fetches this file and renders a small "10k progress" block.
 - Local helper script: `scripts/update-git-hours.js`
+  - Accepts comma-formatted numbers from tracker output (for example `1,644.9`).
   - Parse tracker output from stdin and write the snapshot:
     - `git-hours-tracker | node scripts/update-git-hours.js`
   - Parse from a saved file:
     - `node scripts/update-git-hours.js --input /tmp/git-hours.txt`
+  - Write to a custom file/date (useful for dry runs/backfills):
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --output /tmp/git-hours.json --date 2026-03-12`
   - Preview parsed JSON without writing:
     - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --stdout`
 
@@ -111,8 +149,10 @@ These endpoints are provided by `editor/server.js`:
 - `GET /api/note/:slug`
   - Returns `{ title, slug, date, body }`
   - Slug must match `^[a-z0-9-]+$`
+  - Reads `notes/<slug>.md`; returns `404` when the markdown source file does not exist
 - `POST /api/save`
   - Body: `{ title, slug?, date?, body }`
+  - `slug` is normalized to lowercase `a-z0-9-`
   - Writes `notes/<slug>.md`, `notes/<slug>.html`, and regenerates `notes/index.html`
 - `DELETE /api/note/:slug`
   - Deletes note files and regenerates `notes/index.html`
@@ -120,17 +160,26 @@ These endpoints are provided by `editor/server.js`:
   - Returns `{ lists, items }` (defaults if file missing/invalid)
 - `POST /api/gifs/data`
   - Body: `{ lists?, items }`
-  - Persists `gifs/data.json`
+  - Persists `gifs/data.json` (items without URL are dropped)
 - `GET /api/feed/data`
   - Returns `{ items }` from `feed/data.json` (or empty array if missing/invalid)
+  - Items are normalized on read (fallback IDs, trimmed strings, cleaned links/tags)
 - `POST /api/feed/data`
   - Body: `{ items }`
   - Normalizes supported feed item fields and persists `feed/data.json`
+  - If `id` is omitted, a fallback ID is generated from date/index
+  - If `source_url` is omitted and `embed.url` (or external `image_url`) is present, `source_url` is backfilled
 
 ## Troubleshooting and pitfalls
 
 - **"Request failed ... port 3002" in editor UI**: start `editor/server.js` (`npm start` in `editor/`).
 - **No local edit pencil on notes/GIF pages**: edit links only show on `localhost` / `127.0.0.1`.
-- **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`.
+- **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`, and only `GET`/`POST`/`OPTIONS`.
 - **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
+- **`Note not found` in editor for an existing `.html` note**: note APIs read `notes/<slug>.md`; re-create or re-save the markdown source.
 - **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
+- **Feed embed does not render**: only YouTube URLs with a parseable video ID are embedded; other URLs are shown as source links only.
+- **`Could not find required values` from `update-git-hours.js`**: input must include both `Total credited hours:` and `Progress toward 10,000 hours:`.
+- **Feed links render as plain text or are not clickable**: only `http(s)` and root/relative paths are treated as safe links in `feed/index.html`.
+- **Feed image does not render**: verify `image_url` uses a safe path (for example `/feed/images/<file>`) and that the file exists in `feed/images/`.
+- **YouTube embed not rendering**: use a parseable YouTube URL (`youtu.be`, `youtube.com/watch`, `/shorts/`, or `/embed/`).
