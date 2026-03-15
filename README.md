@@ -10,9 +10,10 @@ Static personal site deployed to Vercel.
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON (`gifs/data.json`).
+- Production is static HTML/CSS plus JSON snapshots (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
+- Home page preview cards read the first three entries from `feed/data.json` and link to `feed/index.html#<item-id>`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
@@ -46,7 +47,7 @@ Behavior:
 
 - Saving a note (`POST /api/save`) writes both `.md` and `.html`.
 - Deleting a note (`DELETE /api/note/:slug`) removes `.md` and `.html`, then regenerates `notes/index.html`.
-- If a note only has HTML, loading it (`GET /api/note/:slug`) backfills a matching `.md` file.
+- Loading a note (`GET /api/note/:slug`) reads `notes/<slug>.md`; if the markdown file is missing, the API returns `404`. The editor does not load notes that have only `.html` (no `.md`).
 
 ## GIF workflow (current system)
 
@@ -76,14 +77,46 @@ Editor behavior (`editor/gifs.html`):
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
 - Save writes `feed/data.json` via `POST /api/feed/data`.
+- `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
+  unordered/ordered lists, links, inline code, and fenced code blocks.
 - If an item has no `source_url`, save falls back to an external `embed.url` or
   external `image_url` so attribution stays visible on the feed page.
+- Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
+- Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
 - Data shape centers on `items[]` and supports keys like:
   - `id`, `date`, `title`, `body_md`
   - `source_url`
   - `embed` (for example `{ "type": "youtube", "url": "..." }`)
+  - `image_url`
   - `tags`
   - `related_links`
+
+Example item:
+
+```json
+{
+  "id": "2026-03-13-entry-7",
+  "date": "2026-03-13",
+  "title": "trail thot",
+  "body_md": "- first point\n- second point\n\n[reaction vocabulary](/gifs/index.html)",
+  "image_url": "/feed/images/landahl_whistle_pig_20260312.jpg",
+  "embed": { "type": "youtube", "url": "https://youtu.be/x36UmiSiEzc" },
+  "source_url": "https://youtu.be/x36UmiSiEzc",
+  "tags": ["trails", "wildlife"],
+  "related_links": [{ "label": "note: on layering intelligence", "url": "/notes/on-layering-intel.html" }]
+}
+```
+
+Feed rendering constraints (`feed/index.html`):
+
+- `body_md` supports a compact markdown subset:
+  - paragraphs split by blank lines
+  - unordered lists only when each line starts with `- `
+  - inline `code`, `*italic*`, `**bold**`, and `[label](url)` links
+- Link URLs are rendered only if they are `http(s)://`, `/...`, `./...`, or `../...`.
+- `embed.type: "youtube"` supports `youtu.be`, `youtube.com/watch`, `/shorts/`, and `/embed/` URLs.
+- `image_url` must also pass the same safe URL check (`http(s)://`, `/`, `./`, `../`).
+- Entry anchors/permalinks are generated from `id` after lowercasing and replacing unsupported characters.
 
 ## Git-hours snapshot workflow
 
@@ -93,6 +126,7 @@ Editor behavior (`editor/gifs.html`):
   - `hours` (number)
   - `progress_pct` (number)
   - `updated_at` (`YYYY-MM-DD`)
+  - optional `stats` object (for example repository/session counters)
 - `index.html` fetches this file and renders a small "10k progress" block.
 - Local helper script: `scripts/update-git-hours.js`
   - Parse tracker output from stdin and write the snapshot:
@@ -109,8 +143,10 @@ These endpoints are provided by `editor/server.js`:
 - `GET /api/note/:slug`
   - Returns `{ title, slug, date, body }`
   - Slug must match `^[a-z0-9-]+$`
+  - Reads `notes/<slug>.md`; returns `404` when the markdown source file does not exist
 - `POST /api/save`
   - Body: `{ title, slug?, date?, body }`
+  - `slug` is normalized to lowercase `a-z0-9-`
   - Writes `notes/<slug>.md`, `notes/<slug>.html`, and regenerates `notes/index.html`
 - `DELETE /api/note/:slug`
   - Deletes note files and regenerates `notes/index.html`
@@ -118,17 +154,24 @@ These endpoints are provided by `editor/server.js`:
   - Returns `{ lists, items }` (defaults if file missing/invalid)
 - `POST /api/gifs/data`
   - Body: `{ lists?, items }`
-  - Persists `gifs/data.json`
+  - Persists `gifs/data.json` (items without URL are dropped)
 - `GET /api/feed/data`
   - Returns `{ items }` from `feed/data.json` (or empty array if missing/invalid)
+  - Items are normalized on read (fallback IDs, trimmed strings, cleaned links/tags)
 - `POST /api/feed/data`
   - Body: `{ items }`
   - Normalizes supported feed item fields and persists `feed/data.json`
+  - If `id` is omitted, a fallback ID is generated from date/index
+  - If `source_url` is omitted and `embed.url` is external, `source_url` is backfilled from `embed.url`
 
 ## Troubleshooting and pitfalls
 
 - **"Request failed ... port 3002" in editor UI**: start `editor/server.js` (`npm start` in `editor/`).
 - **No local edit pencil on notes/GIF pages**: edit links only show on `localhost` / `127.0.0.1`.
-- **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`.
+- **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`, and only `GET`/`POST`/`OPTIONS`.
 - **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
 - **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
+- **`Note not found` for a slug that has only an HTML page**: the note API requires `notes/<slug>.md`; ensure it exists or recreate/restore the markdown source.
+- **Feed links render as plain text or are not clickable**: only `http(s)` and root/relative paths are treated as safe links in `feed/index.html`.
+- **Feed image does not render**: verify `image_url` uses a safe path (for example `/feed/images/<file>`) and that the file exists in `feed/images/`.
+- **YouTube embed not rendering**: use a parseable YouTube URL (`youtu.be`, `youtube.com/watch`, `/shorts/`, or `/embed/`).
