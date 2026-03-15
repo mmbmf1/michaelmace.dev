@@ -77,6 +77,8 @@ Editor behavior (`editor/gifs.html`):
 
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
+- Feed editor includes a "quick add item" composer that inserts a new entry at
+  the top of the JSON while keeping full manual JSON editing available.
 - Save writes `feed/data.json` via `POST /api/feed/data`.
 - `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
   unordered/ordered lists, links, inline code, and fenced code blocks.
