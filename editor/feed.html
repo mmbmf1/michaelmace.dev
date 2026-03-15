@@ -27,8 +27,87 @@
     <h1 class="no-margin-bottom">feed editor</h1>
     <p class="subtle" style="margin-top: 0.45rem">
       local-only helper for <code>feed/data.json</code>. keep source urls when
-      you embed external content (if omitted, save falls back to embed url).
+      you embed external content (if omitted, save falls back to external
+      embed/image urls).
     </p>
+
+    <details style="margin: 0.9rem 0 1.1rem 0">
+      <summary style="cursor: pointer">quick add item</summary>
+      <div
+        style="margin-top: 0.75rem; display: grid; gap: 0.65rem; max-width: 44rem"
+      >
+        <label>
+          date<br />
+          <input type="date" id="quick-date" style="width: 100%" />
+        </label>
+        <label>
+          title (optional)<br />
+          <input
+            type="text"
+            id="quick-title"
+            placeholder="watched / read / build note"
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          body (markdown)<br />
+          <textarea
+            id="quick-body"
+            rows="4"
+            placeholder="short note, thought, or tiny artifact"
+            style="width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; line-height: 1.45"
+          ></textarea>
+        </label>
+        <label>
+          source url (optional)<br />
+          <input
+            type="url"
+            id="quick-source"
+            placeholder="https://..."
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          image url (optional)<br />
+          <input
+            type="text"
+            id="quick-image"
+            placeholder="/feed/images/..."
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          tags (comma separated, optional)<br />
+          <input
+            type="text"
+            id="quick-tags"
+            placeholder="reading, tools"
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          related link url (optional)<br />
+          <input
+            type="text"
+            id="quick-related-url"
+            placeholder="/notes/slug.html or https://..."
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          related link label (optional)<br />
+          <input
+            type="text"
+            id="quick-related-label"
+            placeholder="note: ..."
+            style="width: 100%"
+          />
+        </label>
+        <p style="margin: 0.1rem 0 0 0">
+          <button type="button" id="quick-add-btn">add item to top</button>
+        </p>
+      </div>
+    </details>
 
     <p style="margin-bottom: 0.75rem">
       <button type="button" id="load-btn">reload</button>
@@ -61,6 +140,15 @@
       const loadBtn = document.getElementById('load-btn')
       const templateBtn = document.getElementById('template-btn')
       const saveBtn = document.getElementById('save-btn')
+      const quickDateEl = document.getElementById('quick-date')
+      const quickTitleEl = document.getElementById('quick-title')
+      const quickBodyEl = document.getElementById('quick-body')
+      const quickSourceEl = document.getElementById('quick-source')
+      const quickImageEl = document.getElementById('quick-image')
+      const quickTagsEl = document.getElementById('quick-tags')
+      const quickRelatedUrlEl = document.getElementById('quick-related-url')
+      const quickRelatedLabelEl = document.getElementById('quick-related-label')
+      const quickAddBtn = document.getElementById('quick-add-btn')
 
       function setMessage(text, isError) {
         messageEl.textContent = text
@@ -69,6 +157,52 @@
 
       function todayIso() {
         return new Date().toISOString().slice(0, 10)
+      }
+
+      function slugify(value) {
+        return String(value == null ? '' : value)
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+      }
+
+      function parseTags(value) {
+        return String(value == null ? '' : value)
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      }
+
+      function isHttpUrl(value) {
+        return /^https?:\/\//i.test(String(value == null ? '' : value).trim())
+      }
+
+      function isYouTubeUrl(value) {
+        try {
+          const url = new URL(String(value == null ? '' : value).trim())
+          const host = url.hostname.replace(/^www\./, '').toLowerCase()
+          return host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtu.be'
+        } catch (_) {
+          return false
+        }
+      }
+
+      function buildUniqueId(date, title, existingItems) {
+        const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayIso()
+        const base = slugify(title) || 'entry'
+        const existingIds = new Set(
+          (Array.isArray(existingItems) ? existingItems : [])
+            .map((item) => (item && typeof item.id === 'string' ? item.id.trim() : ''))
+            .filter(Boolean)
+        )
+        let candidate = `${safeDate}-${base}`
+        let n = 2
+        while (existingIds.has(candidate)) {
+          candidate = `${safeDate}-${base}-${n}`
+          n += 1
+        }
+        return candidate
       }
 
       function stripTrailingCommas(jsonStr) {
@@ -133,6 +267,62 @@
         setMessage('Added starter item at the top.')
       })
 
+      quickAddBtn.addEventListener('click', () => {
+        const current = parseEditorJson()
+        if (!current.ok) {
+          setMessage('Invalid JSON: ' + current.error, true)
+          return
+        }
+        const data = current.data
+        if (!Array.isArray(data.items)) data.items = []
+
+        const date = (quickDateEl.value || todayIso()).trim()
+        const title = quickTitleEl.value.trim()
+        const bodyMd = quickBodyEl.value.trim()
+        const sourceUrl = quickSourceEl.value.trim()
+        const imageUrl = quickImageEl.value.trim()
+        const tags = parseTags(quickTagsEl.value)
+        const relatedUrl = quickRelatedUrlEl.value.trim()
+        const relatedLabel = quickRelatedLabelEl.value.trim()
+
+        if (!title && !bodyMd && !sourceUrl && !imageUrl) {
+          setMessage('Add at least one of: title, body, source url, or image url.', true)
+          return
+        }
+
+        const item = {
+          id: buildUniqueId(date, title || bodyMd, data.items),
+          date,
+        }
+        if (title) item.title = title
+        if (bodyMd) item.body_md = bodyMd
+        if (sourceUrl) {
+          item.source_url = sourceUrl
+          if (isHttpUrl(sourceUrl) && isYouTubeUrl(sourceUrl)) {
+            item.embed = { type: 'youtube', url: sourceUrl }
+          }
+        }
+        if (imageUrl) item.image_url = imageUrl
+        if (tags.length > 0) item.tags = tags
+        if (relatedUrl) {
+          item.related_links = relatedLabel
+            ? [{ label: relatedLabel, url: relatedUrl }]
+            : [{ url: relatedUrl }]
+        }
+
+        data.items.unshift(item)
+        jsonEl.value = JSON.stringify(data, null, 2)
+        setMessage('Added new item at the top. review the JSON, then save.')
+
+        quickTitleEl.value = ''
+        quickBodyEl.value = ''
+        quickSourceEl.value = ''
+        quickImageEl.value = ''
+        quickTagsEl.value = ''
+        quickRelatedUrlEl.value = ''
+        quickRelatedLabelEl.value = ''
+      })
+
       saveBtn.addEventListener('click', async () => {
         if (saveInProgress) return
         const parsed = parseEditorJson()
@@ -177,6 +367,7 @@
       window.addEventListener('pageshow', (e) => {
         if (e.persisted) loadData()
       })
+      if (quickDateEl && !quickDateEl.value) quickDateEl.value = todayIso()
       loadData()
     </script>
   </body>
