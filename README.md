@@ -10,7 +10,7 @@ Static personal site deployed to Vercel.
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON snapshots (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
+- Production is static HTML/CSS plus JSON data files (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - `index.html` reads `feed/data.json` for the recent-entry preview (first 3 items) and links each row to a feed anchor.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
@@ -70,6 +70,8 @@ Editor behavior (`editor/gifs.html`):
 - New lists can be added by name (ID is slugified in-browser).
 - `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
 - Save writes `gifs/data.json` via `POST /api/gifs/data`.
+- Save removes any item without a non-empty `url` and persists only `{ url, alt, title, listId }` (extra item fields are dropped).
+- List order in `lists[]` controls section order on `gifs/index.html`.
 
 ## Feed workflow
 
@@ -93,6 +95,18 @@ Editor behavior (`editor/gifs.html`):
   - `image_url`
   - `tags`
   - `related_links`
+  - `image_url`
+- Save normalizes entries and drops unsupported fields:
+  - missing `id` becomes `<date-or-feed-item>-<index>`
+  - empty optional fields are omitted from the written JSON
+  - `related_links[]` keeps only entries with a non-empty `url`
+
+Renderer behavior (`feed/index.html`):
+
+- `body_md` supports a small Markdown subset (paragraphs, `-` lists, inline code, `*italic*`, `**bold**`, links).
+- Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
+- `image_url` is rendered as an image block when present.
+- Links are restricted to `http(s)`, root-relative (`/foo`), or relative (`./foo`, `../foo`) URLs.
 
 Example item:
 
@@ -178,6 +192,7 @@ These endpoints are provided by `editor/server.js`:
 - **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
 - **`Note not found` in editor for an existing `.html` note**: note APIs read `notes/<slug>.md`; re-create or re-save the markdown source.
 - **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
+- **Feed formatting looks limited**: `feed/index.html` intentionally supports a narrow Markdown subset instead of full Markdown.
 - **Feed embed does not render**: only YouTube URLs with a parseable video ID are embedded; other URLs are shown as source links only.
 - **`Could not find required values` from `update-git-hours.js`**: input must include both `Total credited hours:` and `Progress toward 10,000 hours:`.
 - **Feed links render as plain text or are not clickable**: only `http(s)` and root/relative paths are treated as safe links in `feed/index.html`.
