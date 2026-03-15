@@ -10,7 +10,7 @@ Static personal site deployed to Vercel.
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON (`gifs/data.json`).
+- Production is static HTML/CSS plus JSON data files (`gifs/data.json`, `feed/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
@@ -46,7 +46,7 @@ Behavior:
 
 - Saving a note (`POST /api/save`) writes both `.md` and `.html`.
 - Deleting a note (`DELETE /api/note/:slug`) removes `.md` and `.html`, then regenerates `notes/index.html`.
-- If a note only has HTML, loading it (`GET /api/note/:slug`) backfills a matching `.md` file.
+- Loading a note (`GET /api/note/:slug`) requires `notes/<slug>.md`; a standalone HTML file is not enough for editor load.
 
 ## GIF workflow (current system)
 
@@ -68,6 +68,8 @@ Editor behavior (`editor/gifs.html`):
 - New lists can be added by name (ID is slugified in-browser).
 - `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
 - Save writes `gifs/data.json` via `POST /api/gifs/data`.
+- Save removes any item without a non-empty `url` and persists only `{ url, alt, title, listId }` (extra item fields are dropped).
+- List order in `lists[]` controls section order on `gifs/index.html`.
 
 ## Feed workflow
 
@@ -84,6 +86,18 @@ Editor behavior (`editor/gifs.html`):
   - `embed` (for example `{ "type": "youtube", "url": "..." }`)
   - `tags`
   - `related_links`
+  - `image_url`
+- Save normalizes entries and drops unsupported fields:
+  - missing `id` becomes `<date-or-feed-item>-<index>`
+  - empty optional fields are omitted from the written JSON
+  - `related_links[]` keeps only entries with a non-empty `url`
+
+Renderer behavior (`feed/index.html`):
+
+- `body_md` supports a small Markdown subset (paragraphs, `-` lists, inline code, `*italic*`, `**bold**`, links).
+- Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
+- `image_url` is rendered as an image block when present.
+- Links are restricted to `http(s)`, root-relative (`/foo`), or relative (`./foo`, `../foo`) URLs.
 
 ## Git-hours snapshot workflow
 
@@ -93,6 +107,7 @@ Editor behavior (`editor/gifs.html`):
   - `hours` (number)
   - `progress_pct` (number)
   - `updated_at` (`YYYY-MM-DD`)
+  - optional `stats` object (for tracker metadata such as `repositories_scanned`, `total_sessions`)
 - `index.html` fetches this file and renders a small "10k progress" block.
 - Local helper script: `scripts/update-git-hours.js`
   - Parse tracker output from stdin and write the snapshot:
@@ -132,3 +147,5 @@ These endpoints are provided by `editor/server.js`:
 - **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`.
 - **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
 - **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
+- **Feed formatting looks limited**: `feed/index.html` intentionally supports a narrow Markdown subset instead of full Markdown.
+- **Cannot edit a legacy note that only has HTML**: `GET /api/note/:slug` reads from `notes/<slug>.md`; restore/create the `.md` file first.
