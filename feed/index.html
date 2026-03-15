@@ -82,21 +82,132 @@
       function renderBodyMd(bodyMd) {
         const content = String(bodyMd == null ? '' : bodyMd).trim()
         if (!content) return ''
-        const blocks = content.split(/\n{2,}/)
-        return blocks
-          .map((block) => {
-            const lines = block.split('\n')
-            if (lines.every((line) => line.trim().startsWith('- '))) {
-              const items = lines
-                .map(
-                  (line) => `<li>${renderInlineMd(line.trim().slice(2))}</li>`
-                )
-                .join('')
-              return `<ul>${items}</ul>`
+        const lines = content.split('\n')
+        const blocks = []
+
+        function isFenceStart(line) {
+          return line.trim().startsWith('```')
+        }
+
+        function isHeading(line) {
+          return /^#{1,6}\s+/.test(line.trim())
+        }
+
+        function isBlockquote(line) {
+          return /^>\s?/.test(line.trim())
+        }
+
+        function isUnorderedListItem(line) {
+          return /^-\s+/.test(line.trim())
+        }
+
+        function isOrderedListItem(line) {
+          return /^\d+\.\s+/.test(line.trim())
+        }
+
+        function isBlockStart(line) {
+          return (
+            isFenceStart(line) ||
+            isHeading(line) ||
+            isBlockquote(line) ||
+            isUnorderedListItem(line) ||
+            isOrderedListItem(line)
+          )
+        }
+
+        let i = 0
+        while (i < lines.length) {
+          const rawLine = lines[i]
+          const trimmed = rawLine.trim()
+
+          if (!trimmed) {
+            i += 1
+            continue
+          }
+
+          if (isFenceStart(rawLine)) {
+            const langInput = trimmed.slice(3).trim().toLowerCase()
+            const lang = langInput.replace(/[^a-z0-9_-]/g, '')
+            const codeLines = []
+            i += 1
+            while (i < lines.length && !isFenceStart(lines[i])) {
+              codeLines.push(lines[i])
+              i += 1
             }
-            return `<p>${lines.map(renderInlineMd).join('<br />')}</p>`
-          })
-          .join('')
+            if (i < lines.length && isFenceStart(lines[i])) i += 1
+            blocks.push(
+              `<pre><code${
+                lang ? ` class="language-${escapeHtml(lang)}"` : ''
+              }>${escapeHtml(codeLines.join('\n'))}</code></pre>`
+            )
+            continue
+          }
+
+          if (isHeading(rawLine)) {
+            const match = trimmed.match(/^(#{1,6})\s+(.+)$/)
+            if (match) {
+              const level = String(match[1].length)
+              blocks.push(`<h${level}>${renderInlineMd(match[2])}</h${level}>`)
+              i += 1
+              continue
+            }
+          }
+
+          if (isBlockquote(rawLine)) {
+            const quoteLines = []
+            while (i < lines.length && isBlockquote(lines[i])) {
+              quoteLines.push(lines[i].trim().replace(/^>\s?/, ''))
+              i += 1
+            }
+            blocks.push(
+              `<blockquote><p>${quoteLines.map(renderInlineMd).join('<br />')}</p></blockquote>`
+            )
+            continue
+          }
+
+          if (isUnorderedListItem(rawLine)) {
+            const items = []
+            while (i < lines.length && isUnorderedListItem(lines[i])) {
+              items.push(
+                `<li>${renderInlineMd(lines[i].trim().replace(/^-\s+/, ''))}</li>`
+              )
+              i += 1
+            }
+            blocks.push(`<ul>${items.join('')}</ul>`)
+            continue
+          }
+
+          if (isOrderedListItem(rawLine)) {
+            const items = []
+            while (i < lines.length && isOrderedListItem(lines[i])) {
+              items.push(
+                `<li>${renderInlineMd(
+                  lines[i].trim().replace(/^\d+\.\s+/, '')
+                )}</li>`
+              )
+              i += 1
+            }
+            blocks.push(`<ol>${items.join('')}</ol>`)
+            continue
+          }
+
+          const paragraphLines = []
+          while (i < lines.length) {
+            const paragraphCandidate = lines[i]
+            if (!paragraphCandidate.trim()) break
+            if (
+              paragraphLines.length > 0 &&
+              isBlockStart(paragraphCandidate)
+            ) {
+              break
+            }
+            paragraphLines.push(paragraphCandidate)
+            i += 1
+          }
+          blocks.push(`<p>${paragraphLines.map(renderInlineMd).join('<br />')}</p>`)
+        }
+
+        return blocks.join('')
       }
 
       function extractYouTubeId(urlValue) {
