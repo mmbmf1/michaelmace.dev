@@ -12,6 +12,7 @@ Static personal site deployed to Vercel.
 
 - Production is static HTML/CSS plus JSON snapshots (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
+- `index.html` reads `feed/data.json` for the recent-entry preview (first 3 items) and links each row to a feed anchor.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
 - Home page preview cards read the first three entries from `feed/data.json` and link to `feed/index.html#<item-id>`.
 - `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
@@ -126,13 +127,16 @@ Feed rendering constraints (`feed/index.html`):
   - `hours` (number)
   - `progress_pct` (number)
   - `updated_at` (`YYYY-MM-DD`)
-  - optional `stats` object (for example repository/session counters)
+  - optional `stats` object (e.g. `repositories_scanned`, `total_sessions`, `sessions_assigned_floor_duration`, `gap_threshold_minutes`, `floor_threshold_minutes`)
 - `index.html` fetches this file and renders a small "10k progress" block.
 - Local helper script: `scripts/update-git-hours.js`
+  - Accepts comma-formatted numbers from tracker output (for example `1,644.9`).
   - Parse tracker output from stdin and write the snapshot:
     - `git-hours-tracker | node scripts/update-git-hours.js`
   - Parse from a saved file:
     - `node scripts/update-git-hours.js --input /tmp/git-hours.txt`
+  - Write to a custom file/date (useful for dry runs/backfills):
+    - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --output /tmp/git-hours.json --date 2026-03-12`
   - Preview parsed JSON without writing:
     - `node scripts/update-git-hours.js --input /tmp/git-hours.txt --stdout`
 
@@ -162,7 +166,7 @@ These endpoints are provided by `editor/server.js`:
   - Body: `{ items }`
   - Normalizes supported feed item fields and persists `feed/data.json`
   - If `id` is omitted, a fallback ID is generated from date/index
-  - If `source_url` is omitted and `embed.url` is external, `source_url` is backfilled from `embed.url`
+  - If `source_url` is omitted and `embed.url` (or external `image_url`) is present, `source_url` is backfilled
 
 ## Troubleshooting and pitfalls
 
@@ -170,8 +174,10 @@ These endpoints are provided by `editor/server.js`:
 - **No local edit pencil on notes/GIF pages**: edit links only show on `localhost` / `127.0.0.1`.
 - **Cross-port local setup (e.g. static page on 5173 + editor on 3002)**: API CORS allows only `http(s)://localhost` or `127.0.0.1`, and only `GET`/`POST`/`OPTIONS`.
 - **`Max 10 in favorites` when assigning list**: enforced client-side in GIF editor; move an existing favorite out first.
+- **`Note not found` in editor for an existing `.html` note**: note APIs read `notes/<slug>.md`; re-create or re-save the markdown source.
 - **Empty GIF page in production**: ensure `gifs/data.json` is committed and valid JSON (this file is intentionally tracked in git).
-- **`Note not found` for a slug that has only an HTML page**: the note API requires `notes/<slug>.md`; ensure it exists or recreate/restore the markdown source.
+- **Feed embed does not render**: only YouTube URLs with a parseable video ID are embedded; other URLs are shown as source links only.
+- **`Could not find required values` from `update-git-hours.js`**: input must include both `Total credited hours:` and `Progress toward 10,000 hours:`.
 - **Feed links render as plain text or are not clickable**: only `http(s)` and root/relative paths are treated as safe links in `feed/index.html`.
 - **Feed image does not render**: verify `image_url` uses a safe path (for example `/feed/images/<file>`) and that the file exists in `feed/images/`.
 - **YouTube embed not rendering**: use a parseable YouTube URL (`youtu.be`, `youtube.com/watch`, `/shorts/`, or `/embed/`).
