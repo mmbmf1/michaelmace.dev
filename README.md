@@ -88,6 +88,8 @@ Editor behavior (`editor/gifs.html`):
   external `image_url` so attribution stays visible on the feed page.
 - Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
 - Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
+- Feed rendering order is reverse-chronological by `date` (newest first); entries
+  with the same date keep their JSON order.
 - Data shape centers on `items[]` and supports keys like:
   - `id`, `date`, `title`, `body_md`
   - `source_url`
@@ -106,6 +108,7 @@ Renderer behavior (`feed/index.html`):
 - `body_md` supports a small Markdown subset (paragraphs, `-` lists, inline code, `*italic*`, `**bold**`, links).
 - Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
 - `image_url` is rendered as an image block when present.
+- Items are rendered reverse-chronologically by `date`; undated/unparseable dates fall to the end.
 - Links are restricted to `http(s)`, root-relative (`/foo`), or relative (`./foo`, `../foo`) URLs.
 
 Example item:
