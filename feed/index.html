@@ -256,6 +256,34 @@
         }).format(date)
       }
 
+      function sortableDateValue(value) {
+        if (typeof value !== 'string' || !value.trim()) return null
+        const raw = value.trim()
+        const isoDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(raw)
+        const parsed = new Date(isoDateOnly ? `${raw}T00:00:00Z` : raw)
+        if (Number.isNaN(parsed.getTime())) return null
+        return parsed.getTime()
+      }
+
+      function sortFeedItemsByDate(items) {
+        return items
+          .map((item, index) => ({
+            item,
+            index,
+            sortValue: sortableDateValue(item && item.date ? item.date : ''),
+          }))
+          .sort((a, b) => {
+            const aHasDate = a.sortValue != null
+            const bHasDate = b.sortValue != null
+            if (aHasDate && bHasDate && a.sortValue !== b.sortValue) {
+              return b.sortValue - a.sortValue
+            }
+            if (aHasDate !== bHasDate) return aHasDate ? -1 : 1
+            return a.index - b.index
+          })
+          .map((entry) => entry.item)
+      }
+
       function normalizeFeedItemId(rawId, index) {
         const fallback = `item-${index + 1}`
         if (typeof rawId !== 'string') return fallback
@@ -359,7 +387,8 @@
             list.innerHTML = '<p class="subtle">no feed items yet.</p>'
             return
           }
-          list.innerHTML = items
+          const sortedItems = sortFeedItemsByDate(items)
+          list.innerHTML = sortedItems
             .map((item, index) => renderItem(item, index))
             .join('')
         } catch (_) {

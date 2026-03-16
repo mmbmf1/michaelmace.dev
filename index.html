@@ -92,6 +92,34 @@
         return clean.replace(/^-+|-+$/g, '') || fallback
       }
 
+      function sortableDateValue(value) {
+        if (typeof value !== 'string' || !value.trim()) return null
+        const raw = value.trim()
+        const isoDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(raw)
+        const parsed = new Date(isoDateOnly ? `${raw}T00:00:00Z` : raw)
+        if (Number.isNaN(parsed.getTime())) return null
+        return parsed.getTime()
+      }
+
+      function sortFeedItemsByDate(items) {
+        return items
+          .map((item, index) => ({
+            item,
+            index,
+            sortValue: sortableDateValue(item && item.date ? item.date : ''),
+          }))
+          .sort((a, b) => {
+            const aHasDate = a.sortValue != null
+            const bHasDate = b.sortValue != null
+            if (aHasDate && bHasDate && a.sortValue !== b.sortValue) {
+              return b.sortValue - a.sortValue
+            }
+            if (aHasDate !== bHasDate) return aHasDate ? -1 : 1
+            return a.index - b.index
+          })
+          .map((entry) => entry.item)
+      }
+
       function stripInlineMarkdown(text) {
         return String(text == null ? '' : text)
           .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
@@ -170,7 +198,8 @@
           const response = await fetch('feed/data.json')
           if (!response.ok) throw new Error('bad response')
           const data = await response.json()
-          const items = Array.isArray(data.items) ? data.items.slice(0, 3) : []
+          const allItems = Array.isArray(data.items) ? data.items : []
+          const items = sortFeedItemsByDate(allItems).slice(0, 3)
           if (items.length === 0) {
             container.innerHTML =
               '<p class="subtle">feed is quiet right now.</p><p><a href="feed/index.html">open feed</a></p>'
