@@ -25,13 +25,18 @@
     </header>
 
     <main class="page-body">
-    <p id="feed-edit-wrap" class="hidden">
-      <a href="/editor/feed.html" class="local-edit new-note-link"
-        >( + edit feed )</a
-      >
-    </p>
+      <section class="feed-intro" aria-labelledby="feed-title">
+        <h1 id="feed-title" class="no-margin-bottom">feed</h1>
+        <p class="subtle">small logbook entries from the lab.</p>
+      </section>
 
-    <section id="feed-list" class="feed-list" aria-live="polite"></section>
+      <p id="feed-edit-wrap" class="hidden">
+        <a href="/editor/feed.html" class="local-edit new-note-link"
+          >( + edit feed )</a
+        >
+      </p>
+
+      <section id="feed-list" class="feed-list" aria-live="polite"></section>
     </main>
 
     <script>
@@ -284,6 +289,21 @@
           .map((entry) => entry.item)
       }
 
+      function feedDateGroupKey(value) {
+        if (typeof value !== 'string' || !value.trim()) return '__undated__'
+        const raw = value.trim()
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+        const parsed = new Date(raw)
+        if (Number.isNaN(parsed.getTime())) return `raw:${raw}`
+        return parsed.toISOString().slice(0, 10)
+      }
+
+      function feedDateGroupLabel(groupKey) {
+        if (groupKey === '__undated__') return 'undated'
+        if (groupKey.startsWith('raw:')) return groupKey.slice(4)
+        return formatDate(groupKey)
+      }
+
       function normalizeFeedItemId(rawId, index) {
         const fallback = `item-${index + 1}`
         if (typeof rawId !== 'string') return fallback
@@ -375,6 +395,50 @@
         )}</article>`
       }
 
+      function renderGroupedFeed(items) {
+        const groups = []
+        const byKey = new Map()
+        for (const item of items) {
+          const key = feedDateGroupKey(item && item.date ? item.date : '')
+          if (!byKey.has(key)) {
+            const group = { key, items: [] }
+            byKey.set(key, group)
+            groups.push(group)
+          }
+          byKey.get(key).items.push(item)
+        }
+
+        let runningIndex = 0
+        return groups
+          .map((group, groupIndex) => {
+            const headingText = feedDateGroupLabel(group.key)
+            const daySlug = String(group.key || headingText || 'undated')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+            const dayId = `day-${daySlug || 'undated'}-${groupIndex + 1}`
+            const count = group.items.length
+            const countText = count === 1 ? '1 entry' : `${count} entries`
+            const itemsHtml = group.items
+              .map((item) => {
+                const html = renderItem(item, runningIndex)
+                runningIndex += 1
+                return html
+              })
+              .join('')
+            return `<section class="feed-day-group" aria-labelledby="${escapeHtml(
+              dayId
+            )}"><h2 id="${escapeHtml(
+              dayId
+            )}" class="feed-day-heading">${escapeHtml(
+              headingText
+            )}<span class="feed-day-count">${escapeHtml(
+              countText
+            )}</span></h2><div class="feed-day-items">${itemsHtml}</div></section>`
+          })
+          .join('')
+      }
+
       async function initFeed() {
         const list = document.getElementById('feed-list')
         if (!list) return
@@ -388,9 +452,7 @@
             return
           }
           const sortedItems = sortFeedItemsByDate(items)
-          list.innerHTML = sortedItems
-            .map((item, index) => renderItem(item, index))
-            .join('')
+          list.innerHTML = renderGroupedFeed(sortedItems)
         } catch (_) {
           list.innerHTML =
             '<p class="subtle">feed data did not load. check feed/data.json.</p>'
