@@ -109,6 +109,7 @@ Renderer behavior (`feed/index.html`):
 - Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
 - `image_url` is rendered as an image block when present.
 - Items are rendered reverse-chronologically by `date`; undated/unparseable dates fall to the end.
+- The feed UI groups consecutive entries by day and shows a small per-day entry count.
 - Links are restricted to `http(s)`, root-relative (`/foo`), or relative (`./foo`, `../foo`) URLs.
 
 Example item:

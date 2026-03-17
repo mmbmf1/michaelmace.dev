@@ -252,9 +252,36 @@ li input[type='checkbox'] {
   gap: 2rem;
   margin-top: 1.25rem;
 }
+.feed-intro {
+  margin-bottom: 0.75rem;
+}
+.feed-intro .subtle {
+  margin-top: 0.4rem;
+}
+.feed-day-group {
+  margin: 0;
+}
+.feed-day-heading {
+  margin: 0 0 0.8rem 0;
+  font-size: 0.96rem;
+  font-weight: 600;
+  opacity: 0.85;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.feed-day-count {
+  font-size: 0.78rem;
+  font-weight: 400;
+  opacity: 0.75;
+}
 .feed-item {
   border-top: 1px solid rgba(127, 127, 127, 0.35);
   padding-top: 1rem;
+}
+.feed-day-items .feed-item:first-child {
+  margin-top: 0;
 }
 .feed-item-head {
   display: flex;
