@@ -258,6 +258,13 @@ li input[type='checkbox'] {
 .feed-intro .subtle {
   margin-top: 0.4rem;
 }
+.feed-filter {
+  margin: 0.1rem 0 0.8rem 0;
+  font-size: 0.92rem;
+}
+.feed-filter p {
+  margin: 0;
+}
 .feed-day-group {
   margin: 0;
 }
@@ -376,6 +383,16 @@ li input[type='checkbox'] {
   padding: 0.05rem 0.5rem;
   font-size: 0.78rem;
   opacity: 0.88;
+}
+.feed-tags li a {
+  text-decoration: none;
+}
+.feed-tags li.active {
+  border-color: rgba(127, 127, 127, 0.65);
+  opacity: 1;
+}
+.feed-tags li.active a {
+  font-weight: 600;
 }
 .feed-embed {
   margin-top: 0.9rem;

@@ -110,6 +110,7 @@ Renderer behavior (`feed/index.html`):
 - `image_url` is rendered as an image block when present.
 - Items are rendered reverse-chronologically by `date`; undated/unparseable dates fall to the end.
 - The feed UI groups consecutive entries by day and shows a small per-day entry count.
+- Feed tags are clickable and can filter the page via `?tag=<tag-slug>`.
 - Links are restricted to `http(s)`, root-relative (`/foo`), or relative (`./foo`, `../foo`) URLs.
 
 Example item:
