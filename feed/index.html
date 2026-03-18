@@ -30,6 +30,8 @@
         <p class="subtle">small logbook entries from the lab.</p>
       </section>
 
+      <section id="feed-filter" class="feed-filter hidden" aria-live="polite"></section>
+
       <p id="feed-edit-wrap" class="hidden">
         <a href="/editor/feed.html" class="local-edit new-note-link"
           >( + edit feed )</a
@@ -314,6 +316,24 @@
         return clean.replace(/^-+|-+$/g, '') || fallback
       }
 
+      function normalizeTag(value) {
+        return String(value == null ? '' : value)
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+      }
+
+      function getTagFilterFromLocation() {
+        const params = new URLSearchParams(window.location.search)
+        return normalizeTag(params.get('tag') || '')
+      }
+
+      function itemHasTag(item, activeTag) {
+        if (!activeTag) return true
+        const tags = Array.isArray(item && item.tags) ? item.tags : []
+        return tags.some((tag) => normalizeTag(tag) === activeTag)
+      }
+
       function renderRelatedLinks(links) {
         if (!Array.isArray(links) || links.length === 0) return ''
         const safeLinks = links
@@ -344,17 +364,26 @@
         }>${escapeHtml(sourceUrl)}</a></p>`
       }
 
-      function renderTags(tags) {
+      function renderTags(tags, activeTag) {
         if (!Array.isArray(tags) || tags.length === 0) return ''
         const clean = tags
           .map((tag) => String(tag || '').trim())
           .filter(Boolean)
-          .map((tag) => `<li>${escapeHtml(tag)}</li>`)
+          .map((tag) => {
+            const normalized = normalizeTag(tag)
+            if (!normalized) return ''
+            const activeClass =
+              activeTag && normalized === activeTag ? ' class="active"' : ''
+            const href = `?tag=${encodeURIComponent(normalized)}`
+            return `<li${activeClass}><a href="${href}">#${escapeHtml(
+              tag
+            )}</a></li>`
+          })
           .join('')
         return clean ? `<ul class="feed-tags">${clean}</ul>` : ''
       }
 
-      function renderItem(item, index) {
+      function renderItem(item, index, activeTag) {
         const title =
           item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
         const body = renderBodyMd(item && item.body_md ? item.body_md : '')
@@ -382,7 +411,7 @@
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
-        const tagsOnly = renderTags(item && item.tags)
+        const tagsOnly = renderTags(item && item.tags, activeTag)
         const relatedLinks = renderRelatedLinks(item && item.related_links)
         return `<article id="${escapeHtml(
           itemId
@@ -395,7 +424,7 @@
         )}</article>`
       }
 
-      function renderGroupedFeed(items) {
+      function renderGroupedFeed(items, activeTag) {
         const groups = []
         const byKey = new Map()
         for (const item of items) {
@@ -421,7 +450,7 @@
             const countText = count === 1 ? '1 entry' : `${count} entries`
             const itemsHtml = group.items
               .map((item) => {
-                const html = renderItem(item, runningIndex)
+                const html = renderItem(item, runningIndex, activeTag)
                 runningIndex += 1
                 return html
               })
@@ -439,6 +468,24 @@
           .join('')
       }
 
+      function renderTagFilterSummary(activeTag, itemCount, totalCount) {
+        const wrap = document.getElementById('feed-filter')
+        if (!wrap) return
+        if (!activeTag) {
+          wrap.classList.add('hidden')
+          wrap.innerHTML = ''
+          return
+        }
+        const label = itemCount === 1 ? '1 entry' : `${itemCount} entries`
+        const totalLabel = totalCount === 1 ? '1 total' : `${totalCount} total`
+        wrap.classList.remove('hidden')
+        wrap.innerHTML = `<p><span class="feed-meta-label">filter:</span> #${escapeHtml(
+          activeTag
+        )} · ${escapeHtml(label)} (${escapeHtml(
+          totalLabel
+        )}) · <a href="index.html">clear</a></p>`
+      }
+
       async function initFeed() {
         const list = document.getElementById('feed-list')
         if (!list) return
@@ -451,8 +498,19 @@
             list.innerHTML = '<p class="subtle">no feed items yet.</p>'
             return
           }
+          const activeTag = getTagFilterFromLocation()
           const sortedItems = sortFeedItemsByDate(items)
-          list.innerHTML = renderGroupedFeed(sortedItems)
+          const filteredItems = sortedItems.filter((item) =>
+            itemHasTag(item, activeTag)
+          )
+          renderTagFilterSummary(activeTag, filteredItems.length, sortedItems.length)
+          if (filteredItems.length === 0) {
+            list.innerHTML = `<p class="subtle">no entries for #${escapeHtml(
+              activeTag
+            )} yet. <a href="index.html">clear filter</a>.</p>`
+            return
+          }
+          list.innerHTML = renderGroupedFeed(filteredItems, activeTag)
         } catch (_) {
           list.innerHTML =
             '<p class="subtle">feed data did not load. check feed/data.json.</p>'
