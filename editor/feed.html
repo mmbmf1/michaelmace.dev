@@ -27,6 +27,9 @@
       you embed external content (if omitted, save falls back to external
       embed/image urls).
     </p>
+    <p class="subtle" style="margin-top: 0.4rem; font-size: 0.92rem">
+      schema: <a href="../feed/schema.json" target="_blank" rel="noopener noreferrer">feed/schema.json</a>
+    </p>
 
     <details style="margin: 0.9rem 0 1.1rem 0">
       <summary style="cursor: pointer">quick add item</summary>
@@ -109,6 +112,7 @@
     <p style="margin-bottom: 0.75rem">
       <button type="button" id="load-btn">reload</button>
       <button type="button" id="template-btn">+ starter item</button>
+      <button type="button" id="validate-btn">validate</button>
       <button type="button" id="save-btn">save</button>
       <a href="../feed/index.html" style="margin-left: 0.35rem">open feed</a>
     </p>
@@ -136,6 +140,7 @@
       const messageEl = document.getElementById('message')
       const loadBtn = document.getElementById('load-btn')
       const templateBtn = document.getElementById('template-btn')
+      const validateBtn = document.getElementById('validate-btn')
       const saveBtn = document.getElementById('save-btn')
       const quickDateEl = document.getElementById('quick-date')
       const quickTitleEl = document.getElementById('quick-title')
@@ -175,6 +180,12 @@
         return /^https?:\/\//i.test(String(value == null ? '' : value).trim())
       }
 
+      function isSafeHref(value) {
+        return /^(https?:\/\/|\/|\.{1,2}\/)/i.test(
+          String(value == null ? '' : value).trim()
+        )
+      }
+
       function isYouTubeUrl(value) {
         try {
           const url = new URL(String(value == null ? '' : value).trim())
@@ -204,6 +215,172 @@
 
       function stripTrailingCommas(jsonStr) {
         return jsonStr.replace(/,(\s*[}\]])/g, '$1')
+      }
+
+      function isPlainObject(value) {
+        return !!value && typeof value === 'object' && !Array.isArray(value)
+      }
+
+      function hasAnyContent(item) {
+        const title = typeof item.title === 'string' ? item.title.trim() : ''
+        const bodyMd = typeof item.body_md === 'string' ? item.body_md.trim() : ''
+        const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
+        const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        const hasEmbed = !!(
+          item.embed &&
+          typeof item.embed === 'object' &&
+          typeof item.embed.url === 'string' &&
+          item.embed.url.trim()
+        )
+        const hasRelatedLinks = Array.isArray(item.related_links) && item.related_links.length > 0
+        return !!(title || bodyMd || sourceUrl || imageUrl || hasEmbed || hasRelatedLinks)
+      }
+
+      function validateFeedData(data) {
+        const errors = []
+        const warnings = []
+        if (!isPlainObject(data)) {
+          errors.push('top-level value must be an object.')
+          return { errors, warnings }
+        }
+        if (!Array.isArray(data.items)) {
+          errors.push('top-level "items" must be an array.')
+          return { errors, warnings }
+        }
+
+        const seenIds = new Set()
+        data.items.forEach((item, index) => {
+          const row = index + 1
+          if (!isPlainObject(item)) {
+            errors.push(`items[${row}] must be an object.`)
+            return
+          }
+
+          const id = typeof item.id === 'string' ? item.id.trim() : ''
+          const date = typeof item.date === 'string' ? item.date.trim() : ''
+          if (!id) {
+            errors.push(`items[${row}] is missing id.`)
+          } else {
+            if (seenIds.has(id)) {
+              errors.push(`items[${row}] has duplicate id "${id}".`)
+            }
+            seenIds.add(id)
+            if (!/^[a-z0-9][a-z0-9._-]*$/.test(id)) {
+              warnings.push(
+                `items[${row}] id "${id}" is unusual; lowercase letters, numbers, ".", "_" and "-" are safest.`
+              )
+            }
+          }
+
+          if (!date) {
+            errors.push(`items[${row}] is missing date.`)
+          } else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            errors.push(`items[${row}] date "${date}" must use YYYY-MM-DD.`)
+          }
+
+          if (!hasAnyContent(item)) {
+            errors.push(
+              `items[${row}] needs content (title, body_md, source_url, image_url, embed, or related_links).`
+            )
+          }
+
+          const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
+          const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+
+          if (sourceUrl && !isSafeHref(sourceUrl)) {
+            errors.push(`items[${row}] source_url is not a safe URL/path.`)
+          }
+          if (imageUrl && !isSafeHref(imageUrl)) {
+            errors.push(`items[${row}] image_url is not a safe URL/path.`)
+          }
+
+          if (item.embed != null) {
+            if (!isPlainObject(item.embed)) {
+              errors.push(`items[${row}] embed must be an object when present.`)
+            } else {
+              const embedType = typeof item.embed.type === 'string' ? item.embed.type.trim() : ''
+              const embedUrl = typeof item.embed.url === 'string' ? item.embed.url.trim() : ''
+              if (!embedType) errors.push(`items[${row}] embed.type is required when embed is set.`)
+              if (!embedUrl) errors.push(`items[${row}] embed.url is required when embed is set.`)
+              if (embedUrl && !isSafeHref(embedUrl)) {
+                errors.push(`items[${row}] embed.url is not a safe URL/path.`)
+              }
+              if (embedType && embedType !== 'youtube') {
+                warnings.push(
+                  `items[${row}] embed.type "${embedType}" is not auto-rendered on the feed page (youtube only).`
+                )
+              }
+              if (embedUrl && isHttpUrl(embedUrl) && !sourceUrl) {
+                warnings.push(
+                  `items[${row}] has an external embed without source_url; save will backfill source_url.`
+                )
+              }
+            }
+          }
+
+          if (imageUrl && isHttpUrl(imageUrl) && !sourceUrl) {
+            warnings.push(
+              `items[${row}] has an external image without source_url; save will backfill source_url.`
+            )
+          }
+
+          if (item.tags != null) {
+            if (!Array.isArray(item.tags)) {
+              errors.push(`items[${row}] tags must be an array when present.`)
+            } else {
+              item.tags.forEach((tag, tagIndex) => {
+                if (typeof tag !== 'string' || !tag.trim()) {
+                  errors.push(`items[${row}] tags[${tagIndex + 1}] must be a non-empty string.`)
+                }
+              })
+            }
+          }
+
+          if (item.related_links != null) {
+            if (!Array.isArray(item.related_links)) {
+              errors.push(`items[${row}] related_links must be an array when present.`)
+            } else {
+              item.related_links.forEach((link, linkIndex) => {
+                if (!isPlainObject(link)) {
+                  errors.push(
+                    `items[${row}] related_links[${linkIndex + 1}] must be an object with url.`
+                  )
+                  return
+                }
+                const url = typeof link.url === 'string' ? link.url.trim() : ''
+                if (!url) {
+                  errors.push(`items[${row}] related_links[${linkIndex + 1}] is missing url.`)
+                } else if (!isSafeHref(url)) {
+                  errors.push(`items[${row}] related_links[${linkIndex + 1}] has an unsafe url.`)
+                }
+              })
+            }
+          }
+        })
+
+        return { errors, warnings }
+      }
+
+      function summarizeValidation(report) {
+        const parts = []
+        if (report.errors.length > 0) {
+          const firstErrors = report.errors.slice(0, 3).join(' ')
+          const extraErrors =
+            report.errors.length > 3
+              ? ` (+${report.errors.length - 3} more error${report.errors.length - 3 === 1 ? '' : 's'})`
+              : ''
+          parts.push(`errors: ${firstErrors}${extraErrors}`)
+        }
+        if (report.warnings.length > 0) {
+          const firstWarnings = report.warnings.slice(0, 2).join(' ')
+          const extraWarnings =
+            report.warnings.length > 2
+              ? ` (+${report.warnings.length - 2} more warning${report.warnings.length - 2 === 1 ? '' : 's'})`
+              : ''
+          parts.push(`warnings: ${firstWarnings}${extraWarnings}`)
+        }
+        if (parts.length === 0) return 'Validation passed.'
+        return parts.join(' | ')
       }
 
       function parseEditorJson() {
@@ -320,11 +497,30 @@
         quickRelatedLabelEl.value = ''
       })
 
+      validateBtn.addEventListener('click', () => {
+        const parsed = parseEditorJson()
+        if (!parsed.ok) {
+          setMessage('Invalid JSON: ' + parsed.error, true)
+          return
+        }
+        const report = validateFeedData(parsed.data)
+        if (report.errors.length > 0) {
+          setMessage(summarizeValidation(report), true)
+          return
+        }
+        setMessage(summarizeValidation(report), false)
+      })
+
       saveBtn.addEventListener('click', async () => {
         if (saveInProgress) return
         const parsed = parseEditorJson()
         if (!parsed.ok) {
           setMessage('Invalid JSON: ' + parsed.error, true)
+          return
+        }
+        const validation = validateFeedData(parsed.data)
+        if (validation.errors.length > 0) {
+          setMessage(summarizeValidation(validation), true)
           return
         }
         saveInProgress = true
@@ -348,7 +544,15 @@
             2
           )
           const count = typeof data.count === 'number' ? data.count : null
-          setMessage(count == null ? 'Saved.' : `Saved ${count} item(s).`)
+          const warningText =
+            validation.warnings.length > 0
+              ? ` (${validation.warnings.length} warning${
+                  validation.warnings.length === 1 ? '' : 's'
+                })`
+              : ''
+          setMessage(
+            count == null ? `Saved.${warningText}` : `Saved ${count} item(s).${warningText}`
+          )
         } catch (err) {
           setMessage('Request failed: ' + err.message, true)
         } finally {
