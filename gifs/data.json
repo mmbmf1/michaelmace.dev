@@ -16,7 +16,6 @@
       "id": "will-ferrell",
       "label": "will ferrell"
     },
-
     {
       "id": "goats",
       "label": "goats"
@@ -226,6 +225,12 @@
       "alt": "",
       "title": "",
       "listId": "dad-life"
+    },
+    {
+      "url": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExajd5d2I0eWVqZWx3eTY1YXdvNDhwOHl0Ynp2YXk5MTYwdXJ6aGxsdSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2eK5iNmF6WDUbD2uDU/giphy.gif",
+      "alt": "",
+      "title": "",
+      "listId": "favs"
     }
   ]
 }
