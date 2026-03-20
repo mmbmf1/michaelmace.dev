@@ -12,6 +12,7 @@ Static personal site deployed to Vercel.
 
 - Production is static HTML/CSS plus JSON data files (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
+- `feed/index.html` also shows a small static hours snapshot from `data/git-hours.json`.
 - `index.html` reads `feed/data.json` for the recent-entry preview (first 3 items) and links each row to a feed anchor.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
 - Home page preview cards read the first three entries from `feed/data.json` and link to `feed/index.html#<item-id>`.
