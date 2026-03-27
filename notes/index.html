@@ -23,53 +23,35 @@
       </p>
     </header>
 
-    <main class="page-body">
-    <p id="new-note-wrap" class="hidden" style="margin-top: 0.5rem;">
-      <a
-        href="/editor/index.html"
-        class="local-edit new-note-link"
-        aria-label="New note"
-        title="New note"
-      >( + add note )</a>
-    </p>
+    <div class="notes-header">
+    <h1>Notes</h1>
+    <span id="new-note-wrap" class="hidden"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
+    </div>
 
     <ul class="notes-list">
       <li>
         <a href="hello-world.html"> Markdown demo </a>
-        <a
-          href="/editor/index.html?slug=hello-world"
-          class="local-edit hidden"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="/editor/index.html?slug=hello-world" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>Friday February 20th, 2026</small>
       </li>
       <li>
+        <a href="segments-retro-raw-notes.html"> segments retro raw notes </a>
+        <a href="/editor/index.html?slug=segments-retro-raw-notes" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
+        <br />
+        <small>Friday March 27th 2026</small>
+      </li>
+      <li>
         <a href="on-layering-intel.html"> On Layering Intelligence </a>
-        <a
-          href="/editor/index.html?slug=on-layering-intel"
-          class="local-edit hidden"
-          aria-label="Edit note"
-          title="Edit"
-          >&#9998;</a
-        >
+        <a href="/editor/index.html?slug=on-layering-intel" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
         <br />
         <small>February 2026</small>
       </li>
     </ul>
-    </main>
     <script>
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
-        var w = document.getElementById('new-note-wrap')
-        if (w) w.classList.remove('hidden')
-        document.querySelectorAll('.local-edit').forEach(function (a) {
-          a.classList.remove('hidden')
-        })
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var w = document.getElementById('new-note-wrap'); if (w) w.classList.remove('hidden');
+        document.querySelectorAll('.local-edit').forEach(function (a) { a.classList.remove('hidden'); });
       }
     </script>
   </body>
