@@ -254,7 +254,11 @@
 
       function formatDate(value) {
         if (typeof value !== 'string' || !value.trim()) return ''
-        const date = new Date(value)
+        const raw = value.trim()
+        const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw)
+        const date = iso
+          ? new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]))
+          : new Date(raw)
         if (Number.isNaN(date.getTime())) return value
         return new Intl.DateTimeFormat(undefined, {
           year: 'numeric',
@@ -266,8 +270,17 @@
       function sortableDateValue(value) {
         if (typeof value !== 'string' || !value.trim()) return null
         const raw = value.trim()
-        const isoDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(raw)
-        const parsed = new Date(isoDateOnly ? `${raw}T00:00:00Z` : raw)
+        const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw)
+        if (iso) {
+          const local = new Date(
+            Number(iso[1]),
+            Number(iso[2]) - 1,
+            Number(iso[3])
+          )
+          if (Number.isNaN(local.getTime())) return null
+          return local.getTime()
+        }
+        const parsed = new Date(raw)
         if (Number.isNaN(parsed.getTime())) return null
         return parsed.getTime()
       }
