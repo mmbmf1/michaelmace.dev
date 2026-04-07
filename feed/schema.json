@@ -86,6 +86,9 @@
         "image_url": {
           "$ref": "#/$defs/safeHref"
         },
+        "video_url": {
+          "$ref": "#/$defs/safeHref"
+        },
         "tags": {
           "type": "array",
           "items": {
@@ -124,6 +127,11 @@
         {
           "required": [
             "image_url"
+          ]
+        },
+        {
+          "required": [
+            "video_url"
           ]
         },
         {

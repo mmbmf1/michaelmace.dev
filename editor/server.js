@@ -329,10 +329,11 @@ function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value.trim())
 }
 
-function preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl) {
+function preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl, videoUrl) {
   if (sourceUrlInput) return sourceUrlInput
   if (embedType && isHttpUrl(embedUrl)) return embedUrl
   if (isHttpUrl(imageUrl)) return imageUrl
+  if (isHttpUrl(videoUrl)) return videoUrl
   return ''
 }
 
@@ -385,7 +386,9 @@ function normalizeFeedItem(item, index) {
     : []
   const imageUrl =
     item && typeof item.image_url === 'string' ? item.image_url.replace(/\r?\n/g, '').trim() : ''
-  const sourceUrl = preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl)
+  const videoUrl =
+    item && typeof item.video_url === 'string' ? item.video_url.replace(/\r?\n/g, '').trim() : ''
+  const sourceUrl = preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl, videoUrl)
 
   const normalized = {
     id,
@@ -396,6 +399,7 @@ function normalizeFeedItem(item, index) {
   if (sourceUrl) normalized.source_url = sourceUrl
   if (embedType && embedUrl) normalized.embed = { type: embedType, url: embedUrl }
   if (imageUrl) normalized.image_url = imageUrl
+  if (videoUrl) normalized.video_url = videoUrl
   if (tags.length > 0) normalized.tags = tags
   if (relatedLinks.length > 0) normalized.related_links = relatedLinks
   return normalized

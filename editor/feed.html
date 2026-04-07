@@ -77,6 +77,15 @@
           />
         </label>
         <label>
+          video url (optional)<br />
+          <input
+            type="text"
+            id="quick-video"
+            placeholder="/feed/images/...mp4"
+            style="width: 100%"
+          />
+        </label>
+        <label>
           tags (comma separated, optional)<br />
           <input
             type="text"
@@ -147,6 +156,7 @@
       const quickBodyEl = document.getElementById('quick-body')
       const quickSourceEl = document.getElementById('quick-source')
       const quickImageEl = document.getElementById('quick-image')
+      const quickVideoEl = document.getElementById('quick-video')
       const quickTagsEl = document.getElementById('quick-tags')
       const quickRelatedUrlEl = document.getElementById('quick-related-url')
       const quickRelatedLabelEl = document.getElementById('quick-related-label')
@@ -226,6 +236,7 @@
         const bodyMd = typeof item.body_md === 'string' ? item.body_md.trim() : ''
         const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
         const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        const videoUrl = typeof item.video_url === 'string' ? item.video_url.trim() : ''
         const hasEmbed = !!(
           item.embed &&
           typeof item.embed === 'object' &&
@@ -233,7 +244,15 @@
           item.embed.url.trim()
         )
         const hasRelatedLinks = Array.isArray(item.related_links) && item.related_links.length > 0
-        return !!(title || bodyMd || sourceUrl || imageUrl || hasEmbed || hasRelatedLinks)
+        return !!(
+          title ||
+          bodyMd ||
+          sourceUrl ||
+          imageUrl ||
+          videoUrl ||
+          hasEmbed ||
+          hasRelatedLinks
+        )
       }
 
       function validateFeedData(data) {
@@ -286,12 +305,16 @@
 
           const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
           const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+          const videoUrl = typeof item.video_url === 'string' ? item.video_url.trim() : ''
 
           if (sourceUrl && !isSafeHref(sourceUrl)) {
             errors.push(`items[${row}] source_url is not a safe URL/path.`)
           }
           if (imageUrl && !isSafeHref(imageUrl)) {
             errors.push(`items[${row}] image_url is not a safe URL/path.`)
+          }
+          if (videoUrl && !isSafeHref(videoUrl)) {
+            errors.push(`items[${row}] video_url is not a safe URL/path.`)
           }
 
           if (item.embed != null) {
@@ -321,6 +344,11 @@
           if (imageUrl && isHttpUrl(imageUrl) && !sourceUrl) {
             warnings.push(
               `items[${row}] has an external image without source_url; save will backfill source_url.`
+            )
+          }
+          if (videoUrl && isHttpUrl(videoUrl) && !sourceUrl) {
+            warnings.push(
+              `items[${row}] has an external video without source_url; save will backfill source_url.`
             )
           }
 
@@ -455,12 +483,16 @@
         const bodyMd = quickBodyEl.value.trim()
         const sourceUrl = quickSourceEl.value.trim()
         const imageUrl = quickImageEl.value.trim()
+        const videoUrl = quickVideoEl.value.trim()
         const tags = parseTags(quickTagsEl.value)
         const relatedUrl = quickRelatedUrlEl.value.trim()
         const relatedLabel = quickRelatedLabelEl.value.trim()
 
-        if (!title && !bodyMd && !sourceUrl && !imageUrl) {
-          setMessage('Add at least one of: title, body, source url, or image url.', true)
+        if (!title && !bodyMd && !sourceUrl && !imageUrl && !videoUrl) {
+          setMessage(
+            'Add at least one of: title, body, source url, image url, or video url.',
+            true
+          )
           return
         }
 
@@ -477,6 +509,7 @@
           }
         }
         if (imageUrl) item.image_url = imageUrl
+        if (videoUrl) item.video_url = videoUrl
         if (tags.length > 0) item.tags = tags
         if (relatedUrl) {
           item.related_links = relatedLabel
@@ -492,6 +525,7 @@
         quickBodyEl.value = ''
         quickSourceEl.value = ''
         quickImageEl.value = ''
+        quickVideoEl.value = ''
         quickTagsEl.value = ''
         quickRelatedUrlEl.value = ''
         quickRelatedLabelEl.value = ''

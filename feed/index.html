@@ -252,6 +252,13 @@
         )}" alt="" loading="lazy"></div>`
       }
 
+      function renderVideo(videoUrl) {
+        if (!videoUrl || !isSafeHref(videoUrl)) return ''
+        return `<div class="feed-embed"><video class="feed-video" src="${escapeHtml(
+          videoUrl
+        )}" controls muted loop playsinline autoplay preload="metadata"></video></div>`
+      }
+
       function formatDate(value) {
         if (typeof value !== 'string' || !value.trim()) return ''
         const raw = value.trim()
@@ -413,14 +420,21 @@
           item && typeof item.image_url === 'string'
             ? item.image_url.trim()
             : ''
+        const videoUrl =
+          item && typeof item.video_url === 'string'
+            ? item.video_url.trim()
+            : ''
         const sourceUrl =
           sourceUrlInput ||
           (/^https?:\/\//i.test(embedUrlCandidate)
             ? embedUrlCandidate
             : /^https?:\/\//i.test(imageUrl)
             ? imageUrl
+            : /^https?:\/\//i.test(videoUrl)
+            ? videoUrl
             : '')
         const image = renderImage(imageUrl)
+        const video = renderVideo(videoUrl)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
@@ -432,7 +446,7 @@
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
-        )}</p>${relatedLinks}<div class="feed-body">${body}</div>${image}${embed}${renderSource(
+        )}</p>${relatedLinks}<div class="feed-body">${body}</div>${image}${video}${embed}${renderSource(
           sourceUrl
         )}</article>`
       }

@@ -91,6 +91,7 @@ Editor behavior (`editor/gifs.html`):
   external `image_url` so attribution stays visible on the feed page.
 - Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
 - Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
+- Optional `video_url` renders an inline HTML5 video block in feed cards.
 - Feed rendering order is reverse-chronological by `date` (newest first); entries
   with the same date keep their JSON order.
 - Data shape centers on `items[]` and supports keys like:
@@ -98,6 +99,7 @@ Editor behavior (`editor/gifs.html`):
   - `source_url`
   - `embed` (for example `{ "type": "youtube", "url": "..." }`)
   - `image_url`
+- `video_url`
   - `tags`
   - `related_links`
   - `image_url`
@@ -111,6 +113,7 @@ Renderer behavior (`feed/index.html`):
 - `body_md` supports a small Markdown subset (paragraphs, `-` lists, inline code, `*italic*`, `**bold**`, links).
 - Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
 - `image_url` is rendered as an image block when present.
+- `video_url` is rendered as an inline HTML5 video when present.
 - Items are rendered reverse-chronologically by `date`; undated/unparseable dates fall to the end.
 - The feed UI groups consecutive entries by day and shows a small per-day entry count.
 - Feed tags are clickable and can filter the page via `?tag=<tag-slug>`.
