@@ -128,16 +128,26 @@
         })
       }
 
+      function absoluteGifUrl(raw) {
+        const u = (raw || '').trim()
+        if (!u) return u
+        try {
+          return new URL(u, location.href).href
+        } catch {
+          return u
+        }
+      }
+
       function attachCopyHandlers() {
         document.querySelectorAll('img[data-gif]').forEach((img) => {
           img.onclick = async (e) => {
             e.preventDefault()
             e.stopPropagation()
             const url = img.getAttribute('data-gif')
-            const md = `![](${url})`
+            const link = absoluteGifUrl(url)
             try {
-              await copyText(md)
-              showToast('copied markdown')
+              await copyText(link)
+              showToast('copied link')
             } catch {
               showToast('copy failed')
             }
