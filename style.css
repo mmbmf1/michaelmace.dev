@@ -57,6 +57,22 @@ h1 {
   opacity: 1;
 }
 
+/* Local-only GIF editor entry: inline in nav, low contrast */
+.nav-edit-wrap {
+  font-weight: 400;
+  font-size: 0.88em;
+  opacity: 0.5;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s ease;
+}
+.nav-edit-wrap:hover {
+  opacity: 0.92;
+}
+.nav-links .nav-inline-edit-link {
+  margin: 0;
+  text-decoration: none;
+}
+
 .local-edit {
   margin-left: 0.35rem;
   margin-right: 0.35rem;

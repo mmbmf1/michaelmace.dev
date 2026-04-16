@@ -20,7 +20,7 @@
           target="_blank"
           rel="noopener noreferrer"
           >GitHub</a
-        >
+        ><span id="feed-edit-wrap" class="nav-edit-wrap hidden"> · <a id="feed-editor-link" href="/editor/feed.html" class="local-edit nav-inline-edit-link" aria-label="Edit feed" title="Open feed editor (local)">edit</a></span>
       </p>
     </header>
 
@@ -31,12 +31,6 @@
       </section>
 
       <section id="feed-filter" class="feed-filter hidden" aria-live="polite"></section>
-
-      <p id="feed-edit-wrap" class="hidden">
-        <a href="/editor/feed.html" class="local-edit new-note-link"
-          >( + edit feed )</a
-        >
-      </p>
 
       <section id="feed-list" class="feed-list" aria-live="polite"></section>
     </main>
@@ -544,13 +538,21 @@
         }
       }
 
+      const EDITOR_PORT = 3002
+      const isLocal =
+        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
+        location.hostname === ''
+      const editorOrigin =
+        isLocal && String(location.port) !== String(EDITOR_PORT)
+          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
+          : ''
+
       initFeed()
-      if (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-      ) {
+      if (isLocal) {
         const editWrap = document.getElementById('feed-edit-wrap')
         if (editWrap) editWrap.classList.remove('hidden')
+        const editLink = document.getElementById('feed-editor-link')
+        if (editLink && editorOrigin) editLink.href = editorOrigin + '/editor/feed.html'
       }
     </script>
   </body>

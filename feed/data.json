@@ -1,6 +1,16 @@
 {
   "items": [
     {
+      "id": "2026-04-16-last-ten-commits",
+      "date": "2026-04-16",
+      "title": "site: last 10 commits",
+      "body_md": "quick sweep of what landed on main lately:\n\n- **count gifs; copy better; link sections** — GIF page: section counts as a right-side badge, permalink + copy for section URLs (#favs etc.), copy-to-clipboard wired to the real control (and shared nav edit styling with feed).\n- **gif order of the moment** — shuffled / curated order for a slice of the library.\n- **bobarlan gif** — new entry in the GIF data.\n- **update jn title; custom gif feed** — feed title tweak + custom GIF showing up in the feed.\n- **update gif edit uo** — GIF editor UI polish.\n- **add some more gifs** — batch of new GIFs in data.json.\n- **add metric shit tonne dump truck gif** — one more for the pile.\n- **fix typo** — small copy fix.\n- **almost another PR** — hiking / trail content or prep.\n- **tag hiking posts** — hiking tags on relevant feed items.",
+      "tags": [
+        "site",
+        "build"
+      ]
+    },
+    {
       "id": "2026-04-16-custom-gif",
       "date": "2026-04-16",
       "title": "custom gif",
