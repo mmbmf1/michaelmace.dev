@@ -48,24 +48,82 @@
           ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
           : ''
 
+      function absoluteGifUrl(raw) {
+        const u = (raw || '').trim()
+        if (!u) return u
+        try {
+          return new URL(u, location.href).href
+        } catch {
+          return u
+        }
+      }
+
+      function createLinkIconSvg() {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+        svg.setAttribute('width', '14')
+        svg.setAttribute('height', '14')
+        svg.setAttribute('viewBox', '0 0 24 24')
+        svg.setAttribute('fill', 'none')
+        svg.setAttribute('stroke', 'currentColor')
+        svg.setAttribute('stroke-width', '2')
+        svg.setAttribute('stroke-linecap', 'round')
+        svg.setAttribute('stroke-linejoin', 'round')
+        svg.setAttribute('aria-hidden', 'true')
+        const p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        p1.setAttribute(
+          'd',
+          'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'
+        )
+        const p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        p2.setAttribute(
+          'd',
+          'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'
+        )
+        svg.appendChild(p1)
+        svg.appendChild(p2)
+        return svg
+      }
+
+      function scrollToHashSection() {
+        const id = (location.hash || '').replace(/^#/, '')
+        if (!id) return
+        const el = document.getElementById(id)
+        if (!el || !el.classList.contains('gif-list-wrap')) return
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+
       function createCardForUrl(url, title, alt, youtubeUrl) {
         const card = document.createElement('div')
         card.className = 'gif-card'
+        card.dataset.copyUrl = absoluteGifUrl(url)
         const img = document.createElement('img')
         img.className = 'gif'
         img.src = url
-        img.setAttribute('data-gif', url)
         img.alt = alt || ''
         img.loading = 'lazy'
         if (title) img.setAttribute('data-title', title)
         const labels = document.createElement('div')
         labels.className = 'card-labels'
-        labels.innerHTML =
-          '<span class="card-label">click to copy</span>' +
-          (youtubeUrl
-            ? '<a class="card-label" href="' + youtubeUrl + '" target="_blank" rel="noopener" title="open on YouTube">view on youtube</a>'
-            : '') +
-          '<span class="card-label card-label-title"></span>'
+        const copyBtn = document.createElement('button')
+        copyBtn.type = 'button'
+        copyBtn.className = 'card-label card-label--copy'
+        copyBtn.textContent = 'click to copy'
+        copyBtn.title = 'Copy link to this GIF on this site'
+        copyBtn.setAttribute('aria-label', 'Copy link to this GIF on this site')
+        labels.appendChild(copyBtn)
+        if (youtubeUrl) {
+          const yt = document.createElement('a')
+          yt.className = 'card-label'
+          yt.href = youtubeUrl
+          yt.target = '_blank'
+          yt.rel = 'noopener noreferrer'
+          yt.title = 'open on YouTube'
+          yt.textContent = 'view on youtube'
+          labels.appendChild(yt)
+        }
+        const titleEl = document.createElement('span')
+        titleEl.className = 'card-label card-label-title'
+        labels.appendChild(titleEl)
         card.appendChild(img)
         card.appendChild(labels)
         return card
@@ -103,48 +161,72 @@
           const listItems = normalized.filter((i) => i.listId === list.id)
           const wrap = document.createElement('div')
           wrap.className = 'gif-list-wrap'
+          wrap.id = list.id
+          const heading = document.createElement('div')
+          heading.className = 'gif-row-heading'
+          const headingStart = document.createElement('div')
+          headingStart.className = 'gif-row-heading__start'
           const label = document.createElement('p')
           label.className = 'gif-row-label'
+          const n = listItems.length
           label.textContent = list.label
+          const sectionLink = document.createElement('a')
+          sectionLink.className = 'gif-section-link'
+          sectionLink.href = '#' + list.id
+          sectionLink.title =
+            'Copy link to this section; also jumps here in the page'
+          sectionLink.setAttribute(
+            'aria-label',
+            'Copy site link to this section'
+          )
+          sectionLink.appendChild(createLinkIconSvg())
+          sectionLink.addEventListener('click', (e) => {
+            if (e.button !== 0) return
+            if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return
+            const fullUrl = new URL('#' + list.id, location.href).href
+            void (async () => {
+              try {
+                await copyText(fullUrl)
+                showToast('copied link')
+              } catch {
+                showToast('copy failed')
+              }
+            })()
+          })
+          const countBadge = document.createElement('span')
+          countBadge.className = 'gif-row-count-badge'
+          countBadge.textContent = String(n)
+          const countWord = n === 1 ? 'GIF' : 'GIFs'
+          countBadge.title = n + ' ' + countWord
+          countBadge.setAttribute('aria-label', n + ' ' + countWord + ' in this section')
+          headingStart.appendChild(label)
+          headingStart.appendChild(sectionLink)
+          heading.appendChild(headingStart)
+          heading.appendChild(countBadge)
           const grid = document.createElement('div')
           grid.className = 'gif-grid'
           grid.setAttribute('role', 'region')
-          grid.setAttribute('aria-label', list.label)
+          grid.setAttribute(
+            'aria-label',
+            list.label + ', ' + n + ' ' + (n === 1 ? 'GIF' : 'GIFs')
+          )
           listItems.forEach((item) => grid.appendChild(createCardFromItem(item)))
-          wrap.appendChild(label)
+          wrap.appendChild(heading)
           wrap.appendChild(grid)
           container.appendChild(wrap)
         })
         fillTitlePills()
         attachCopyHandlers()
-      }
-
-      function fillTitlePills() {
-        document.querySelectorAll('.gif-card').forEach((card) => {
-          const img = card.querySelector('.gif')
-          const titleEl = card.querySelector('.card-label-title')
-          const title = img && img.getAttribute('data-title')
-          if (img && titleEl && title) titleEl.textContent = title
-        })
-      }
-
-      function absoluteGifUrl(raw) {
-        const u = (raw || '').trim()
-        if (!u) return u
-        try {
-          return new URL(u, location.href).href
-        } catch {
-          return u
-        }
+        scrollToHashSection()
       }
 
       function attachCopyHandlers() {
-        document.querySelectorAll('img[data-gif]').forEach((img) => {
-          img.onclick = async (e) => {
+        document.querySelectorAll('.gif-card').forEach((card) => {
+          const link = card.dataset.copyUrl
+          if (!link) return
+          const runCopy = async (e) => {
             e.preventDefault()
             e.stopPropagation()
-            const url = img.getAttribute('data-gif')
-            const link = absoluteGifUrl(url)
             try {
               await copyText(link)
               showToast('copied link')
@@ -152,6 +234,10 @@
               showToast('copy failed')
             }
           }
+          const btn = card.querySelector('.card-label--copy')
+          if (btn) btn.addEventListener('click', runCopy)
+          const img = card.querySelector('img.gif')
+          if (img) img.addEventListener('click', runCopy)
         })
       }
 
@@ -175,6 +261,15 @@
         ta.select()
         document.execCommand('copy')
         ta.remove()
+      }
+
+      function fillTitlePills() {
+        document.querySelectorAll('.gif-card').forEach((card) => {
+          const img = card.querySelector('.gif')
+          const titleEl = card.querySelector('.card-label-title')
+          const title = img && img.getAttribute('data-title')
+          if (img && titleEl && title) titleEl.textContent = title
+        })
       }
 
       ;(async function init() {
@@ -217,6 +312,7 @@
           const link = document.getElementById('gif-editor-link')
           if (link && editorOrigin) link.href = editorOrigin + '/editor/gifs.html'
         }
+        window.addEventListener('hashchange', scrollToHashSection)
       })()
     </script>
   </body>

@@ -423,10 +423,71 @@ li input[type='checkbox'] {
   gap: 1.5rem;
   margin-top: 0.75rem;
 }
+.gif-row-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.gif-row-heading__start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  min-width: 0;
+}
+.gif-row-count-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(128, 128, 128, 0.22);
+  color: inherit;
+}
+@media (prefers-color-scheme: dark) {
+  .gif-row-count-badge {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
 .gif-row-label {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
+}
+.gif-section-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem;
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.55;
+  text-decoration: none;
+  line-height: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.gif-section-link:hover {
+  opacity: 1;
+  background: rgba(128, 128, 128, 0.15);
+}
+.gif-section-link:focus-visible {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+  opacity: 1;
+}
+.gif-section-link svg {
+  display: block;
+}
+.gif-list-wrap {
+  scroll-margin-top: 0.75rem;
 }
 
 .gif-grid {
@@ -501,6 +562,17 @@ li input[type='checkbox'] {
 .card-labels .card-label[href] {
   text-decoration: none;
   pointer-events: auto;
+}
+.card-labels .card-label--copy {
+  pointer-events: auto;
+  cursor: pointer;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 400;
+  font-family: inherit;
+  line-height: 1.2;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.5);
 }
 .card-labels .card-label-title:empty {
   display: none;
