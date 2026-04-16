@@ -7,7 +7,8 @@
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
-  <body>
+  <body class="gif-editor-page">
+    <a href="#editor-gif-rows" class="skip-to-content">Skip to library</a>
     <p class="nav-links">
       <a href="../index.html">Home</a> ·
       <a href="../notes/index.html">Notes</a> ·
@@ -20,23 +21,59 @@
         >GitHub</a
       >
     </p>
-    <h1 class="no-margin-bottom">GIF editor</h1>
-    <p class="gif-row-label" style="margin-top: 0.5rem">All GIFs. Pick a list per item. Favorites list has max 10. Order is used on the GIFs page.</p>
+    <div class="gif-editor-title-row">
+      <h1 class="no-margin-bottom">GIF editor</h1>
+      <button type="button" id="save-btn" class="editor-save-btn" disabled>Save</button>
+    </div>
+    <p class="gif-editor-intro gif-row-label">
+      Same layout as the GIFs page: one row per list, horizontal scroll per row. Favorites max 10. Order within each list follows the library order.
+    </p>
 
-    <p style="margin-bottom: 0.5rem">
-      <button type="button" id="add-list-btn" disabled>Add list</button>
+    <p class="gif-editor-toolbar">
+      <button type="button" id="add-list-btn" class="editor-toolbar-btn" popovertarget="add-list-popover" disabled>Add list</button>
+      <button type="button" id="add-gif-popover-btn" class="editor-toolbar-btn" popovertarget="add-gif-popover">Add GIF</button>
     </p>
-    <div id="all-list" class="gif-grid" style="margin-top: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem"></div>
 
-    <p style="margin-bottom: 1rem">
-      <label for="paste-url">Add GIF: paste URL</label>
-      <input type="url" id="paste-url" placeholder="https://..." style="width: 100%; max-width: 28rem; padding: 0.4rem; box-sizing: border-box" />
-      <button type="button" id="paste-add-btn" style="margin-top: 0.35rem">Add</button>
-    </p>
-    <p>
-      <button type="button" id="save-btn">Save</button>
-    </p>
-    <p id="message" aria-live="polite" style="margin-top: 1rem"></p>
+    <div id="add-list-popover" popover="auto" class="editor-popover" aria-labelledby="add-list-popover-title">
+      <p id="add-list-popover-title" class="editor-popover__title">Add list</p>
+      <p class="editor-popover-hint">This name becomes the section heading on the public GIFs page.</p>
+      <div class="editor-popover-field">
+        <label for="new-list-name">List name</label>
+        <input type="text" id="new-list-name" placeholder="e.g. work reactions" autocomplete="off" />
+      </div>
+      <div class="editor-popover-actions">
+        <button type="button" id="add-list-submit-btn" class="editor-btn editor-btn--primary">Create list</button>
+        <button type="button" class="editor-btn editor-btn--ghost" popovertarget="add-list-popover" popovertargetaction="hide">Cancel</button>
+      </div>
+    </div>
+
+    <div id="add-gif-popover" popover="auto" class="editor-popover" aria-labelledby="add-gif-popover-title">
+      <p id="add-gif-popover-title" class="editor-popover__title">Add GIF</p>
+      <p class="editor-popover-hint">Paste a direct image URL (e.g. from Giphy). Set list, title, and alt before adding.</p>
+      <div class="editor-popover-field">
+        <label for="paste-url">URL</label>
+        <input type="url" id="paste-url" placeholder="https://..." />
+      </div>
+      <div class="editor-popover-field">
+        <label for="paste-list">List</label>
+        <select id="paste-list"></select>
+      </div>
+      <div class="editor-popover-field">
+        <label for="paste-title">Title</label>
+        <input type="text" id="paste-title" placeholder="Optional — shown as the caption on the GIFs page" />
+      </div>
+      <div class="editor-popover-field">
+        <label for="paste-alt">Alt text</label>
+        <input type="text" id="paste-alt" placeholder="Optional — short description for screen readers" />
+      </div>
+      <div class="editor-popover-actions">
+        <button type="button" id="paste-add-btn" class="editor-btn editor-btn--primary">Add to library</button>
+        <button type="button" class="editor-btn editor-btn--ghost" popovertarget="add-gif-popover" popovertargetaction="hide">Cancel</button>
+      </div>
+    </div>
+
+    <p id="message" class="gif-editor-message" aria-live="polite"></p>
+    <div id="editor-gif-rows" class="gif-rows"></div>
 
     <script>
       const MAX_FAVORITES = 10
@@ -47,9 +84,16 @@
       const EDITOR_PORT = 3002
       const isLocal = /^localhost$|^127\.0\.0\.1$/.test(location.hostname) || location.hostname === ''
       const apiBase = isLocal && String(location.port) !== String(EDITOR_PORT) ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT : ''
-      const allList = document.getElementById('all-list')
+      const editorGifRows = document.getElementById('editor-gif-rows')
       const addListBtn = document.getElementById('add-list-btn')
+      const addListPopover = document.getElementById('add-list-popover')
+      const newListNameInput = document.getElementById('new-list-name')
+      const addListSubmitBtn = document.getElementById('add-list-submit-btn')
+      const addGifPopover = document.getElementById('add-gif-popover')
       const pasteUrl = document.getElementById('paste-url')
+      const pasteList = document.getElementById('paste-list')
+      const pasteTitle = document.getElementById('paste-title')
+      const pasteAlt = document.getElementById('paste-alt')
       const pasteAddBtn = document.getElementById('paste-add-btn')
       const saveBtn = document.getElementById('save-btn')
       const messageEl = document.getElementById('message')
@@ -59,7 +103,7 @@
 
       function setMessage(text, isError) {
         messageEl.textContent = text
-        messageEl.style.color = isError ? '#c00' : ''
+        messageEl.classList.toggle('gif-editor-message--error', !!isError)
       }
 
       function listIdForItem(item) {
@@ -75,142 +119,275 @@
         if (!item.listId) item.listId = 'others'
       }
 
+      function syncPasteListOptions() {
+        const prev = (pasteList.value || '').trim() || 'others'
+        pasteList.innerHTML = ''
+        lists.forEach((l) => {
+          const opt = document.createElement('option')
+          opt.value = l.id
+          opt.textContent = l.label
+          pasteList.appendChild(opt)
+        })
+        if ([...pasteList.options].some((o) => o.value === prev)) pasteList.value = prev
+        else pasteList.value = 'others'
+      }
+
       function renderList() {
-        allList.innerHTML = ''
-        items.forEach((item, i) => {
-          ensureListId(item)
-          const listId = listIdForItem(item)
-          item.listId = listId
-          const card = document.createElement('div')
-          card.className = 'gif-card'
-          card.style.marginBottom = '0.5rem'
-          const img = document.createElement('img')
-          img.className = 'gif'
-          img.src = item.url
-          img.alt = item.alt || ''
-          img.setAttribute('data-gif', item.url)
-          if (item.title) img.setAttribute('data-title', item.title)
-          card.appendChild(img)
-          const controls = document.createElement('div')
-          controls.style.marginTop = '0.35rem'
-          const listSelect = document.createElement('select')
-          listSelect.style.fontSize = '0.85rem'
-          listSelect.style.marginRight = '0.35rem'
-          lists.forEach((l) => {
-            const opt = document.createElement('option')
-            opt.value = l.id
-            opt.textContent = l.label
-            if (l.id === listId) opt.selected = true
-            listSelect.appendChild(opt)
+        editorGifRows.innerHTML = ''
+        lists.forEach((list) => {
+          const listPairs = []
+          items.forEach((item, idx) => {
+            ensureListId(item)
+            if (listIdForItem(item) === list.id) listPairs.push({ item, idx })
           })
-          listSelect.addEventListener('change', () => {
-            const newId = (listSelect.value || '').trim() || 'others'
-            const currentId = (listId || listIdForItem(item) || 'others').trim()
-            const wouldAddToFavs = newId === 'favs' && currentId !== 'favs'
-            const favsAfter = favCount() + (wouldAddToFavs ? 1 : 0)
-            if (newId === 'favs' && favsAfter > MAX_FAVORITES) {
-              setMessage('Max 10 in favorites', true)
-              listSelect.value = currentId
-              return
-            }
-            item.listId = newId
-            setMessage('')
+          const wrap = document.createElement('div')
+          wrap.className = 'gif-list-wrap'
+          const label = document.createElement('p')
+          label.className = 'gif-row-label'
+          label.textContent = list.label
+          const grid = document.createElement('div')
+          grid.className = 'gif-grid'
+          grid.setAttribute('role', 'region')
+          grid.setAttribute('aria-label', list.label)
+
+          if (listPairs.length === 0) {
+            const empty = document.createElement('div')
+            empty.className = 'gif-editor-empty-slot'
+            empty.setAttribute('role', 'status')
+            empty.textContent = 'No GIFs in this list.'
+            grid.appendChild(empty)
+          }
+
+          listPairs.forEach(({ item, idx }, j) => {
+            const i = idx
+            const listId = listIdForItem(item)
+            item.listId = listId
+
+            const card = document.createElement('div')
+            card.className = 'gif-card'
+
+            const img = document.createElement('img')
+            img.className = 'gif'
+            img.src = item.url
+            img.alt = item.alt || ''
+            img.loading = 'lazy'
+            img.setAttribute('data-gif', item.url)
+            if (item.title) img.setAttribute('data-title', item.title)
+
+            const labels = document.createElement('div')
+            labels.className = 'card-labels card-labels--editor'
+
+            const toolbar = document.createElement('div')
+            toolbar.className = 'card-labels-toolbar'
+
+            const listSelect = document.createElement('select')
+            listSelect.className = 'card-toolbar-select'
+            listSelect.setAttribute('aria-label', 'List')
+            lists.forEach((l) => {
+              const opt = document.createElement('option')
+              opt.value = l.id
+              opt.textContent = l.label
+              if (l.id === listId) opt.selected = true
+              listSelect.appendChild(opt)
+            })
+            listSelect.addEventListener('change', () => {
+              const newId = (listSelect.value || '').trim() || 'others'
+              const currentId = listIdForItem(item).trim()
+              const wouldAddToFavs = newId === 'favs' && currentId !== 'favs'
+              const favsAfter = favCount() + (wouldAddToFavs ? 1 : 0)
+              if (newId === 'favs' && favsAfter > MAX_FAVORITES) {
+                setMessage('Max 10 in favorites', true)
+                listSelect.value = currentId
+                return
+              }
+              item.listId = newId
+              setMessage('')
+              renderList()
+            })
+
+            const removeBtn = document.createElement('button')
+            removeBtn.type = 'button'
+            removeBtn.className = 'card-toolbar-btn card-toolbar-btn--danger'
+            removeBtn.textContent = 'Remove'
+            removeBtn.addEventListener('click', () => {
+              items.splice(i, 1)
+              renderList()
+              setMessage('')
+            })
+
+            const upBtn = document.createElement('button')
+            upBtn.type = 'button'
+            upBtn.className = 'card-toolbar-btn'
+            upBtn.textContent = '↑'
+            upBtn.disabled = j === 0
+            upBtn.setAttribute('aria-label', 'Move earlier in this list')
+            upBtn.addEventListener('click', () => {
+              const prevIdx = listPairs[j - 1].idx
+              const currIdx = listPairs[j].idx
+              ;[items[prevIdx], items[currIdx]] = [items[currIdx], items[prevIdx]]
+              renderList()
+              setMessage('')
+            })
+
+            const downBtn = document.createElement('button')
+            downBtn.type = 'button'
+            downBtn.className = 'card-toolbar-btn'
+            downBtn.textContent = '↓'
+            downBtn.disabled = j === listPairs.length - 1
+            downBtn.setAttribute('aria-label', 'Move later in this list')
+            downBtn.addEventListener('click', () => {
+              const currIdx = listPairs[j].idx
+              const nextIdx = listPairs[j + 1].idx
+              ;[items[currIdx], items[nextIdx]] = [items[nextIdx], items[currIdx]]
+              renderList()
+              setMessage('')
+            })
+
+            const titleInput = document.createElement('input')
+            titleInput.type = 'text'
+            titleInput.className = 'card-label-field'
+            titleInput.value = item.title || ''
+            titleInput.placeholder = 'Title (optional)'
+            titleInput.setAttribute('aria-label', 'Title')
+            titleInput.addEventListener('change', () => {
+              const t = titleInput.value.trim()
+              item.title = t
+              if (t) img.setAttribute('data-title', t)
+              else img.removeAttribute('data-title')
+            })
+            titleInput.addEventListener('blur', () => {
+              const t = titleInput.value.trim()
+              item.title = t
+              if (t) img.setAttribute('data-title', t)
+              else img.removeAttribute('data-title')
+            })
+
+            const altInput = document.createElement('input')
+            altInput.type = 'text'
+            altInput.className = 'card-label-field'
+            altInput.value = item.alt || ''
+            altInput.placeholder = 'Alt text (optional)'
+            altInput.setAttribute('aria-label', 'Alt text')
+            altInput.addEventListener('change', () => {
+              item.alt = altInput.value.trim()
+              img.alt = item.alt
+            })
+            altInput.addEventListener('blur', () => {
+              item.alt = altInput.value.trim()
+              img.alt = item.alt
+            })
+
+            toolbar.appendChild(listSelect)
+            toolbar.appendChild(removeBtn)
+            toolbar.appendChild(upBtn)
+            toolbar.appendChild(downBtn)
+            labels.appendChild(toolbar)
+            labels.appendChild(titleInput)
+            labels.appendChild(altInput)
+
+            card.appendChild(img)
+            card.appendChild(labels)
+            grid.appendChild(card)
           })
-          const removeBtn = document.createElement('button')
-          removeBtn.type = 'button'
-          removeBtn.textContent = 'Remove'
-          removeBtn.style.fontSize = '0.85rem'
-          removeBtn.style.marginLeft = '0.2rem'
-          removeBtn.addEventListener('click', () => {
-            items.splice(i, 1)
-            renderList()
-            setMessage('')
-          })
-          const upBtn = document.createElement('button')
-          upBtn.type = 'button'
-          upBtn.textContent = '↑'
-          upBtn.style.marginLeft = '0.35rem'
-          upBtn.disabled = i === 0
-          upBtn.addEventListener('click', () => {
-            ;[items[i - 1], items[i]] = [items[i], items[i - 1]]
-            renderList()
-            setMessage('')
-          })
-          const downBtn = document.createElement('button')
-          downBtn.type = 'button'
-          downBtn.textContent = '↓'
-          downBtn.style.marginLeft = '0.2rem'
-          downBtn.disabled = i === items.length - 1
-          downBtn.addEventListener('click', () => {
-            ;[items[i], items[i + 1]] = [items[i + 1], items[i]]
-            renderList()
-            setMessage('')
-          })
-          const titleLabel = document.createElement('label')
-          titleLabel.style.display = 'block'
-          titleLabel.style.marginTop = '0.25rem'
-          titleLabel.style.fontSize = '0.8rem'
-          titleLabel.textContent = 'Title'
-          const titleInput = document.createElement('input')
-          titleInput.type = 'text'
-          titleInput.value = item.title || ''
-          titleInput.placeholder = 'optional'
-          titleInput.style.width = '100%'
-          titleInput.style.maxWidth = '100%'
-          titleInput.style.padding = '0.25rem'
-          titleInput.style.boxSizing = 'border-box'
-          titleInput.style.fontSize = '0.9rem'
-          titleInput.addEventListener('change', () => { item.title = titleInput.value.trim() })
-          titleInput.addEventListener('blur', () => { item.title = titleInput.value.trim() })
-          controls.appendChild(listSelect)
-          controls.appendChild(removeBtn)
-          controls.appendChild(upBtn)
-          controls.appendChild(downBtn)
-          card.appendChild(controls)
-          card.appendChild(titleLabel)
-          card.appendChild(titleInput)
-          allList.appendChild(card)
+
+          wrap.appendChild(label)
+          wrap.appendChild(grid)
+          editorGifRows.appendChild(wrap)
         })
       }
 
-      function addItem(url, alt = '', title = '') {
+      function addItem(url, alt = '', title = '', listId = 'others') {
         const u = (url || '').trim()
-        if (!u) return
-        if (items.some((i) => i.url === u)) {
-          setMessage('Already in list', true)
-          return
+        if (!u) {
+          setMessage('Enter a GIF URL', true)
+          return false
         }
-        items.push({ url: u, alt, title, listId: 'others' })
+        if (items.some((it) => it.url === u)) {
+          setMessage('Already in list', true)
+          return false
+        }
+        const id = (listId || '').trim() || 'others'
+        if (id === 'favs' && favCount() >= MAX_FAVORITES) {
+          setMessage('Max 10 in favorites', true)
+          return false
+        }
+        items.push({ url: u, alt: (alt || '').trim(), title: (title || '').trim(), listId: id })
         renderList()
         setMessage('')
+        return true
       }
 
-      addListBtn.addEventListener('click', () => {
-        const name = window.prompt('New list name')
-        if (!name || !name.trim()) return
+      function submitNewList() {
+        const name = newListNameInput.value
+        if (!name || !name.trim()) {
+          setMessage('Enter a list name', true)
+          return
+        }
         const label = name.trim()
         let id = label.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
         if (!id) id = 'list-' + Date.now()
         if (lists.some((l) => l.id === id)) {
-          setMessage('A list with that name already exists', true)
+          setMessage('A list with that id already exists — try a different name', true)
           return
         }
         lists.push({ id: String(id), label: String(label) })
+        syncPasteListOptions()
         renderList()
         setMessage('Added list: ' + label)
+        newListNameInput.value = ''
+        if (typeof addListPopover.hidePopover === 'function') addListPopover.hidePopover()
+      }
+
+      addListSubmitBtn.addEventListener('click', submitNewList)
+      newListNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          submitNewList()
+        }
+      })
+
+      addListPopover.addEventListener('toggle', (ev) => {
+        if (ev.newState === 'open') {
+          setMessage('')
+          setTimeout(() => newListNameInput.focus(), 0)
+        }
       })
 
       pasteAddBtn.addEventListener('click', () => {
-        addItem(pasteUrl.value)
+        if (!addItem(pasteUrl.value, pasteAlt.value, pasteTitle.value, pasteList.value)) return
         pasteUrl.value = ''
+        pasteTitle.value = ''
+        pasteAlt.value = ''
+        if (typeof addGifPopover.hidePopover === 'function') addGifPopover.hidePopover()
       })
+
+      addGifPopover.addEventListener('toggle', (ev) => {
+        if (ev.newState === 'open') {
+          setMessage('')
+          setTimeout(() => pasteUrl.focus(), 0)
+        }
+      })
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault()
+          if (!saveBtn.disabled) saveBtn.click()
+        }
+      })
+
       saveBtn.addEventListener('click', async () => {
         setMessage('')
+        saveBtn.disabled = true
         try {
           items.forEach(ensureListId)
           const payload = {
             lists: lists.map((l) => ({ id: String(l.id), label: String(l.label) })),
-            items: items.map((i) => ({ url: i.url, alt: i.alt || '', title: i.title || '', listId: String(i.listId || 'others') })),
+            items: items.map((it) => ({
+              url: it.url,
+              alt: it.alt || '',
+              title: it.title || '',
+              listId: String(it.listId || 'others'),
+            })),
           }
           const res = await fetch(apiBase + '/api/gifs/data', {
             method: 'POST',
@@ -226,9 +403,12 @@
           setMessage('Saved.')
         } catch (err) {
           setMessage('Request failed: ' + err.message + '. Is the editor server running on port 3002?', true)
+        } finally {
+          saveBtn.disabled = false
         }
       })
 
+      syncPasteListOptions()
       ;(async function load() {
         setMessage('Loading…')
         try {
@@ -250,11 +430,15 @@
             lists = [...lists.filter((l) => l && l.id !== 'others'), DEFAULT_LISTS[1]]
           }
           renderList()
+          syncPasteListOptions()
           addListBtn.disabled = false
+          saveBtn.disabled = false
           setMessage('')
         } catch (err) {
           setMessage('Load failed: ' + err.message, true)
           addListBtn.disabled = false
+          saveBtn.disabled = false
+          syncPasteListOptions()
         }
       })()
     </script>
