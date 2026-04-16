@@ -1,6 +1,13 @@
 {
   "items": [
     {
+      "id": "2026-04-16-custom-gif",
+      "date": "2026-04-16",
+      "title": "custom gif",
+      "body_md": "intent is to add custom gif to gif library",
+      "image_url": "/feed/images/kid_one_sup.gif"
+    },
+    {
       "id": "2026-04-14-landahl-park-loop-1-pr-3",
       "date": "2026-04-14",
       "title": "landahl park loop 1 - PR3",
