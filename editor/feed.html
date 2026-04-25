@@ -79,11 +79,48 @@
           />
         </label>
         <label>
+          image urls (optional, comma separated)<br />
+          <input
+            type="text"
+            id="quick-images"
+            placeholder="/feed/images/a.jpg, /feed/images/b.jpg"
+            style="width: 100%"
+          />
+        </label>
+        <label>
           video url (optional)<br />
           <input
             type="text"
             id="quick-video"
             placeholder="/feed/images/...mp4"
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          media fit (optional)<br />
+          <select id="quick-media-fit" style="width: 100%">
+            <option value="">default (contain)</option>
+            <option value="contain">contain</option>
+            <option value="cover">cover</option>
+          </select>
+        </label>
+        <label>
+          media ratio (optional)<br />
+          <input
+            type="text"
+            id="quick-media-ratio"
+            placeholder="4:3"
+            style="width: 100%"
+          />
+        </label>
+        <label>
+          media max width px (optional)<br />
+          <input
+            type="number"
+            min="1"
+            step="1"
+            id="quick-media-max-width"
+            placeholder="420"
             style="width: 100%"
           />
         </label>
@@ -158,7 +195,11 @@
       const quickBodyEl = document.getElementById('quick-body')
       const quickSourceEl = document.getElementById('quick-source')
       const quickImageEl = document.getElementById('quick-image')
+      const quickImagesEl = document.getElementById('quick-images')
       const quickVideoEl = document.getElementById('quick-video')
+      const quickMediaFitEl = document.getElementById('quick-media-fit')
+      const quickMediaRatioEl = document.getElementById('quick-media-ratio')
+      const quickMediaMaxWidthEl = document.getElementById('quick-media-max-width')
       const quickTagsEl = document.getElementById('quick-tags')
       const quickRelatedUrlEl = document.getElementById('quick-related-url')
       const quickRelatedLabelEl = document.getElementById('quick-related-label')
@@ -185,6 +226,13 @@
         return String(value == null ? '' : value)
           .split(',')
           .map((tag) => tag.trim())
+          .filter(Boolean)
+      }
+
+      function parseCsvUrls(value) {
+        return String(value == null ? '' : value)
+          .split(',')
+          .map((part) => part.trim())
           .filter(Boolean)
       }
 
@@ -238,6 +286,11 @@
         const bodyMd = typeof item.body_md === 'string' ? item.body_md.trim() : ''
         const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
         const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        const imageUrls = Array.isArray(item.image_urls)
+          ? item.image_urls
+              .map((url) => (typeof url === 'string' ? url.trim() : ''))
+              .filter(Boolean)
+          : []
         const videoUrl = typeof item.video_url === 'string' ? item.video_url.trim() : ''
         const hasEmbed = !!(
           item.embed &&
@@ -251,6 +304,7 @@
           bodyMd ||
           sourceUrl ||
           imageUrl ||
+          imageUrls.length > 0 ||
           videoUrl ||
           hasEmbed ||
           hasRelatedLinks
@@ -307,6 +361,11 @@
 
           const sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
           const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+          const imageUrls = Array.isArray(item.image_urls)
+            ? item.image_urls
+                .map((url) => (typeof url === 'string' ? url.trim() : ''))
+                .filter(Boolean)
+            : []
           const videoUrl = typeof item.video_url === 'string' ? item.video_url.trim() : ''
 
           if (sourceUrl && !isSafeHref(sourceUrl)) {
@@ -314,6 +373,19 @@
           }
           if (imageUrl && !isSafeHref(imageUrl)) {
             errors.push(`items[${row}] image_url is not a safe URL/path.`)
+          }
+          if (item.image_urls != null) {
+            if (!Array.isArray(item.image_urls)) {
+              errors.push(`items[${row}] image_urls must be an array when present.`)
+            } else {
+              imageUrls.forEach((url, imageIndex) => {
+                if (!isSafeHref(url)) {
+                  errors.push(
+                    `items[${row}] image_urls[${imageIndex + 1}] is not a safe URL/path.`
+                  )
+                }
+              })
+            }
           }
           if (videoUrl && !isSafeHref(videoUrl)) {
             errors.push(`items[${row}] video_url is not a safe URL/path.`)
@@ -348,10 +420,33 @@
               `items[${row}] has an external image without source_url; save will backfill source_url.`
             )
           }
+          if (imageUrls.some((url) => isHttpUrl(url)) && !sourceUrl) {
+            warnings.push(
+              `items[${row}] has external image_urls without source_url; save will backfill source_url.`
+            )
+          }
           if (videoUrl && isHttpUrl(videoUrl) && !sourceUrl) {
             warnings.push(
               `items[${row}] has an external video without source_url; save will backfill source_url.`
             )
+          }
+          if (item.media_fit != null) {
+            const fit = String(item.media_fit).trim()
+            if (fit !== 'contain' && fit !== 'cover') {
+              errors.push(`items[${row}] media_fit must be "contain" or "cover".`)
+            }
+          }
+          if (item.media_ratio != null) {
+            const ratio = String(item.media_ratio).trim()
+            if (!/^\d{1,2}\s*[:/]\s*\d{1,2}$/.test(ratio)) {
+              errors.push(`items[${row}] media_ratio must look like 4:3, 1:1, or 16:9.`)
+            }
+          }
+          if (item.media_max_width != null) {
+            const width = Number(item.media_max_width)
+            if (!Number.isFinite(width) || width <= 0) {
+              errors.push(`items[${row}] media_max_width must be a positive number.`)
+            }
           }
 
           if (item.tags != null) {
@@ -485,14 +580,25 @@
         const bodyMd = quickBodyEl.value.trim()
         const sourceUrl = quickSourceEl.value.trim()
         const imageUrl = quickImageEl.value.trim()
+        const imageUrls = parseCsvUrls(quickImagesEl.value)
         const videoUrl = quickVideoEl.value.trim()
+        const mediaFit = quickMediaFitEl.value.trim()
+        const mediaRatio = quickMediaRatioEl.value.trim()
+        const mediaMaxWidthRaw = quickMediaMaxWidthEl.value.trim()
         const tags = parseTags(quickTagsEl.value)
         const relatedUrl = quickRelatedUrlEl.value.trim()
         const relatedLabel = quickRelatedLabelEl.value.trim()
 
-        if (!title && !bodyMd && !sourceUrl && !imageUrl && !videoUrl) {
+        if (
+          !title &&
+          !bodyMd &&
+          !sourceUrl &&
+          !imageUrl &&
+          imageUrls.length === 0 &&
+          !videoUrl
+        ) {
           setMessage(
-            'Add at least one of: title, body, source url, image url, or video url.',
+            'Add at least one of: title, body, source url, image url(s), or video url.',
             true
           )
           return
@@ -511,7 +617,11 @@
           }
         }
         if (imageUrl) item.image_url = imageUrl
+        if (imageUrls.length > 0) item.image_urls = imageUrls
         if (videoUrl) item.video_url = videoUrl
+        if (mediaFit) item.media_fit = mediaFit
+        if (mediaRatio) item.media_ratio = mediaRatio
+        if (mediaMaxWidthRaw) item.media_max_width = Number(mediaMaxWidthRaw)
         if (tags.length > 0) item.tags = tags
         if (relatedUrl) {
           item.related_links = relatedLabel
@@ -527,7 +637,11 @@
         quickBodyEl.value = ''
         quickSourceEl.value = ''
         quickImageEl.value = ''
+        quickImagesEl.value = ''
         quickVideoEl.value = ''
+        quickMediaFitEl.value = ''
+        quickMediaRatioEl.value = ''
+        quickMediaMaxWidthEl.value = ''
         quickTagsEl.value = ''
         quickRelatedUrlEl.value = ''
         quickRelatedLabelEl.value = ''

@@ -329,10 +329,48 @@ function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value.trim())
 }
 
-function preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl, videoUrl) {
+function normalizeMediaFit(value) {
+  const clean = typeof value === 'string' ? value.trim().toLowerCase() : ''
+  return clean === 'cover' || clean === 'contain' ? clean : ''
+}
+
+function normalizeMediaRatio(value) {
+  if (typeof value !== 'string') return ''
+  const match = value.trim().match(/^(\d{1,2})\s*[:/]\s*(\d{1,2})$/)
+  if (!match) return ''
+  const width = Number(match[1])
+  const height = Number(match[2])
+  if (!Number.isFinite(width) || !Number.isFinite(height)) return ''
+  if (width <= 0 || height <= 0) return ''
+  return `${width}:${height}`
+}
+
+function normalizeMediaMaxWidth(value) {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return Math.round(value)
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value.trim())
+    if (Number.isFinite(parsed) && parsed > 0) return Math.round(parsed)
+  }
+  return null
+}
+
+function preferredSourceUrl(
+  sourceUrlInput,
+  embedType,
+  embedUrl,
+  imageUrl,
+  imageUrls,
+  videoUrl
+) {
   if (sourceUrlInput) return sourceUrlInput
   if (embedType && isHttpUrl(embedUrl)) return embedUrl
   if (isHttpUrl(imageUrl)) return imageUrl
+  if (Array.isArray(imageUrls)) {
+    const firstExternal = imageUrls.find((url) => isHttpUrl(url))
+    if (firstExternal) return firstExternal
+  }
   if (isHttpUrl(videoUrl)) return videoUrl
   return ''
 }
@@ -386,9 +424,26 @@ function normalizeFeedItem(item, index) {
     : []
   const imageUrl =
     item && typeof item.image_url === 'string' ? item.image_url.replace(/\r?\n/g, '').trim() : ''
+  const imageUrls = Array.isArray(item && item.image_urls)
+    ? item.image_urls
+        .map((url) =>
+          typeof url === 'string' ? url.replace(/\r?\n/g, '').trim() : ''
+        )
+        .filter(Boolean)
+    : []
   const videoUrl =
     item && typeof item.video_url === 'string' ? item.video_url.replace(/\r?\n/g, '').trim() : ''
-  const sourceUrl = preferredSourceUrl(sourceUrlInput, embedType, embedUrl, imageUrl, videoUrl)
+  const mediaFit = normalizeMediaFit(item && item.media_fit)
+  const mediaRatio = normalizeMediaRatio(item && item.media_ratio)
+  const mediaMaxWidth = normalizeMediaMaxWidth(item && item.media_max_width)
+  const sourceUrl = preferredSourceUrl(
+    sourceUrlInput,
+    embedType,
+    embedUrl,
+    imageUrl,
+    imageUrls,
+    videoUrl
+  )
 
   const normalized = {
     id,
@@ -399,7 +454,11 @@ function normalizeFeedItem(item, index) {
   if (sourceUrl) normalized.source_url = sourceUrl
   if (embedType && embedUrl) normalized.embed = { type: embedType, url: embedUrl }
   if (imageUrl) normalized.image_url = imageUrl
+  if (imageUrls.length > 0) normalized.image_urls = imageUrls
   if (videoUrl) normalized.video_url = videoUrl
+  if (mediaFit) normalized.media_fit = mediaFit
+  if (mediaRatio) normalized.media_ratio = mediaRatio
+  if (mediaMaxWidth != null) normalized.media_max_width = mediaMaxWidth
   if (tags.length > 0) normalized.tags = tags
   if (relatedLinks.length > 0) normalized.related_links = relatedLinks
   return normalized

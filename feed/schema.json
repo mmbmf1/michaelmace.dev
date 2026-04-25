@@ -86,8 +86,29 @@
         "image_url": {
           "$ref": "#/$defs/safeHref"
         },
+        "image_urls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/safeHref"
+          }
+        },
         "video_url": {
           "$ref": "#/$defs/safeHref"
+        },
+        "media_fit": {
+          "type": "string",
+          "enum": [
+            "contain",
+            "cover"
+          ]
+        },
+        "media_ratio": {
+          "type": "string",
+          "pattern": "^\\d{1,2}\\s*[:/]\\s*\\d{1,2}$"
+        },
+        "media_max_width": {
+          "type": "number",
+          "exclusiveMinimum": 0
         },
         "tags": {
           "type": "array",
@@ -127,6 +148,11 @@
         {
           "required": [
             "image_url"
+          ]
+        },
+        {
+          "required": [
+            "image_urls"
           ]
         },
         {

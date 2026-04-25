@@ -232,25 +232,138 @@
         return ''
       }
 
-      function renderYouTubeEmbed(urlValue) {
+      function renderYouTubeEmbed(urlValue, mediaOptions) {
         const id = extractYouTubeId(urlValue)
         if (!id) return ''
         const src = `https://www.youtube.com/embed/${encodeURIComponent(id)}`
-        return `<div class="feed-embed"><iframe class="youtube-embed" src="${src}" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+        return `<div class="feed-embed"><div class="feed-media-frame">${renderMediaFrame(
+          `<iframe class="youtube-embed" src="${src}" title="YouTube video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`,
+          mediaOptions
+        )}</div></div>`
       }
 
-      function renderImage(imageUrl) {
-        if (!imageUrl || !isSafeHref(imageUrl)) return ''
-        return `<div class="feed-embed"><img class="feed-image" src="${escapeHtml(
-          imageUrl
-        )}" alt="" loading="lazy"></div>`
+      function normalizeMediaFit(value) {
+        const fit = String(value == null ? '' : value).trim().toLowerCase()
+        if (fit === 'cover' || fit === 'contain') return fit
+        return 'contain'
       }
 
-      function renderVideo(videoUrl) {
-        if (!videoUrl || !isSafeHref(videoUrl)) return ''
-        return `<div class="feed-embed"><video class="feed-video" src="${escapeHtml(
-          videoUrl
-        )}" controls muted loop playsinline autoplay preload="metadata"></video></div>`
+      function normalizeMediaRatio(value) {
+        const match = String(value == null ? '' : value)
+          .trim()
+          .match(/^(\d{1,2})\s*[:/]\s*(\d{1,2})$/)
+        if (!match) return '4 / 3'
+        const width = Number(match[1])
+        const height = Number(match[2])
+        if (!Number.isFinite(width) || !Number.isFinite(height)) return '4 / 3'
+        if (width <= 0 || height <= 0) return '4 / 3'
+        return `${width} / ${height}`
+      }
+
+      function normalizeMediaMaxWidth(value) {
+        const numeric = typeof value === 'number' ? value : Number(String(value || '').trim())
+        if (!Number.isFinite(numeric) || numeric <= 0) return 420
+        return Math.round(numeric)
+      }
+
+      function mediaOptionsForItem(item) {
+        return {
+          fit: normalizeMediaFit(item && item.media_fit),
+          ratio: normalizeMediaRatio(item && item.media_ratio),
+          maxWidth: normalizeMediaMaxWidth(item && item.media_max_width),
+        }
+      }
+
+      function renderMediaFrame(innerHtml, mediaOptions) {
+        const opts = mediaOptions || {
+          fit: 'contain',
+          ratio: '4 / 3',
+          maxWidth: 420,
+        }
+        return `<div class="feed-media-card" style="--feed-media-ratio: ${escapeHtml(
+          opts.ratio
+        )}; --feed-media-fit: ${escapeHtml(
+          opts.fit
+        )}; --feed-media-max-width: ${escapeHtml(
+          String(opts.maxWidth)
+        )}px;">${innerHtml}</div>`
+      }
+
+      function collectImageUrls(item) {
+        const urls = []
+        if (Array.isArray(item && item.image_urls)) {
+          for (const value of item.image_urls) {
+            const trimmed =
+              typeof value === 'string' ? value.trim() : ''
+            if (trimmed && isSafeHref(trimmed)) urls.push(trimmed)
+          }
+        }
+        const singleImage =
+          item && typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        if (singleImage && isSafeHref(singleImage) && urls.indexOf(singleImage) === -1) {
+          urls.push(singleImage)
+        }
+        return urls
+      }
+
+      function renderImages(item, mediaOptions) {
+        const imageUrls = collectImageUrls(item)
+        if (imageUrls.length === 0) return ''
+        if (imageUrls.length === 1) {
+          return `<div class="feed-embed"><div class="feed-media-frame">${renderMediaFrame(
+            `<img class="feed-image" src="${escapeHtml(
+              imageUrls[0]
+            )}" alt="" loading="lazy">`,
+            mediaOptions
+          )}</div></div>`
+        }
+        const cards = imageUrls
+          .map((url) =>
+            renderMediaFrame(
+              `<img class="feed-image" src="${escapeHtml(
+                url
+              )}" alt="" loading="lazy">`,
+              mediaOptions
+            )
+          )
+          .join('')
+        return `<div class="feed-embed"><div class="feed-media-carousel" role="region" aria-label="entry images">${cards}</div></div>`
+      }
+
+      function renderMediaRow(item, mediaOptions) {
+        const imageUrls = collectImageUrls(item)
+        const videoUrl =
+          item && typeof item.video_url === 'string'
+            ? item.video_url.trim()
+            : ''
+        const cards = []
+        for (const url of imageUrls) {
+          cards.push(
+            renderMediaFrame(
+              `<img class="feed-image" src="${escapeHtml(
+                url
+              )}" alt="" loading="lazy">`,
+              mediaOptions
+            )
+          )
+        }
+        if (videoUrl && isSafeHref(videoUrl)) {
+          cards.push(
+            renderMediaFrame(
+              `<video class="feed-video" src="${escapeHtml(
+                videoUrl
+              )}" controls muted loop playsinline autoplay preload="metadata"></video>`,
+              mediaOptions
+            )
+          )
+        }
+        if (cards.length === 0) return ''
+        if (cards.length === 1) {
+          return `<div class="feed-embed"><div class="feed-media-frame">${cards[0]}</div></div>`
+        }
+        return `<div class="feed-embed"><div class="feed-media-carousel" role="region" aria-label="entry media">${cards.join(
+          ''
+        )}</div></div>`
       }
 
       function formatDate(value) {
@@ -401,6 +514,7 @@
         const title =
           item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
         const body = renderBodyMd(item && item.body_md ? item.body_md : '')
+        const mediaOptions = mediaOptionsForItem(item)
         const sourceUrlInput =
           item && typeof item.source_url === 'string'
             ? item.source_url.trim()
@@ -409,26 +523,23 @@
           item && item.embed && item.embed.type === 'youtube' && item.embed.url
             ? String(item.embed.url)
             : sourceUrlInput
-        const embed = renderYouTubeEmbed(embedUrlCandidate)
-        const imageUrl =
-          item && typeof item.image_url === 'string'
-            ? item.image_url.trim()
-            : ''
+        const embed = renderYouTubeEmbed(embedUrlCandidate, mediaOptions)
+        const imageUrls = collectImageUrls(item)
         const videoUrl =
           item && typeof item.video_url === 'string'
             ? item.video_url.trim()
             : ''
+        const firstImageUrl = imageUrls.length > 0 ? imageUrls[0] : ''
         const sourceUrl =
           sourceUrlInput ||
           (/^https?:\/\//i.test(embedUrlCandidate)
             ? embedUrlCandidate
-            : /^https?:\/\//i.test(imageUrl)
-            ? imageUrl
+            : /^https?:\/\//i.test(firstImageUrl)
+            ? firstImageUrl
             : /^https?:\/\//i.test(videoUrl)
             ? videoUrl
             : '')
-        const image = renderImage(imageUrl)
-        const video = renderVideo(videoUrl)
+        const media = renderMediaRow(item, mediaOptions)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
         const dateLabel = date || 'undated'
@@ -440,7 +551,7 @@
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
-        )}</p>${relatedLinks}<div class="feed-body">${body}</div>${image}${video}${embed}${renderSource(
+        )}</p>${relatedLinks}<div class="feed-body">${body}</div>${media}${embed}${renderSource(
           sourceUrl
         )}</article>`
       }

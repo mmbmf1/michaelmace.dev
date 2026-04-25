@@ -413,22 +413,59 @@ li input[type='checkbox'] {
 .feed-embed {
   margin-top: 0.9rem;
 }
+.feed-media-frame {
+  width: min(100%, var(--feed-media-max-width, 420px));
+}
+.feed-media-carousel {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  margin-top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 0.15rem 0 0.35rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.feed-media-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+.feed-media-carousel::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.4);
+  border-radius: 4px;
+}
+.feed-media-card {
+  width: min(100%, var(--feed-media-max-width, 420px));
+  min-width: min(100%, var(--feed-media-max-width, 420px));
+  aspect-ratio: var(--feed-media-ratio, 4 / 3);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  scroll-snap-align: start;
+  background: rgba(127, 127, 127, 0.08);
+}
 .youtube-embed {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .feed-image {
-  width: min(100%, 480px);
-  height: auto;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--feed-media-fit, contain);
+  object-position: center;
+  border-radius: 0;
   display: block;
 }
 .feed-video {
-  width: min(100%, 480px);
-  height: auto;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--feed-media-fit, contain);
+  object-position: center;
+  border-radius: 0;
   display: block;
 }
 
