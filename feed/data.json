@@ -1,8 +1,26 @@
 {
   "items": [
     {
+      "id": "2026-04-27-trail-thoughts",
+      "date": "2026-04-27",
+      "title": "more hiking in mud - but at burr oak",
+      "body_md": "went back to burr oak for the the first time in a while - in the mud. it looked like there was some flooding and the were doing work on the trails. all the creeks were up and flowing - i dont think i have ever seen that there. did 5 loops on the hill i like.",
+      "image_urls": [
+        "/feed/images/20260427_burr_oak_work.jpg",
+        "/feed/images/20260427_burr_oak_creek.jpg"
+      ],
+      "video_url": "/feed/images/15169409_return_to_burr_oak_mud.mp4",
+      "tags": [
+        "hiking",
+        "trails",
+        "mud",
+        "burr oak"
+      ]
+    },
+    {
       "id": "2026-04-24-trail-thoughts",
       "date": "2026-04-24",
+      "title": "hiking in mud",
       "body_md": "will add more here later (that no one will read) - mostly wanted to ad pics so i didnt forget. felt good about trails in the mud today - pace was good",
       "image_urls": [
         "/feed/images/20260424_muddy_boots_.jpg",
