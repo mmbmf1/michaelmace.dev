@@ -11,9 +11,9 @@
     <header class="page-header">
       <p class="nav-links">
         <a href="../index.html">Home</a> ·
-        <a href="../notes/index.html">Notes</a> ·
+        <span id="notes-nav-wrap" class="hidden"><a href="../notes/index.html">Notes</a> ·</span>
         <a href="../feed/index.html" class="active">Feed</a> ·
-        <a href="../gifs/index.html">GIFs</a> ·
+        <span id="gifs-nav-wrap" class="hidden"><a href="../gifs/index.html">GIFs</a> ·</span>
         <a
           href="https://github.com/mmbmf1"
           target="_blank"
@@ -720,6 +720,13 @@
       })
       if (quickDateEl && !quickDateEl.value) quickDateEl.value = todayIso()
       loadData()
+
+      if (isLocal) {
+        const notesNavWrap = document.getElementById('notes-nav-wrap')
+        if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+        const gifsNavWrap = document.getElementById('gifs-nav-wrap')
+        if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+      }
     </script>
   </body>
 </html>

@@ -21,8 +21,8 @@
   <body>
     <header class="page-header">
       <p class="nav-links">
-        <a href="../index.html">Home</a> · <a href="index.html" class="active">Notes</a> ·
-        <a href="../feed/index.html">Feed</a> · <a href="../gifs/index.html">GIFs</a>
+        <a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html" class="active">Notes</a> · </span>
+        <a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">GIFs</a></span>
         ·
         <a
           href="https://github.com/mmbmf1"
@@ -94,6 +94,10 @@
         window.location.hostname === 'localhost' ||
         window.location.hostname === '127.0.0.1'
       ) {
+        var notesNavWrap = document.getElementById('notes-nav-wrap')
+        if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+        var gifsNavWrap = document.getElementById('gifs-nav-wrap')
+        if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
         var slug = window.location.pathname
           .split('/')
           .pop()
