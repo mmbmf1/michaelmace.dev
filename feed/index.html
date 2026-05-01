@@ -8,7 +8,7 @@
     <meta name="color-scheme" content="light dark" />
   </head>
 
-  <body>
+  <body class="feed-page">
     <header class="page-header">
       <p class="nav-links">
         <a href="../index.html">Home</a> ·
@@ -26,11 +26,16 @@
 
     <main class="page-body">
       <section class="feed-intro" aria-labelledby="feed-title">
-        <h1 id="feed-title" class="no-margin-bottom">feed</h1>
+        <h1 id="feed-title" class="no-margin-bottom">Layers</h1>
         <p class="subtle">small logbook entries from the lab.</p>
       </section>
 
       <section id="feed-filter" class="feed-filter hidden" aria-live="polite"></section>
+      <p
+        id="feed-depth-indicator"
+        class="feed-depth-indicator"
+        aria-live="polite"
+      >Depth: 0.0m — Surface</p>
 
       <section id="feed-list" class="feed-list" aria-live="polite"></section>
     </main>
@@ -618,6 +623,103 @@
         )}) · <a href="index.html">clear</a></p>`
       }
 
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value))
+      }
+
+      function scrollProgress() {
+        const maxScroll = Math.max(
+          document.documentElement.scrollHeight - window.innerHeight,
+          0
+        )
+        if (maxScroll === 0) return 0
+        return clamp(window.scrollY / maxScroll, 0, 1)
+      }
+
+      function depthLabelForMeters(meters) {
+        if (meters < 0.3) return 'Surface'
+        if (meters < 1) return 'Shallow Layers'
+        if (meters < 2) return 'Archive'
+        return 'Deep Archive'
+      }
+
+      function setupDepthUi() {
+        const indicator = document.getElementById('feed-depth-indicator')
+        const list = document.getElementById('feed-list')
+        if (!indicator || !list) return
+
+        // Tweaks for feel: total synthetic depth and archive threshold.
+        const maxDepthMeters = 3
+        const archiveThresholdMeters = 1
+        let framePending = false
+        let archiveDividerInserted = false
+
+        function maybeInsertArchiveDivider(meters) {
+          if (archiveDividerInserted || meters < archiveThresholdMeters) return
+          const groups = list.querySelectorAll('.feed-day-group')
+          if (groups.length < 3) return
+          const insertBefore = groups[2]
+          const divider = document.createElement('p')
+          divider.className = 'feed-archive-divider'
+          divider.textContent = '— Archive begins —'
+          list.insertBefore(divider, insertBefore)
+          archiveDividerInserted = true
+        }
+
+        function renderDepthState() {
+          framePending = false
+          const progress = scrollProgress()
+          const depthMeters = progress * maxDepthMeters
+          const label = depthLabelForMeters(depthMeters)
+          document.body.style.setProperty('--bg-depth', progress.toFixed(4))
+          indicator.textContent = `Depth: ${depthMeters.toFixed(1)}m — ${label}`
+          indicator.classList.toggle(
+            'feed-depth-indicator--archive',
+            depthMeters >= archiveThresholdMeters
+          )
+          maybeInsertArchiveDivider(depthMeters)
+        }
+
+        function queueDepthRender() {
+          if (framePending) return
+          framePending = true
+          window.requestAnimationFrame(renderDepthState)
+        }
+
+        renderDepthState()
+        window.addEventListener('scroll', queueDepthRender, { passive: true })
+        window.addEventListener('resize', queueDepthRender)
+      }
+
+      function setupFeedItemReveal() {
+        const items = document.querySelectorAll('.feed-item')
+        if (items.length === 0) return
+
+        // Tweaks for reveal feel: offset and duration live in CSS.
+        for (const item of items) {
+          item.classList.add('feed-item--reveal-init')
+        }
+
+        const observer = new IntersectionObserver(
+          (entries, obs) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue
+              entry.target.classList.add('feed-item--revealed')
+              obs.unobserve(entry.target)
+            }
+          },
+          {
+            root: null,
+            rootMargin: '0px 0px -10% 0px',
+            threshold: 0.15,
+          }
+        )
+
+        for (const item of items) {
+          observer.observe(item)
+        }
+      }
+
       async function initFeed() {
         const list = document.getElementById('feed-list')
         if (!list) return
@@ -628,6 +730,7 @@
           const items = Array.isArray(data.items) ? data.items : []
           if (items.length === 0) {
             list.innerHTML = '<p class="subtle">no feed items yet.</p>'
+            setupDepthUi()
             return
           }
           const activeTag = getTagFilterFromLocation()
@@ -640,12 +743,16 @@
             list.innerHTML = `<p class="subtle">no entries for #${escapeHtml(
               activeTag
             )} yet. <a href="index.html">clear filter</a>.</p>`
+            setupDepthUi()
             return
           }
           list.innerHTML = renderGroupedFeed(filteredItems, activeTag)
+          setupFeedItemReveal()
+          setupDepthUi()
         } catch (_) {
           list.innerHTML =
             '<p class="subtle">feed data did not load. check feed/data.json.</p>'
+          setupDepthUi()
         }
       }
 
