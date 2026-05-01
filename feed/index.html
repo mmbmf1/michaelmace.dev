@@ -652,10 +652,12 @@
         const archiveThresholdMeters = 1
         let framePending = false
         let archiveDividerInserted = false
+        let lastDepthText = ''
+        let lastArchiveState = false
+        const groups = list.querySelectorAll('.feed-day-group')
 
         function maybeInsertArchiveDivider(meters) {
           if (archiveDividerInserted || meters < archiveThresholdMeters) return
-          const groups = list.querySelectorAll('.feed-day-group')
           if (groups.length < 3) return
           const insertBefore = groups[2]
           const divider = document.createElement('p')
@@ -671,11 +673,16 @@
           const depthMeters = progress * maxDepthMeters
           const label = depthLabelForMeters(depthMeters)
           document.body.style.setProperty('--bg-depth', progress.toFixed(4))
-          indicator.textContent = `Depth: ${depthMeters.toFixed(1)}m — ${label}`
-          indicator.classList.toggle(
-            'feed-depth-indicator--archive',
-            depthMeters >= archiveThresholdMeters
-          )
+          const depthText = `Depth: ${depthMeters.toFixed(1)}m — ${label}`
+          if (depthText !== lastDepthText) {
+            indicator.textContent = depthText
+            lastDepthText = depthText
+          }
+          const inArchive = depthMeters >= archiveThresholdMeters
+          if (inArchive !== lastArchiveState) {
+            indicator.classList.toggle('feed-depth-indicator--archive', inArchive)
+            lastArchiveState = inArchive
+          }
           maybeInsertArchiveDivider(depthMeters)
         }
 
