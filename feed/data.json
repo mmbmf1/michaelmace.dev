@@ -1,6 +1,16 @@
 {
   "items": [
     {
+      "id": "2026-05-06-working-on-a-prompt-to-summarize-bear-notes",
+      "date": "2026-05-06",
+      "title": "working on a prompt to summarize bear notes",
+      "body_md": "From my notes, identify the top recurring work themes and collapse them into 2–3 focus areas for today.\n\nInstructions:\n- Group related themes into broader focus areas\n- Prioritize by frequency and impact\n- Keep wording generic and stable\n- Do not include counts or detailed tasks\n\nOutput format:\n\n## 🔥 Today’s Focus Areas\n- Focus area\n- Focus area\n- Focus area\n\n## 🧭 Secondary\n- Focus area\n\n## 🧱 Ignore for now\n- Focus area\n\nKeep it short and decision-oriented.",
+      "tags": [
+        "prompts",
+        "ideas"
+      ]
+    },
+    {
       "id": "2026-05-01-dragon-fly",
       "date": "2026-05-01",
       "body_md": "saw a kick ass dragon fly today",
