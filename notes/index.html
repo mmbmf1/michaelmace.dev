@@ -24,36 +24,302 @@
     </header>
 
     <div class="notes-header">
-    <h1>Notes</h1>
-    <span id="new-note-wrap" class="hidden"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
+      <h1>Notes</h1>
     </div>
+    <p id="new-note-wrap" class="new-note-wrap hidden">
+      <a href="#" id="new-note-btn" class="local-edit new-note-link" aria-label="New note" title="New note"
+        ><svg
+          class="new-note-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" /></svg
+        ><span class="new-note-label">Add note</span></a
+      >
+    </p>
+
+    <p id="note-editor-message" class="gif-editor-message notes-editor-message hidden" aria-live="polite"></p>
 
     <ul class="notes-list">
       <li>
-        <a href="hello-world.html"> Markdown demo </a>
-        <a href="/editor/index.html?slug=hello-world" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
+        <a href="site-update-may-2026.html"> working on this site </a>
+        <button type="button" class="local-edit note-edit-btn hidden" data-slug="site-update-may-2026" aria-label="Edit note" title="Edit">&#9998;</button>
         <br />
-        <small>Friday February 20th, 2026</small>
+        <small>Tuesday May 19th 2026</small>
       </li>
       <li>
         <a href="segments-retro-raw-notes.html"> segments retro raw notes </a>
-        <a href="/editor/index.html?slug=segments-retro-raw-notes" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
+        <button type="button" class="local-edit note-edit-btn hidden" data-slug="segments-retro-raw-notes" aria-label="Edit note" title="Edit">&#9998;</button>
         <br />
         <small>Friday March 27th 2026</small>
       </li>
       <li>
+        <a href="hello-world.html"> Markdown demo </a>
+        <button type="button" class="local-edit note-edit-btn hidden" data-slug="hello-world" aria-label="Edit note" title="Edit">&#9998;</button>
+        <br />
+        <small>Friday February 20th, 2026</small>
+      </li>
+      <li>
         <a href="on-layering-intel.html"> On Layering Intelligence </a>
-        <a href="/editor/index.html?slug=on-layering-intel" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
+        <button type="button" class="local-edit note-edit-btn hidden" data-slug="on-layering-intel" aria-label="Edit note" title="Edit">&#9998;</button>
         <br />
         <small>February 2026</small>
       </li>
     </ul>
+
+    <div
+      id="note-editor-popover"
+      popover="auto"
+      class="editor-popover editor-popover--scrollable"
+      aria-labelledby="note-editor-popover-title"
+    >
+      <form id="note-editor-form" class="note-editor-form">
+        <div class="editor-popover-scroll">
+          <p id="note-editor-popover-title" class="editor-popover__title">Add note</p>
+          <p class="editor-popover-hint">Saved to notes when you click Save.</p>
+          <div class="editor-popover-field">
+            <label for="note-title">Title</label>
+            <input type="text" id="note-title" name="title" required />
+          </div>
+          <div class="editor-popover-field">
+            <label for="note-slug">Url slug <span class="slug-hint">(optional)</span></label>
+            <input type="text" id="note-slug" name="slug" placeholder="e.g. on-layering-intel" />
+          </div>
+          <div class="editor-popover-field">
+            <label for="note-date">Date</label>
+            <input type="text" id="note-date" name="date" />
+          </div>
+          <div class="editor-popover-field">
+            <label for="note-body">Body (markdown)</label>
+            <textarea id="note-body" name="body" rows="12"></textarea>
+          </div>
+        </div>
+        <div class="editor-popover-actions">
+          <button type="submit" id="note-save-btn" class="editor-btn editor-btn--primary">Save</button>
+          <button type="button" id="note-delete-btn" class="editor-btn editor-btn--ghost hidden">Delete</button>
+          <button
+            type="button"
+            id="note-cancel-btn"
+            class="editor-btn editor-btn--ghost"
+            popovertarget="note-editor-popover"
+            popovertargetaction="hide"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
     <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var notesNavWrap = document.getElementById('notes-nav-wrap'); if (notesNavWrap) notesNavWrap.classList.remove('hidden');
-        var gifsNavWrap = document.getElementById('gifs-nav-wrap'); if (gifsNavWrap) gifsNavWrap.classList.remove('hidden');
-        var w = document.getElementById('new-note-wrap'); if (w) w.classList.remove('hidden');
-        document.querySelectorAll('.local-edit').forEach(function (a) { a.classList.remove('hidden'); });
+      const EDITOR_PORT = 3002
+      const isLocal =
+        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) || location.hostname === ''
+      const apiBase =
+        isLocal && String(location.port) !== String(EDITOR_PORT)
+          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
+          : ''
+
+      const notePopover = document.getElementById('note-editor-popover')
+      const noteForm = document.getElementById('note-editor-form')
+      const noteTitleEl = document.getElementById('note-editor-popover-title')
+      const titleInput = document.getElementById('note-title')
+      const slugInput = document.getElementById('note-slug')
+      const dateInput = document.getElementById('note-date')
+      const bodyInput = document.getElementById('note-body')
+      const deleteBtn = document.getElementById('note-delete-btn')
+      const messageEl = document.getElementById('note-editor-message')
+      const newNoteBtn = document.getElementById('new-note-btn')
+
+      const params = new URLSearchParams(window.location.search)
+      const editSlugFromUrl = params.get('edit')
+      const openNewFromUrl = params.get('new') === '1'
+
+      let currentSlug = null
+
+      function formatDateWithDay(date) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        const months = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December',
+        ]
+        const d = date.getDate()
+        const ord =
+          d === 1 || d === 21 || d === 31 ? 'st' : d === 2 || d === 22 ? 'nd' : d === 3 || d === 23 ? 'rd' : 'th'
+        return days[date.getDay()] + ' ' + months[date.getMonth()] + ' ' + d + ord + ' ' + date.getFullYear()
+      }
+
+      function defaultDate() {
+        return formatDateWithDay(new Date())
+      }
+
+      function setMessage(text, isError) {
+        if (!text) {
+          messageEl.textContent = ''
+          messageEl.classList.add('hidden')
+          messageEl.classList.remove('gif-editor-message--error')
+          return
+        }
+        messageEl.textContent = text
+        messageEl.classList.remove('hidden')
+        messageEl.classList.toggle('gif-editor-message--error', !!isError)
+      }
+
+      function setMode(editingSlug) {
+        currentSlug = editingSlug || null
+        const isEdit = !!currentSlug
+        noteTitleEl.textContent = isEdit ? 'Edit note' : 'Add note'
+        deleteBtn.classList.toggle('hidden', !isEdit)
+      }
+
+      function clearForm() {
+        titleInput.value = ''
+        slugInput.value = ''
+        dateInput.value = defaultDate()
+        bodyInput.value = ''
+        setMode(null)
+      }
+
+      function showNotePopover() {
+        if (notePopover && typeof notePopover.showPopover === 'function') notePopover.showPopover()
+      }
+
+      function hideNotePopover() {
+        if (notePopover && typeof notePopover.hidePopover === 'function') notePopover.hidePopover()
+      }
+
+      function clearEditorQueryParams() {
+        if (!editSlugFromUrl && !openNewFromUrl) return
+        const url = new URL(window.location.href)
+        url.searchParams.delete('edit')
+        url.searchParams.delete('new')
+        history.replaceState(null, '', url.pathname + url.search + url.hash)
+      }
+
+      async function openNoteEditor(slug) {
+        setMessage('')
+        if (!slug) {
+          clearForm()
+          showNotePopover()
+          clearEditorQueryParams()
+          setTimeout(() => titleInput.focus(), 0)
+          return
+        }
+        try {
+          const res = await fetch(apiBase + '/api/note/' + encodeURIComponent(slug))
+          if (!res.ok) {
+            setMessage(res.status === 404 ? 'Note not found.' : 'Failed to load note.', true)
+            return
+          }
+          const data = await res.json()
+          setMode(data.slug)
+          titleInput.value = data.title || ''
+          slugInput.value = data.slug || ''
+          dateInput.value = data.date || defaultDate()
+          bodyInput.value = data.body || ''
+          showNotePopover()
+          clearEditorQueryParams()
+          setTimeout(() => titleInput.focus(), 0)
+        } catch (err) {
+          setMessage('Request failed: ' + err.message, true)
+        }
+      }
+
+      if (notePopover) {
+        if (!editSlugFromUrl && !openNewFromUrl && typeof notePopover.hidePopover === 'function') {
+          notePopover.hidePopover()
+        }
+        document.body.style.overflow = ''
+        notePopover.addEventListener('toggle', (ev) => {
+          if (ev.newState === 'open') {
+            document.body.style.overflow = 'hidden'
+          } else if (ev.newState === 'closed') {
+            document.body.style.overflow = ''
+          }
+        })
+      }
+
+      if (newNoteBtn) {
+        newNoteBtn.addEventListener('click', (e) => {
+          e.preventDefault()
+          openNoteEditor(null)
+        })
+      }
+
+      document.querySelectorAll('.note-edit-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const slug = btn.getAttribute('data-slug')
+          if (slug) openNoteEditor(slug)
+        })
+      })
+
+      deleteBtn.addEventListener('click', async () => {
+        if (!currentSlug) return
+        if (!confirm('Delete this note? This cannot be undone.')) return
+        try {
+          const res = await fetch(apiBase + '/api/note/' + encodeURIComponent(currentSlug), {
+            method: 'DELETE',
+          })
+          if (!res.ok) {
+            setMessage('Delete failed.', true)
+            return
+          }
+          hideNotePopover()
+          window.location.reload()
+        } catch (err) {
+          setMessage('Request failed: ' + err.message, true)
+        }
+      })
+
+      noteForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        setMessage('')
+        const title = titleInput.value.trim()
+        if (!title) {
+          setMessage('Title is required.', true)
+          return
+        }
+        try {
+          const res = await fetch(apiBase + '/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title,
+              slug: slugInput.value.trim() || undefined,
+              date: dateInput.value.trim() || defaultDate(),
+              body: bodyInput.value,
+            }),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            setMessage(data.error || 'Save failed.', true)
+            return
+          }
+          hideNotePopover()
+          window.location.reload()
+        } catch (err) {
+          setMessage('Request failed: ' + err.message, true)
+        }
+      })
+
+      if (editSlugFromUrl) openNoteEditor(editSlugFromUrl)
+      else if (openNewFromUrl) openNoteEditor(null)
+
+      if (isLocal) {
+        const notesNavWrap = document.getElementById('notes-nav-wrap')
+        if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+        const gifsNavWrap = document.getElementById('gifs-nav-wrap')
+        if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        const newNoteWrap = document.getElementById('new-note-wrap')
+        if (newNoteWrap) newNoteWrap.classList.remove('hidden')
+        document.querySelectorAll('.local-edit').forEach((el) => el.classList.remove('hidden'))
       }
     </script>
   </body>

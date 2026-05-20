@@ -97,20 +97,43 @@ h1 .local-edit {
   margin-left: 0.35rem;
 }
 
+button.note-edit-btn {
+  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 0.35rem;
+  cursor: pointer;
+  color: inherit;
+  vertical-align: middle;
+}
+button.note-edit-btn:hover {
+  opacity: 0.75;
+}
+
 .new-note-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
   font-size: 0.95em;
   font-weight: normal;
   color: #666;
 }
-
-.notes-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.6rem;
+.new-note-link:hover {
+  color: #333;
 }
+.new-note-icon {
+  flex-shrink: 0;
+}
+
 .notes-header h1 {
   margin: 0;
+}
+.new-note-wrap {
+  margin: 0.35rem 0 0.75rem;
 }
 
 .notes-list {
@@ -238,6 +261,9 @@ li input[type='checkbox'] {
   .new-note-link {
     color: #999;
   }
+  .new-note-link:hover {
+    color: #ccc;
+  }
 
   .links {
     display: flex;
@@ -272,6 +298,48 @@ li input[type='checkbox'] {
   padding-bottom: 0.6rem;
   margin: 0 0 1.75rem 0;
   border-bottom: 1px solid rgba(138, 180, 248, 0.24);
+}
+
+.home-footer {
+  max-width: 47rem;
+  margin: 3.25rem auto 0;
+  padding-top: 1.35rem;
+  border-top: 1px solid rgba(138, 180, 248, 0.28);
+  text-align: left;
+}
+
+.home-footer-contact {
+  display: inline-block;
+  font-size: 1.02rem;
+  font-weight: 550;
+  letter-spacing: 0.015em;
+  color: rgb(32, 52, 88);
+  text-decoration: none;
+  border-bottom: 1.5px solid rgba(138, 180, 248, 0.55);
+  padding-bottom: 0.12em;
+  transition: color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.home-footer-contact:hover {
+  color: rgb(18, 38, 72);
+  border-bottom-color: rgba(138, 180, 248, 0.9);
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-footer {
+    border-top-color: rgba(138, 180, 248, 0.34);
+  }
+
+  .home-footer-contact {
+    color: rgb(210, 222, 248);
+    border-bottom-color: rgba(168, 200, 255, 0.55);
+  }
+
+  .home-footer-contact:hover {
+    color: #fff;
+    border-bottom-color: rgba(168, 200, 255, 0.85);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -865,46 +933,7 @@ li input[type='checkbox'] {
   color: inherit;
 }
 
-/* GIF editor: toolbar + Save placement */
-.gif-editor-title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1.25rem;
-  margin-top: 0.35rem;
-}
-.gif-editor-title-row .editor-save-btn {
-  flex-shrink: 0;
-}
-.editor-save-btn {
-  font: inherit;
-  font-size: 0.95rem;
-  font-weight: 650;
-  letter-spacing: 0.01em;
-  padding: 0.42rem 1.05rem;
-  border-radius: 8px;
-  border: 1px solid CanvasText;
-  background: CanvasText;
-  color: Canvas;
-  cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.12s ease;
-}
-.editor-save-btn:hover:not(:disabled) {
-  opacity: 0.88;
-}
-.editor-save-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.editor-save-btn:focus-visible {
-  outline: 2px solid Highlight;
-  outline-offset: 3px;
-}
-.editor-save-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-}
+/* Editor toolbars (feed, GIFs, notes) */
 .gif-editor-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -934,6 +963,34 @@ li input[type='checkbox'] {
 .editor-toolbar-btn:focus-visible {
   outline: 2px solid Highlight;
   outline-offset: 2px;
+}
+.editor-toolbar-btn--primary {
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  border-color: CanvasText;
+  background: CanvasText;
+  color: Canvas;
+  transition: opacity 0.15s ease, transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.editor-toolbar-btn--primary:hover:not(:disabled) {
+  background: CanvasText;
+  border-color: CanvasText;
+  opacity: 0.88;
+}
+.editor-toolbar-btn--primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.editor-toolbar-btn--primary:disabled {
+  opacity: 0.45;
+  transform: none;
+}
+a.editor-toolbar-btn {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.35;
+}
+a.editor-toolbar-btn:hover {
+  text-decoration: none;
 }
 
 /* GIF editor popovers (Add GIF, Add list) */
@@ -983,7 +1040,10 @@ li input[type='checkbox'] {
 }
 .editor-popover input[type='url'],
 .editor-popover input[type='text'],
-.editor-popover select {
+.editor-popover input[type='date'],
+.editor-popover input[type='number'],
+.editor-popover select,
+.editor-popover textarea {
   width: 100%;
   max-width: 100%;
   font-size: 1rem;
@@ -995,8 +1055,74 @@ li input[type='checkbox'] {
   background: Canvas;
   color: CanvasText;
 }
+.editor-popover textarea {
+  font-family: inherit;
+  resize: vertical;
+  min-height: 5rem;
+}
+.editor-popover-advanced {
+  margin-top: 0.85rem;
+  padding-top: 0.15rem;
+}
+.editor-popover-advanced > summary {
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.editor-popover-advanced[open] > summary {
+  margin-bottom: 0.55rem;
+}
+/* Closed popovers must stay hidden; display:flex on --scrollable overrides UA default */
+.editor-popover[popover]:not(:popover-open) {
+  display: none;
+}
+.editor-popover--scrollable {
+  max-height: min(90dvh, calc(100dvh - 2rem));
+  overflow: hidden;
+  padding: 0;
+}
+.editor-popover--scrollable:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+.editor-popover--scrollable form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: 0;
+}
+.editor-popover--scrollable .editor-popover-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.4rem 1.65rem 0.75rem;
+}
+.editor-popover--scrollable .editor-popover-actions {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 0.85rem 1.65rem 1.35rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.28);
+}
+@media (prefers-color-scheme: dark) {
+  .editor-popover--scrollable .editor-popover-actions {
+    border-top-color: rgba(255, 255, 255, 0.12);
+  }
+}
+.feed-editor-toolbar {
+  margin: 0.65rem 0 0.5rem 0;
+}
+.feed-editor-page #message.gif-editor-message {
+  min-height: 1.55em;
+  margin: 0.35rem 0 0.75rem 0;
+  font-size: 0.92rem;
+}
 .editor-popover input:focus-visible,
-.editor-popover select:focus-visible {
+.editor-popover select:focus-visible,
+.editor-popover textarea:focus-visible {
   outline: 2px solid Highlight;
   outline-offset: 2px;
   border-color: rgba(80, 120, 200, 0.65);
@@ -1072,46 +1198,55 @@ li input[type='checkbox'] {
 }
 
 /* ——— Note editor ——— */
-#note-form input,
-#note-form textarea {
-  font-size: 1rem;
-  padding: 0.4rem 0.5rem;
-  width: 100%;
-  max-width: 36rem;
-  box-sizing: border-box;
+.note-editor-intro {
+  margin-top: 0.45rem;
+  max-width: 42rem;
+  line-height: 1.55;
 }
-#note-form textarea {
+.note-editor-toolbar {
+  margin: 0.65rem 0 0.5rem 0;
+}
+.note-editor-page #message.gif-editor-message {
+  min-height: 1.55em;
+  margin: 0.35rem 0 0.75rem 0;
+  font-size: 0.92rem;
+}
+.note-editor-form {
+  max-width: 42rem;
+  margin-top: 0.5rem;
+}
+.note-editor-form .editor-popover-field label {
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+.note-editor-form input,
+.note-editor-form textarea {
+  width: 100%;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.45;
+  padding: 0.5rem 0.6rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  background: Canvas;
+  color: CanvasText;
+}
+.note-editor-form textarea {
   min-height: 16rem;
   resize: vertical;
+  font-family: inherit;
 }
-#note-form button {
-  margin-top: 1rem;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
+.note-editor-delete-btn:not(.hidden):hover {
+  border-color: rgba(180, 48, 48, 0.65);
+  background: rgba(180, 48, 48, 0.12);
 }
-#delete-wrap {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid #ccc;
+.notes-editor-message {
+  max-width: 42rem;
+  margin: 0.25rem 0 0.5rem 0;
 }
-#delete-btn {
-  background: #c00;
-  color: #fff;
-  border: none;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.9rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-}
-#delete-btn:hover {
-  background: #a00;
-}
-@media (prefers-color-scheme: dark) {
-  #delete-wrap {
-    border-color: #444;
-  }
-}
-
 .contact-intro {
   margin-bottom: 1.5rem;
 }

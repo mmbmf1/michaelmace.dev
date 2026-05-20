@@ -12,9 +12,14 @@
     <header class="page-header">
       <p class="nav-links">
         <a href="index.html" class="active">Home</a> ·
-        <span id="notes-nav-wrap" class="hidden"><a href="notes/index.html">Notes</a> · </span>
-        <a href="feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="gifs/index.html">GIFs</a></span>
-        · <a href="contact/index.html">Contact</a> ·
+        <span id="notes-nav-wrap" class="hidden"
+          ><a href="notes/index.html">Notes</a> ·
+        </span>
+        <a href="feed/index.html">Feed</a
+        ><span id="gifs-nav-wrap" class="hidden">
+          · <a href="gifs/index.html">GIFs</a></span
+        >
+        ·
         <a
           href="https://github.com/mmbmf1"
           target="_blank"
@@ -22,17 +27,19 @@
           >GitHub</a
         >
       </p>
-      <h1 class="no-margin-bottom">Michael Mace</h1>
-      <div class="home-intro">
-        <p class="tagline">domestic engineer, lawn care enthusiast, black coffee connoisseur, dev</p>
-        <p class="tagline">
-          this is for: notes, systems, and small experiments.
-        </p>
-        <p class="subtle">sometimes gifs. <a href="contact/index.html">get in touch</a>.</p>
-      </div>
     </header>
 
     <main class="page-body">
+      <section class="home-intro" aria-label="Introduction">
+        <h1 class="no-margin-bottom">Michael Mace</h1>
+        <p class="tagline">
+          domestic engineer, lawn care enthusiast, black coffee connoisseur, dev
+        </p>
+        <p class="tagline">
+          this is for: notes, systems, and small experiments.
+        </p>
+        <p class="subtle">sometimes gifs.</p>
+      </section>
       <section
         class="home-section home-feed-preview"
         aria-labelledby="home-recent-heading"
@@ -51,6 +58,12 @@
         </div>
       </section>
     </main>
+
+    <footer class="home-footer">
+      <a class="home-footer-contact" href="contact/index.html"
+        >send me a message</a
+      >
+    </footer>
 
     <script>
       function escapeHtml(text) {
@@ -178,6 +191,14 @@
               ? data.progress_pct
               : null
           const updatedAt = formatUpdatedAt(data.updated_at)
+          const stats =
+            data.stats && typeof data.stats === 'object' ? data.stats : null
+          const mostActiveWeekday =
+            stats &&
+            typeof stats.most_active_weekday === 'string' &&
+            stats.most_active_weekday.trim()
+              ? stats.most_active_weekday.trim()
+              : null
 
           if (hours == null || progress == null) {
             container.innerHTML =
@@ -201,6 +222,11 @@
             '<p class="hours-meta">updated ' +
             (updatedAt || 'recently') +
             '</p>' +
+            (mostActiveWeekday
+              ? '<p class="hours-meta">most active weekday: ' +
+                escapeHtml(mostActiveWeekday) +
+                '</p>'
+              : '') +
             '<p class="hours-source">source: <a href="data/git-hours.json">/data/git-hours.json</a></p>'
         } catch (_) {
           container.innerHTML =

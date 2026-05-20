@@ -103,7 +103,7 @@ ${bodyHtml}
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         var slug = window.location.pathname.split('/').pop().replace(/\\.html$/, '');
         var a = document.getElementById('edit-note-link');
-        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
+        if (a && slug) { a.href = '/notes/index.html?edit=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
       }
     </script>
   </body>
@@ -135,11 +135,16 @@ function dateToSortKey(dateStr) {
     november: '11',
     december: '12',
   }
-  // "February 2026" or "Monday February 20th 2026"
-  const m = dateStr.match(/^(?:\w+\s+)?(\w+)\s+(?:\d+\w*\s+)?(\d{4})$/i)
-  if (!m) return dateStr
+  // "February 2026", "Tuesday May 19th 2026", "Friday February 20th, 2026"
+  const normalized = dateStr
+    .replace(/^(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)\s+/i, '')
+    .replace(/,/g, '')
+    .trim()
+  const m = normalized.match(/^(\w+)\s+(?:(\d+)\w*\s+)?(\d{4})$/i)
+  if (!m) return '0000-00-00'
   const month = months[m[1].toLowerCase()] || '00'
-  return `${m[2]}-${month}`
+  const day = m[2] ? String(m[2]).padStart(2, '0') : '01'
+  return `${m[3]}-${month}-${day}`
 }
 
 function regenerateIndex() {
@@ -163,44 +168,20 @@ function regenerateIndex() {
       (e) =>
         `      <li>
         <a href="${e.slug}.html"> ${escapeHtml(e.title)} </a>
-        <a href="/editor/index.html?slug=${e.slug}" class="local-edit hidden" aria-label="Edit note" title="Edit">&#9998;</a>
+        <button type="button" class="local-edit note-edit-btn hidden" data-slug="${escapeHtml(e.slug)}" aria-label="Edit note" title="Edit">&#9998;</button>
         <br />
         <small>${escapeHtml(e.date)}</small>
       </li>`
     )
     .join('\n')
 
-  const indexHtml = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Notes — Michael Mace</title>
-    <link rel="stylesheet" href="../style.css" />
-    <link rel="icon" href="/favicon.png" />
-    <meta name="color-scheme" content="light dark" />
-  </head>
-
-  <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
-
-    <div class="notes-header">
-    <h1>Notes</h1>
-    <span id="new-note-wrap" class="hidden"><a href="/editor/index.html" class="local-edit new-note-link" aria-label="New note" title="New note"> ( + add note )</a></span>
-    </div>
-
-    <ul class="notes-list">
-${listItems}
-    </ul>
-    <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var w = document.getElementById('new-note-wrap'); if (w) w.classList.remove('hidden');
-        document.querySelectorAll('.local-edit').forEach(function (a) { a.classList.remove('hidden'); });
-      }
-    </script>
-  </body>
-</html>
-`
-  fs.writeFileSync(path.join(NOTES_DIR, 'index.html'), indexHtml, 'utf-8')
+  const indexPath = path.join(NOTES_DIR, 'index.html')
+  let indexHtml = fs.readFileSync(indexPath, 'utf-8')
+  indexHtml = indexHtml.replace(
+    /<ul class="notes-list">[\s\S]*?<\/ul>/,
+    `<ul class="notes-list">\n${listItems}\n    </ul>`
+  )
+  fs.writeFileSync(indexPath, indexHtml, 'utf-8')
 }
 
 const REPO_ROOT = path.join(EDITOR_DIR, '..')

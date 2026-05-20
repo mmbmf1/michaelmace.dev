@@ -11,11 +11,12 @@
   </head>
 
   <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html">Notes</a> · </span><a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">Reaction Library</a></span> · <a href="../contact/index.html">Contact</a> · <a href="https://github.com/mmbmf1" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+    <header class="page-header">
+      <p class="nav-links"><a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html">Notes</a> · </span><a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">Reaction Library</a></span> · <a href="https://github.com/mmbmf1" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+    </header>
 
     <h1>segments retro raw notes <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
     <p><em>Friday March 27th 2026</em></p>
-
     <h1>project velocity (or something like that)</h1>
     <h2>q1 didn’t feel fast</h2>
     <p>q1 was probably the biggest push of changes to our code bases in recent memory</p>
@@ -63,7 +64,7 @@
         if (gifsNavWrap) gifsNavWrap.classList.remove('hidden');
         var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
         var a = document.getElementById('edit-note-link');
-        if (a && slug) { a.href = '/editor/index.html?slug=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
+        if (a && slug) { a.href = '/notes/index.html?edit=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
       }
     </script>
   </body>

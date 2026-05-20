@@ -108,8 +108,9 @@ Editor behavior (`editor/gifs.html`):
 - `feed/schema.json` documents the expected feed item shape.
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
-- Feed editor includes a "quick add item" composer that inserts a new entry at
-  the top of the JSON while keeping full manual JSON editing available.
+- Feed editor includes an **Add entry** toolbar popover (like the GIF editor)
+  that inserts a new entry at the top of the JSON while keeping full manual
+  JSON editing available.
 - Feed editor includes a "validate" button that checks item IDs/dates, safe URLs,
   duplicate IDs, and common attribution mistakes before saving.
 - Save writes `feed/data.json` via `POST /api/feed/data`.

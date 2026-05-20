@@ -23,7 +23,7 @@
       <p class="nav-links">
         <a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html" class="active">Notes</a> · </span>
         <a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">GIFs</a></span>
-        · <a href="../contact/index.html">Contact</a> ·
+        ·
         <a
           href="https://github.com/mmbmf1"
           target="_blank"
@@ -104,7 +104,7 @@
           .replace(/\.html$/, '')
         var a = document.getElementById('edit-note-link')
         if (a && slug) {
-          a.href = '/editor/index.html?slug=' + encodeURIComponent(slug)
+          a.href = '/notes/index.html?edit=' + encodeURIComponent(slug)
           document.getElementById('edit-note-wrap').classList.remove('hidden')
         }
       }

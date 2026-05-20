@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>working on this site</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+
+  <body>
+    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
+
+    <h1>working on this site <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
+    <p><em>Tuesday May 19th 2026</em></p>
+
+    <h3>made some changes to the site</h3>
+    <ul>
+    <li>updated the git hours tracker data; included most active day of the week (new)</li>
+    <li>add a send me a message button at the bottom of the home page; this required an account with resend for <a href="mailto:contact@michaelmace.dev">contact@michaelmace.dev</a></li>
+    <li>had to set up cloudflare email also</li>
+    <li>can reply in google as <a href="mailto:contact@michaelmace.dev">contact@michaelmace.dev</a></li>
+    <li>cleaned up all the edit and add features to use the same modal style form</li>
+    </ul>
+    
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+        var a = document.getElementById('edit-note-link');
+        if (a && slug) { a.href = '/notes/index.html?edit=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
+      }
+    </script>
+  </body>
+</html>

@@ -7,7 +7,7 @@
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
-  <body>
+  <body class="feed-editor-page">
     <header class="page-header">
       <p class="nav-links">
         <a href="../index.html">Home</a> ·
@@ -29,141 +29,124 @@
       you embed external content (if omitted, save falls back to external
       embed/image urls).
     </p>
-    <p class="subtle" style="margin-top: 0.4rem; font-size: 0.92rem">
-      schema: <a href="../feed/schema.json" target="_blank" rel="noopener noreferrer">feed/schema.json</a>
+    <p class="gif-editor-toolbar feed-editor-toolbar">
+      <button type="button" id="load-btn" class="editor-toolbar-btn">reload</button>
+      <button
+        type="button"
+        id="add-feed-popover-btn"
+        class="editor-toolbar-btn"
+        popovertarget="add-feed-popover"
+      >
+        Add entry
+      </button>
+      <button type="button" id="validate-btn" class="editor-toolbar-btn">validate</button>
+      <button type="button" id="save-btn" class="editor-toolbar-btn editor-toolbar-btn--primary">save</button>
+      <a href="../feed/index.html" class="editor-toolbar-btn feed-editor-open-link">open feed</a>
     </p>
 
-    <details style="margin: 0.9rem 0 1.1rem 0">
-      <summary style="cursor: pointer">quick add item</summary>
-      <div
-        style="margin-top: 0.75rem; display: grid; gap: 0.65rem; max-width: 44rem"
-      >
-        <label>
-          date<br />
-          <input type="date" id="quick-date" style="width: 100%" />
-        </label>
-        <label>
-          title (optional)<br />
-          <input
-            type="text"
-            id="quick-title"
-            placeholder="watched / read / build note"
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          body (markdown)<br />
-          <textarea
-            id="quick-body"
-            rows="4"
-            placeholder="short note, thought, or tiny artifact"
-            style="width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; line-height: 1.45"
-          ></textarea>
-        </label>
-        <label>
-          source url (optional)<br />
-          <input
-            type="url"
-            id="quick-source"
-            placeholder="https://..."
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          image url (optional)<br />
-          <input
-            type="text"
-            id="quick-image"
-            placeholder="/feed/images/..."
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          image urls (optional, comma separated)<br />
-          <input
-            type="text"
-            id="quick-images"
-            placeholder="/feed/images/a.jpg, /feed/images/b.jpg"
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          video url (optional)<br />
-          <input
-            type="text"
-            id="quick-video"
-            placeholder="/feed/images/...mp4"
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          media fit (optional)<br />
-          <select id="quick-media-fit" style="width: 100%">
+    <div
+      id="add-feed-popover"
+      popover="auto"
+      class="editor-popover editor-popover--scrollable"
+      aria-labelledby="add-feed-popover-title"
+    >
+      <div class="editor-popover-scroll">
+      <p id="add-feed-popover-title" class="editor-popover__title">Add entry</p>
+      <p class="editor-popover-hint">Inserts at the top of the JSON — review and save.</p>
+      <div class="editor-popover-field">
+        <label for="quick-date">Date</label>
+        <input type="date" id="quick-date" />
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-title">Title (optional)</label>
+        <input
+          type="text"
+          id="quick-title"
+          placeholder="watched / read / build note"
+        />
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-body">Body (markdown)</label>
+        <textarea
+          id="quick-body"
+          rows="4"
+          placeholder="short note, thought, or tiny artifact"
+        ></textarea>
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-source">Source URL (optional)</label>
+        <input type="url" id="quick-source" placeholder="https://..." />
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-image">Image URL (optional)</label>
+        <input type="text" id="quick-image" placeholder="/feed/images/..." />
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-images">Image URLs (optional, comma separated)</label>
+        <input
+          type="text"
+          id="quick-images"
+          placeholder="/feed/images/a.jpg, /feed/images/b.jpg"
+        />
+      </div>
+      <div class="editor-popover-field">
+        <label for="quick-tags">Tags (optional, comma separated)</label>
+        <input type="text" id="quick-tags" placeholder="reading, tools" />
+      </div>
+      <details class="editor-popover-advanced">
+        <summary>Media &amp; links (optional)</summary>
+        <div class="editor-popover-field">
+          <label for="quick-video">Video URL</label>
+          <input type="text" id="quick-video" placeholder="/feed/images/...mp4" />
+        </div>
+        <div class="editor-popover-field">
+          <label for="quick-media-fit">Media fit</label>
+          <select id="quick-media-fit">
             <option value="">default (contain)</option>
             <option value="contain">contain</option>
             <option value="cover">cover</option>
           </select>
-        </label>
-        <label>
-          media ratio (optional)<br />
-          <input
-            type="text"
-            id="quick-media-ratio"
-            placeholder="4:3"
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          media max width px (optional)<br />
+        </div>
+        <div class="editor-popover-field">
+          <label for="quick-media-ratio">Media ratio</label>
+          <input type="text" id="quick-media-ratio" placeholder="4:3" />
+        </div>
+        <div class="editor-popover-field">
+          <label for="quick-media-max-width">Media max width (px)</label>
           <input
             type="number"
             min="1"
             step="1"
             id="quick-media-max-width"
             placeholder="420"
-            style="width: 100%"
           />
-        </label>
-        <label>
-          tags (comma separated, optional)<br />
-          <input
-            type="text"
-            id="quick-tags"
-            placeholder="reading, tools"
-            style="width: 100%"
-          />
-        </label>
-        <label>
-          related link url (optional)<br />
+        </div>
+        <div class="editor-popover-field">
+          <label for="quick-related-url">Related link URL</label>
           <input
             type="text"
             id="quick-related-url"
             placeholder="/notes/slug.html or https://..."
-            style="width: 100%"
           />
-        </label>
-        <label>
-          related link label (optional)<br />
-          <input
-            type="text"
-            id="quick-related-label"
-            placeholder="note: ..."
-            style="width: 100%"
-          />
-        </label>
-        <p style="margin: 0.1rem 0 0 0">
-          <button type="button" id="quick-add-btn">add item to top</button>
-        </p>
+        </div>
+        <div class="editor-popover-field">
+          <label for="quick-related-label">Related link label</label>
+          <input type="text" id="quick-related-label" placeholder="note: ..." />
+        </div>
+      </details>
       </div>
-    </details>
-
-    <p style="margin-bottom: 0.75rem">
-      <button type="button" id="load-btn">reload</button>
-      <button type="button" id="template-btn">+ starter item</button>
-      <button type="button" id="validate-btn">validate</button>
-      <button type="button" id="save-btn">save</button>
-      <a href="../feed/index.html" style="margin-left: 0.35rem">open feed</a>
-    </p>
+      <div class="editor-popover-actions">
+        <button type="button" id="quick-add-btn" class="editor-btn editor-btn--primary">Add to feed</button>
+        <button
+          type="button"
+          class="editor-btn editor-btn--ghost"
+          popovertarget="add-feed-popover"
+          popovertargetaction="hide"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
 
     <textarea
       id="feed-json"
@@ -172,7 +155,7 @@
       style="width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; line-height: 1.45"
     ></textarea>
 
-    <p id="message" aria-live="polite"></p>
+    <p id="message" class="gif-editor-message" aria-live="polite"></p>
 
     <script>
       const EDITOR_PORT = 3002
@@ -187,7 +170,6 @@
       const jsonEl = document.getElementById('feed-json')
       const messageEl = document.getElementById('message')
       const loadBtn = document.getElementById('load-btn')
-      const templateBtn = document.getElementById('template-btn')
       const validateBtn = document.getElementById('validate-btn')
       const saveBtn = document.getElementById('save-btn')
       const quickDateEl = document.getElementById('quick-date')
@@ -204,10 +186,11 @@
       const quickRelatedUrlEl = document.getElementById('quick-related-url')
       const quickRelatedLabelEl = document.getElementById('quick-related-label')
       const quickAddBtn = document.getElementById('quick-add-btn')
+      const addFeedPopover = document.getElementById('add-feed-popover')
 
       function setMessage(text, isError) {
         messageEl.textContent = text
-        messageEl.style.color = isError ? '#c00' : ''
+        messageEl.classList.toggle('gif-editor-message--error', !!isError)
       }
 
       function todayIso() {
@@ -551,21 +534,6 @@
         }
       }
 
-      templateBtn.addEventListener('click', () => {
-        const current = parseEditorJson()
-        const data = current.ok ? current.data : { items: [] }
-        if (!Array.isArray(data.items)) data.items = []
-        const stamp = todayIso()
-        data.items.unshift({
-          id: `${stamp}-entry-${data.items.length + 1}`,
-          date: stamp,
-          body_md: '',
-          tags: [],
-        })
-        jsonEl.value = JSON.stringify(data, null, 2)
-        setMessage('Added starter item at the top.')
-      })
-
       quickAddBtn.addEventListener('click', () => {
         const current = parseEditorJson()
         if (!current.ok) {
@@ -645,7 +613,27 @@
         quickTagsEl.value = ''
         quickRelatedUrlEl.value = ''
         quickRelatedLabelEl.value = ''
+        if (addFeedPopover && typeof addFeedPopover.hidePopover === 'function') {
+          addFeedPopover.hidePopover()
+        }
       })
+
+      if (addFeedPopover) {
+        if (typeof addFeedPopover.hidePopover === 'function') addFeedPopover.hidePopover()
+        document.body.style.overflow = ''
+        addFeedPopover.addEventListener('toggle', (ev) => {
+          if (ev.newState === 'open') {
+            document.body.style.overflow = 'hidden'
+            setMessage('')
+            if (quickDateEl && !quickDateEl.value) quickDateEl.value = todayIso()
+            setTimeout(() => {
+              if (quickTitleEl) quickTitleEl.focus()
+            }, 0)
+          } else if (ev.newState === 'closed') {
+            document.body.style.overflow = ''
+          }
+        })
+      }
 
       validateBtn.addEventListener('click', () => {
         const parsed = parseEditorJson()
