@@ -6,6 +6,7 @@ Static personal site deployed to Vercel.
 - **Notes** - Markdown-authored notes rendered to `notes/*.html`
 - **Feed** - Static logbook rendered from `feed/data.json`
 - **GIFs** - reaction library rendered from `gifs/data.json`
+- **Contact** - form at `contact/index.html`, sends mail via Resend (`api/contact.js`)
 - **10k progress snapshot** - homepage widget reads `data/git-hours.json`
 
 ## Architecture at a glance
@@ -20,6 +21,33 @@ Static personal site deployed to Vercel.
   - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
   - JSON APIs under `/api/*`
   - Static repo files from the repository root
+
+## Contact form
+
+Public page: `contact/index.html`. Submissions `POST` to `api/contact.js`, which sends email through [Resend](https://resend.com).
+
+**Environment variables** (never commit `.env`):
+
+| Variable | Required | Default |
+|----------|----------|---------|
+| `RESEND_API_KEY` | yes | — |
+| `CONTACT_FROM_EMAIL` | no | `michaelmace.dev <contact@michaelmace.dev>` |
+| `CONTACT_TO_EMAIL` | no | `contact@michaelmace.dev` |
+
+Create a repo-root `.env` (gitignored), for example:
+
+```bash
+RESEND_API_KEY=re_...
+# optional — defaults match contact@michaelmace.dev
+# CONTACT_FROM_EMAIL=michaelmace.dev <contact@michaelmace.dev>
+# CONTACT_TO_EMAIL=contact@michaelmace.dev
+```
+
+Until `michaelmace.dev` is verified in Resend, set `CONTACT_FROM_EMAIL=michaelmace.dev <onboarding@resend.dev>` in `.env` and in Vercel.
+
+**Local testing:** with the editor running (`npm start` in `editor/`), open `http://localhost:3002/contact/` — the editor server serves `/api/contact` and loads `.env` from the repo root. Alternatively, `vercel dev` from the repo root also works.
+
+Add the same env vars in **Vercel → Settings → Environment Variables** before testing production.
 
 ## Local setup
 

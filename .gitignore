@@ -4,3 +4,4 @@ editor/node_modules
 .cursor
 # gifs/data.json is committed for the public GIFs page
 !gifs/data.json
+.env

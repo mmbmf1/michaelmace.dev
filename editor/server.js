@@ -547,6 +547,9 @@ app.post('/api/feed/data', (req, res) => {
   res.json({ ok: true, count: items.length })
 })
 
+const contactHandler = require('../lib/contact')
+app.post('/api/contact', contactHandler)
+
 app.use(express.static(REPO_ROOT))
 
 app.listen(PORT, () => {

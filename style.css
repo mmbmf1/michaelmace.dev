@@ -1111,3 +1111,95 @@ li input[type='checkbox'] {
     border-color: #444;
   }
 }
+
+.contact-intro {
+  margin-bottom: 1.5rem;
+}
+
+.contact-form p {
+  margin: 0 0 1.25rem 0;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  line-height: 1.5;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: inherit;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.contact-form button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border: 1px solid #333;
+  border-radius: 0.25rem;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.contact-form button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.contact-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-status {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.contact-status--success {
+  opacity: 0.9;
+}
+
+.contact-status--error {
+  color: #a00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .contact-form input,
+  .contact-form textarea {
+    border-color: #555;
+    background: #1a1a1a;
+  }
+
+  .contact-form button {
+    border-color: #ccc;
+    background: #eee;
+    color: #111;
+  }
+
+  .contact-status--error {
+    color: #f66;
+  }
+}

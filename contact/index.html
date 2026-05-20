@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Contact — Michael Mace</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+
+  <body>
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="../index.html">Home</a> ·
+        <span id="notes-nav-wrap" class="hidden"
+          ><a href="../notes/index.html">Notes</a> ·
+        </span>
+        <a href="../feed/index.html">Feed</a
+        ><span id="gifs-nav-wrap" class="hidden">
+          · <a href="../gifs/index.html">GIFs</a></span
+        >
+        · <a href="index.html" class="active">Contact</a> ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
+    </header>
+
+    <main class="page-body">
+      <section class="contact-intro" aria-labelledby="contact-title">
+        <h1 id="contact-title" class="no-margin-bottom">Contact</h1>
+        <p class="subtle">
+          Questions, ideas, or just saying hi — send a note and I’ll get back to
+          you.
+        </p>
+      </section>
+
+      <form id="contact-form" class="contact-form" novalidate>
+        <p class="contact-honeypot" aria-hidden="true">
+          <label for="website">Website</label>
+          <input
+            type="text"
+            id="website"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </p>
+
+        <p>
+          <label for="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            maxlength="100"
+            autocomplete="name"
+          />
+        </p>
+
+        <p>
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            maxlength="254"
+            autocomplete="email"
+          />
+        </p>
+
+        <p>
+          <label for="message">Message</label>
+          <textarea
+            id="message"
+            name="message"
+            required
+            maxlength="5000"
+            rows="8"
+          ></textarea>
+        </p>
+
+        <p>
+          <button type="submit" id="contact-submit">Send message</button>
+        </p>
+
+        <p
+          id="contact-status"
+          class="contact-status"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></p>
+      </form>
+    </main>
+
+    <script>
+      ;(function () {
+        const form = document.getElementById('contact-form')
+        const submitBtn = document.getElementById('contact-submit')
+        const statusEl = document.getElementById('contact-status')
+
+        function showStatus(message, isError) {
+          statusEl.hidden = false
+          statusEl.textContent = message
+          statusEl.classList.toggle('contact-status--error', !!isError)
+          statusEl.classList.toggle('contact-status--success', !isError)
+        }
+
+        form.addEventListener('submit', async function (event) {
+          event.preventDefault()
+          statusEl.hidden = true
+
+          const payload = {
+            name: form.name.value,
+            email: form.email.value,
+            message: form.message.value,
+            website: form.website.value,
+          }
+
+          submitBtn.disabled = true
+          submitBtn.textContent = 'Sending…'
+
+          try {
+            const response = await fetch('/api/contact', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            })
+
+            const data = await response.json().catch(function () {
+              return {}
+            })
+
+            if (response.ok) {
+              form.reset()
+              showStatus('Thanks — your message was sent.', false)
+            } else {
+              showStatus(
+                data.error || 'Could not send message. Please try again.',
+                true
+              )
+            }
+          } catch (_) {
+            showStatus('Could not send message. Please try again.', true)
+          } finally {
+            submitBtn.disabled = false
+            submitBtn.textContent = 'Send message'
+          }
+        })
+
+        if (
+          /^localhost$|^127\.0\.0\.1$/.test(window.location.hostname) ||
+          window.location.hostname === ''
+        ) {
+          const notesNavWrap = document.getElementById('notes-nav-wrap')
+          if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+          const gifsNavWrap = document.getElementById('gifs-nav-wrap')
+          if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        }
+      })()
+    </script>
+  </body>
+</html>
