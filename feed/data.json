@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "id": "2026-05-20-squashing-commits-with-reset",
+      "date": "2026-05-20",
+      "title": "squashing commits with reset",
+      "body_md": "when a branch gets cluttered with [bad[commits - I clean it up before merging. trick is: *resetting to the base commit while keeping everything staged:*\n\n```bash\n# reset to the merge-base of main\ngit reset --soft $(git merge-base main your-branch-name)\n\n# commit the entire feature at once\ngit commit -m \"feat: consolidate feature work\"\n\n# force update the remote\ngit push --force\n```",
+      "tags": [
+        "git"
+      ]
+    },
+    {
+      "id": "2026-05-20-empty-commits",
+      "date": "2026-05-20",
+      "title": "empty commits",
+      "body_md": "there are times when the code is fine but the infrastructure needs a nudge:\n\n```bash\ngit commit --allow-empty -m \"trigger deployment\" && git push\n```",
+      "tags": [
+        "git"
+      ]
+    },
+    {
       "id": "2026-05-19-pictures-from-cancun-vacation-may-2026",
       "date": "2026-05-19",
       "title": "pictures from cancun vacation may 2026",
