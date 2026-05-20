@@ -4,6 +4,16 @@
     <meta charset="utf-8" />
     <title>Feed - Michael Mace</title>
     <link rel="stylesheet" href="../style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
@@ -39,6 +49,7 @@
       <section id="feed-list" class="feed-list" aria-live="polite"></section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
     <script>
       function escapeHtml(text) {
         return String(text == null ? '' : text)
@@ -697,6 +708,15 @@
         window.addEventListener('resize', queueDepthRender)
       }
 
+      function highlightFeedCodeBlocks(root) {
+        if (!root || typeof hljs === 'undefined') return
+        root.querySelectorAll('pre code[class*="language-"]').forEach((block) => {
+          try {
+            hljs.highlightElement(block)
+          } catch (_) {}
+        })
+      }
+
       function setupFeedItemReveal() {
         const items = document.querySelectorAll('.feed-item')
         if (items.length === 0) return
@@ -753,6 +773,7 @@
             return
           }
           list.innerHTML = renderGroupedFeed(filteredItems, activeTag)
+          highlightFeedCodeBlocks(list)
           setupFeedItemReveal()
           setupDepthUi()
         } catch (_) {
