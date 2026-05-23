@@ -143,7 +143,7 @@ button.note-edit-btn:hover {
 }
 
 .tagline {
-  font-size: 1.05em;
+  font-size: 0.95em;
   opacity: 0.9;
 }
 .subtle {
@@ -389,7 +389,8 @@ li input[type='checkbox'] {
   letter-spacing: 0.01em;
   line-height: 1.2;
   opacity: 0.82;
-  transition: opacity 0.22s ease, border-color 0.22s ease, font-weight 0.22s ease;
+  transition: opacity 0.22s ease, border-color 0.22s ease,
+    font-weight 0.22s ease;
   pointer-events: none;
 }
 .feed-depth-indicator--archive {
@@ -970,7 +971,8 @@ li input[type='checkbox'] {
   border-color: CanvasText;
   background: CanvasText;
   color: Canvas;
-  transition: opacity 0.15s ease, transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.12s ease, background 0.15s ease,
+    border-color 0.15s ease;
 }
 .editor-toolbar-btn--primary:hover:not(:disabled) {
   background: CanvasText;
@@ -1142,7 +1144,8 @@ a.editor-toolbar-btn:hover {
   border-radius: 8px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease, transform 0.1s ease;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease,
+    transform 0.1s ease;
 }
 .editor-btn:active {
   transform: scale(0.99);
