@@ -1,6 +1,17 @@
 {
   "items": [
     {
+      "id": "2026-05-24-wallace-state-park-campground-res",
+      "date": "2026-05-24",
+      "title": "wallace state park campground res",
+      "body_md": "```json\n {\n  \"unit\": \"campground 4\",\n  \"dates\": [\"2026-05-29\", \"2026-05-31\"],\n  \"type\": \"30-amp-electric\"\n}\n```\ngoal: shift all meal preparation and assembly to the 4 days prior.\n\nhypothesis: front-loading the labor will allow for a near-zero-labor state at the campsite, prioritizing family time over kitchen logistics. prep schedule initialized.",
+      "tags": [
+        "camping",
+        "family",
+        "food"
+      ]
+    },
+    {
       "id": "2026-05-24-mo-river-at-napoleon",
       "date": "2026-05-24",
       "title": "mo river at napoleon",
