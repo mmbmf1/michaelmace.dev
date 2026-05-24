@@ -75,40 +75,114 @@ function addExternalLinkAttrs(html) {
 }
 
 function noteShell(title, date, bodyHtml) {
-  const escapedTitle = title
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+  const escapedTitle = escapeHtml(title)
+  const escapedDate = escapeHtml(date)
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>${escapedTitle}</title>
     <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
 
   <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html" class="active">Notes</a> · </span>
+        <a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">GIFs</a></span>
+        ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
 
-    <h1>${escapedTitle} <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
-    <p><em>${date.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</em></p>
+      <h1>
+        ${escapedTitle}
+        <span id="edit-note-wrap" class="hidden"
+          ><a
+            href="#"
+            id="edit-note-link"
+            class="local-edit"
+            aria-label="Edit note"
+            title="Edit"
+            >&#9998;</a
+          ></span
+        >
+      </h1>
+    </header>
+
+    <p><em>${escapedDate}</em></p>
 
 ${bodyHtml}
     <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var slug = window.location.pathname.split('/').pop().replace(/\\.html$/, '');
-        var a = document.getElementById('edit-note-link');
-        if (a && slug) { a.href = '/notes/index.html?edit=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
+        var notesNavWrap = document.getElementById('notes-nav-wrap')
+        if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+        var gifsNavWrap = document.getElementById('gifs-nav-wrap')
+        if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        var slug = window.location.pathname
+          .split('/')
+          .pop()
+          .replace(/\\.html$/, '')
+        var a = document.getElementById('edit-note-link')
+        if (a && slug) {
+          a.href = '/notes/index.html?edit=' + encodeURIComponent(slug)
+          document.getElementById('edit-note-wrap').classList.remove('hidden')
+        }
       }
     </script>
   </body>
 </html>
 `
+}
+
+function markdownBodyToHtml(body) {
+  const rawBodyHtml = addExternalLinkAttrs(marked.parse(body))
+  return rawBodyHtml
+    .split('\n')
+    .map((line) => '    ' + line)
+    .join('\n')
+}
+
+function writeNoteHtml(title, date, body, slug) {
+  const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
+  fs.writeFileSync(
+    htmlPath,
+    noteShell(title, date, markdownBodyToHtml(body)),
+    'utf-8'
+  )
+}
+
+function regenerateNotesFromMarkdown(slugs) {
+  const mdFiles = fs
+    .readdirSync(NOTES_DIR)
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => f.replace(/\.md$/, ''))
+  const targets = slugs ? mdFiles.filter((s) => slugs.includes(s)) : mdFiles
+  for (const slug of targets) {
+    const mdPath = path.join(NOTES_DIR, `${slug}.md`)
+    const { title, date, body } = parseNoteMd(fs.readFileSync(mdPath, 'utf-8'))
+    writeNoteHtml(title, date, body, slug)
+  }
+  regenerateIndex()
 }
 
 function extractTitleAndDate(htmlPath) {
@@ -272,13 +346,7 @@ ${body}
   const mdPath = path.join(NOTES_DIR, `${slug}.md`)
   fs.writeFileSync(mdPath, mdContent, 'utf-8')
 
-  const rawBodyHtml = addExternalLinkAttrs(marked.parse(body))
-  const bodyHtml = rawBodyHtml
-    .split('\n')
-    .map((line) => '    ' + line)
-    .join('\n')
-  const htmlPath = path.join(NOTES_DIR, `${slug}.html`)
-  fs.writeFileSync(htmlPath, noteShell(safeTitle, safeDate, bodyHtml), 'utf-8')
+  writeNoteHtml(safeTitle, safeDate, body, slug)
 
   regenerateIndex()
 
@@ -533,7 +601,19 @@ app.post('/api/contact', contactHandler)
 
 app.use(express.static(REPO_ROOT))
 
-app.listen(PORT, () => {
-  console.log(`Site at http://localhost:${PORT}`)
-  console.log(`Editor at http://localhost:${PORT}/editor/index.html`)
-})
+if (process.argv.includes('--regenerate-notes')) {
+  const slugArgs = process.argv
+    .slice(2)
+    .filter((a) => a !== '--regenerate-notes')
+  regenerateNotesFromMarkdown(slugArgs.length ? slugArgs : null)
+  console.log(
+    slugArgs.length
+      ? `Regenerated: ${slugArgs.join(', ')}`
+      : `Regenerated ${fs.readdirSync(NOTES_DIR).filter((f) => f.endsWith('.md')).length} notes`
+  )
+} else {
+  app.listen(PORT, () => {
+    console.log(`Site at http://localhost:${PORT}`)
+    console.log(`Editor at http://localhost:${PORT}/editor/index.html`)
+  })
+}

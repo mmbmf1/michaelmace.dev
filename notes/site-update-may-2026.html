@@ -4,16 +4,49 @@
     <meta charset="utf-8" />
     <title>working on this site</title>
     <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
 
   <body>
-    <p class="nav-links"><a href="../index.html">Home</a> · <a href="index.html">Notes</a> · <a href="../gifs/index.html">Reaction Library</a></p>
+    <header class="page-header">
+      <p class="nav-links">
+        <a href="../index.html">Home</a> · <span id="notes-nav-wrap" class="hidden"><a href="index.html" class="active">Notes</a> · </span>
+        <a href="../feed/index.html">Feed</a><span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">GIFs</a></span>
+        ·
+        <a
+          href="https://github.com/mmbmf1"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
 
-    <h1>working on this site <span id="edit-note-wrap" class="hidden"><a href="#" id="edit-note-link" class="local-edit" aria-label="Edit note" title="Edit">&#9998;</a></span></h1>
+      <h1>
+        working on this site
+        <span id="edit-note-wrap" class="hidden"
+          ><a
+            href="#"
+            id="edit-note-link"
+            class="local-edit"
+            aria-label="Edit note"
+            title="Edit"
+            >&#9998;</a
+          ></span
+        >
+      </h1>
+    </header>
+
     <p><em>Tuesday May 19th 2026</em></p>
 
     <h3>made some changes to the site</h3>
@@ -26,10 +59,23 @@
     </ul>
     
     <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        var slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
-        var a = document.getElementById('edit-note-link');
-        if (a && slug) { a.href = '/notes/index.html?edit=' + encodeURIComponent(slug); document.getElementById('edit-note-wrap').classList.remove('hidden'); }
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
+        var notesNavWrap = document.getElementById('notes-nav-wrap')
+        if (notesNavWrap) notesNavWrap.classList.remove('hidden')
+        var gifsNavWrap = document.getElementById('gifs-nav-wrap')
+        if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        var slug = window.location.pathname
+          .split('/')
+          .pop()
+          .replace(/\.html$/, '')
+        var a = document.getElementById('edit-note-link')
+        if (a && slug) {
+          a.href = '/notes/index.html?edit=' + encodeURIComponent(slug)
+          document.getElementById('edit-note-wrap').classList.remove('hidden')
+        }
       }
     </script>
   </body>
