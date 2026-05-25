@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "id": "2026-05-25-wallace-campground-prep",
+      "date": "2026-05-25",
+      "title": "wallace campground prep",
+      "body_md": "monday progress:\n- protein batch (pulled pork) divided into meal-sized units\n- potatoes cubed and par-boiled \n\nthe front-loading of labor is underway - turning raw ingredients into ready-to-heat components now to minimize the effort required later at the site.",
+      "image_urls": [
+        "/feed/images/20260524_pork_butt.jpg"
+      ],
+      "tags": [
+        "family",
+        "camping",
+        "mo",
+        "state",
+        "parks",
+        "wallace",
+        "food"
+      ]
+    },
+    {
       "id": "2026-05-25-memorial-day-weekend-pictures",
       "date": "2026-05-25",
       "title": "memorial day weekend pictures",
