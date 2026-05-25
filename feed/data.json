@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "id": "2026-05-25-memorial-day-weekend-pictures",
+      "date": "2026-05-25",
+      "title": "memorial day weekend pictures",
+      "image_urls": [
+        "/feed/images/20260525_harlan_chanchan_mem_day.jpg",
+        "/feed/images/20260524_noah_memorial_day.jpg"
+      ],
+      "tags": [
+        "family",
+        "mace",
+        "boys"
+      ]
+    },
+    {
       "id": "2026-05-24-wallace-state-park-campground-res",
       "date": "2026-05-24",
       "title": "wallace state park campground res",
@@ -34,6 +48,8 @@
       ],
       "tags": [
         "family",
+        "mace",
+        "boys",
         "leopards"
       ]
     },
@@ -177,7 +193,12 @@
       "date": "2026-04-16",
       "title": "custom gif",
       "body_md": "intent is to add custom gif to gif library",
-      "image_url": "/feed/images/kid_one_sup.gif"
+      "image_url": "/feed/images/kid_one_sup.gif",
+      "tags": [
+        "family",
+        "mace",
+        "boys"
+      ]
     },
     {
       "id": "2026-04-14-landahl-park-loop-1-pr-3",
