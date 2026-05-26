@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "id": "2026-05-26-not-just-a-software-shift",
+      "date": "2026-05-26",
+      "title": "not just a software shift",
+      "body_md": "it doesn’t feel like just a software shift - feels like multiple physical systems getting pulled **tighter** together.\n\nevery step forward seems to increase pressure somewhere **physical** — power, cooling, transmission, bandwidth, and coordination.",
+      "image_urls": [
+        "/feed/images/Gemini_Generated_Image_physical_ai_1.png"
+      ],
+      "tags": [
+        "ai"
+      ]
+    },
+    {
       "id": "2026-05-25-wallace-campground-prep",
       "date": "2026-05-25",
       "title": "wallace campground prep",
