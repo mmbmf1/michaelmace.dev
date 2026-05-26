@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "id": "2026-05-26-landahl-park-loop-one",
+      "date": "2026-05-26",
+      "title": "landahl park loop one",
+      "body_md": "still have a busted leg (cramp that did some muscle damage) - so the hill was *difficult* today. saw a turtle - and a guy asked me about my inReach mini",
+      "image_urls": [
+        "/feed/images/20260526_landahl_hill.jpg",
+        "/feed/images/20260526_turtle.jpg"
+      ],
+      "video_url": "/feed/images/15169409_landahl_loop_one.mp4",
+      "tags": [
+        "hiking",
+        "trails",
+        "garmin",
+        "turtle",
+        "landahl park"
+      ]
+    },
+    {
       "id": "2026-05-26-not-just-a-software-shift",
       "date": "2026-05-26",
       "title": "not just a software shift",
@@ -91,8 +109,7 @@
       "image_url": "/feed/images/20260520_trails_sky_green_trees.jpg",
       "video_url": "/feed/images/20260520_trails.mp4",
       "tags": [
-        "trails",
-        "leopards"
+        "trails"
       ]
     },
     {
