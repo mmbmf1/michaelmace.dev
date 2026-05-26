@@ -7,6 +7,7 @@ Static personal site deployed to Vercel.
 - **Feed** - Static logbook rendered from `feed/data.json`
 - **GIFs** - reaction library rendered from `gifs/data.json`
 - **Contact** - form at `contact/index.html`, sends mail via Resend (`api/contact.js`)
+- **Resume** - print-friendly page at `resume/index.html`
 - **10k progress snapshot** - homepage widget reads `data/git-hours.json`
 
 ## Architecture at a glance

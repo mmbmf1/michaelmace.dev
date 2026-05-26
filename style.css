@@ -314,7 +314,7 @@ li input[type='checkbox'] {
   padding-bottom: 0.6rem;
   margin: 0 0 1.75rem 0;
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto auto auto;
   column-gap: 0.25rem;
   align-items: center;
 }
@@ -325,6 +325,7 @@ li input[type='checkbox'] {
 }
 
 .page-header > .nav-contact,
+.page-header > .nav-linkedin,
 .page-header > .nav-github,
 .page-header > .nav-resume {
   grid-row: 1;
@@ -335,17 +336,22 @@ li input[type='checkbox'] {
   grid-column: 2;
 }
 
-.page-header > .nav-github {
+.page-header > .nav-linkedin {
   grid-column: 3;
 }
 
-.page-header > .nav-resume {
+.page-header > .nav-github {
   grid-column: 4;
+}
+
+.page-header > .nav-resume {
+  grid-column: 5;
   justify-self: end;
 }
 
 @media (min-width: 600px) {
   .page-header > .nav-contact,
+  .page-header > .nav-linkedin,
   .page-header > .nav-github,
   .page-header > .nav-resume {
     margin-top: 0.85rem;
@@ -358,6 +364,7 @@ li input[type='checkbox'] {
 }
 
 .nav-contact,
+.nav-linkedin,
 .nav-github,
 .nav-resume {
   display: inline-flex;
@@ -372,6 +379,7 @@ li input[type='checkbox'] {
 }
 
 .nav-contact:hover,
+.nav-linkedin:hover,
 .nav-github:hover,
 .nav-resume:hover {
   opacity: 1;
@@ -381,6 +389,7 @@ li input[type='checkbox'] {
 }
 
 .nav-contact svg,
+.nav-linkedin svg,
 .nav-github svg,
 .nav-resume svg {
   width: 20px;
@@ -390,11 +399,13 @@ li input[type='checkbox'] {
 
 @media (prefers-color-scheme: dark) {
   .nav-contact,
+  .nav-linkedin,
   .nav-github,
   .nav-resume {
     color: rgb(210, 222, 248);
   }
   .nav-contact:hover,
+  .nav-linkedin:hover,
   .nav-github:hover,
   .nav-resume:hover {
     color: #fff;
@@ -1409,5 +1420,42 @@ a.editor-toolbar-btn:hover {
 
   .contact-status--error {
     color: #f66;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 0.75in;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    padding: 0;
+  }
+
+  .page-header {
+    display: none;
+  }
+
+  #resume-print-btn {
+    display: none;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  a {
+    color: #000;
+    border-bottom-color: #666;
+  }
+
+  .print-block {
+    break-inside: avoid;
   }
 }
