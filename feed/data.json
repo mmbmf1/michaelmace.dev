@@ -1,6 +1,22 @@
 {
   "items": [
     {
+      "id": "2026-05-29-harlan-to-climbing-gym",
+      "date": "2026-05-29",
+      "title": "harlan to climbing gym",
+      "image_urls": [
+        "/feed/images/20260527_harlan_ibex.jpg"
+      ],
+      "tags": [
+        "mace",
+        "boys",
+        "family",
+        "ibex",
+        "climbing",
+        "summer"
+      ]
+    },
+    {
       "id": "2026-05-26-landahl-park-loop-one",
       "date": "2026-05-26",
       "title": "landahl park loop one",
