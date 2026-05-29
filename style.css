@@ -173,6 +173,40 @@ button.note-edit-btn:hover {
   font-size: 1rem;
 }
 
+.home-inventory {
+  margin-top: 2rem;
+}
+
+.inventory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0.35rem 0;
+}
+
+.inventory-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  color: rgb(32, 52, 88);
+  opacity: 0.85;
+  margin-top: 0.25rem;
+}
+
+.collaborations {
+  margin-bottom: 1.5rem;
+}
+
+.collaborations p {
+  margin: 0;
+}
+
 .hours-widget .hours-summary {
   margin: 0;
 }
@@ -264,6 +298,10 @@ li input[type='checkbox'] {
   a:hover {
     color: #fff;
     border-bottom-color: rgba(168, 200, 255, 0.85);
+  }
+
+  .inventory-icon {
+    color: rgb(210, 222, 248);
   }
 
   li {
