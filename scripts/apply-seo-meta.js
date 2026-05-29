@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const ROOT = path.join(__dirname, '..')
-const SITE_ORIGIN = 'https://michaelmace.dev'
+const SITE_ORIGIN = 'https://www.michaelmace.dev'
 const SITE_NAME = 'Michael Mace'
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/favicon.png`
 

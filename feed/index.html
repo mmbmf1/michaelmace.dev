@@ -7,19 +7,19 @@
     <meta name="description" content="Photo and video log from Michael Mace — trails, camping, and everyday moments." />
     <meta name="author" content="Michael Mace" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://michaelmace.dev/feed/" />
+    <link rel="canonical" href="https://www.michaelmace.dev/feed/" />
     <meta property="og:site_name" content="Michael Mace" />
     <meta property="og:title" content="Feed — Michael Mace" />
     <meta property="og:description" content="Photo and video log from Michael Mace — trails, camping, and everyday moments." />
-    <meta property="og:url" content="https://michaelmace.dev/feed/" />
+    <meta property="og:url" content="https://www.michaelmace.dev/feed/" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:image" content="https://michaelmace.dev/favicon.png" />
+    <meta property="og:image" content="https://www.michaelmace.dev/favicon.png" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Feed — Michael Mace" />
     <meta name="twitter:description" content="Photo and video log from Michael Mace — trails, camping, and everyday moments." />
-    <meta name="twitter:image" content="https://michaelmace.dev/favicon.png" />
-    <link rel="stylesheet" href="../style.css" />
+    <meta name="twitter:image" content="https://www.michaelmace.dev/favicon.png" />
+    <link rel="stylesheet" href="/style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
@@ -839,7 +839,7 @@
         const list = document.getElementById('feed-list')
         if (!list) return
         try {
-          const response = await fetch('data.json')
+          const response = await fetch('/feed/data.json')
           if (!response.ok) throw new Error('bad response')
           const data = await response.json()
           const items = Array.isArray(data.items) ? data.items : []

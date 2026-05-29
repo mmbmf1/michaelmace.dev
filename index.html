@@ -8,19 +8,19 @@
     <meta name="description" content="Personal site of Michael Mace — full-stack developer in Blue Springs, MO. Feed, resume, and contact." />
     <meta name="author" content="Michael Mace" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://michaelmace.dev/" />
+    <link rel="canonical" href="https://www.michaelmace.dev/" />
     <meta property="og:site_name" content="Michael Mace" />
     <meta property="og:title" content="Michael Mace" />
     <meta property="og:description" content="Personal site of Michael Mace — full-stack developer in Blue Springs, MO. Feed, resume, and contact." />
-    <meta property="og:url" content="https://michaelmace.dev/" />
+    <meta property="og:url" content="https://www.michaelmace.dev/" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:image" content="https://michaelmace.dev/favicon.png" />
+    <meta property="og:image" content="https://www.michaelmace.dev/favicon.png" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Michael Mace" />
     <meta name="twitter:description" content="Personal site of Michael Mace — full-stack developer in Blue Springs, MO. Feed, resume, and contact." />
-    <meta name="twitter:image" content="https://michaelmace.dev/favicon.png" />
-    <link rel="stylesheet" href="style.css" />
+    <meta name="twitter:image" content="https://www.michaelmace.dev/favicon.png" />
+    <link rel="stylesheet" href="/style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
   </head>
@@ -258,7 +258,7 @@
         const container = document.getElementById('hours-widget-body')
         if (!container) return
         try {
-          const response = await fetch('data/git-hours.json')
+          const response = await fetch('/data/git-hours.json')
           if (!response.ok) throw new Error('bad response')
           const data = await response.json()
           const hours =
@@ -307,7 +307,7 @@
                 escapeHtml(mostActiveWeekday) +
                 '</p>'
               : '') +
-            '<p class="hours-source">source: <a href="data/git-hours.json">/data/git-hours.json</a></p>'
+            '<p class="hours-source">source: <a href="/data/git-hours.json">/data/git-hours.json</a></p>'
         } catch (_) {
           container.innerHTML =
             '<p class="subtle">hours snapshot unavailable right now.</p>'
@@ -318,7 +318,7 @@
         const container = document.getElementById('home-feed-body')
         if (!container) return
         try {
-          const response = await fetch('feed/data.json')
+          const response = await fetch('/feed/data.json')
           if (!response.ok) throw new Error('bad response')
           const data = await response.json()
           const allItems = Array.isArray(data.items) ? data.items : []

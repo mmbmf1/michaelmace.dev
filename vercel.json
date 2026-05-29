@@ -1,12 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.michaelmace.dev" }],
-      "destination": "https://michaelmace.dev/:path*",
-      "permanent": true
-    },
-    {
       "source": "/index.html",
       "destination": "/",
       "permanent": true
