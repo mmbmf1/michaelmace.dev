@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -178,6 +178,15 @@
 
       <section id="feed-list" class="feed-list" aria-live="polite"></section>
     </main>
+
+    <script>
+      window.va =
+        window.va ||
+        function () {
+          ;(window.vaq = window.vaq || []).push(arguments)
+        }
+    </script>
+    <script defer src="/<unique-path>/script.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
     <script>
@@ -691,10 +700,10 @@
           (/^https?:\/\//i.test(embedUrlCandidate)
             ? embedUrlCandidate
             : /^https?:\/\//i.test(firstImageUrl)
-            ? firstImageUrl
-            : /^https?:\/\//i.test(videoUrl)
-            ? videoUrl
-            : '')
+              ? firstImageUrl
+              : /^https?:\/\//i.test(videoUrl)
+                ? videoUrl
+                : '')
         const media = renderMediaRow(item, mediaOptions)
         const date = formatDate(item && item.date ? item.date : '')
         const itemId = normalizeFeedItemId(item && item.id, index)
