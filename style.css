@@ -1,6 +1,11 @@
 :root {
   --bg-depth: 0;
   --feed-depth-max-darken: 0.08;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 body {
@@ -10,6 +15,7 @@ body {
   font-family: system-ui, sans-serif;
   font-size: 1.15rem;
   line-height: 1.65;
+  color: #1a1a1a;
   background: rgb(
     calc(255 - (var(--bg-depth, 0) * 255 * var(--feed-depth-max-darken))),
     calc(255 - (var(--bg-depth, 0) * 255 * var(--feed-depth-max-darken))),
@@ -226,13 +232,11 @@ button.note-edit-btn:hover {
 .hours-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.35);
   transition: width 0.3s ease;
 }
-@media (prefers-color-scheme: light) {
-  .hours-progress-fill {
-    background: rgba(0, 0, 0, 0.35);
-  }
+:root[data-theme='dark'] .hours-progress-fill {
+  background: rgba(255, 255, 255, 0.4);
 }
 .hours-meta {
   margin: 0.35rem 0 0 0;
@@ -286,7 +290,7 @@ li input[type='checkbox'] {
   flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   body {
     background: rgb(
       calc(17 - (var(--bg-depth, 0) * 10)),
@@ -363,7 +367,7 @@ li input[type='checkbox'] {
   padding-bottom: 0.6rem;
   margin: 0 0 1.75rem 0;
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto;
+  grid-template-columns: 1fr auto auto auto auto auto;
   column-gap: 0.25rem;
   align-items: center;
 }
@@ -376,7 +380,8 @@ li input[type='checkbox'] {
 .page-header > .nav-contact,
 .page-header > .nav-linkedin,
 .page-header > .nav-github,
-.page-header > .nav-resume {
+.page-header > .nav-resume,
+.page-header > .nav-theme {
   grid-row: 1;
   margin-top: 1.2rem;
 }
@@ -395,6 +400,10 @@ li input[type='checkbox'] {
 
 .page-header > .nav-resume {
   grid-column: 5;
+}
+
+.page-header > .nav-theme {
+  grid-column: 6;
   justify-self: end;
 }
 
@@ -402,7 +411,8 @@ li input[type='checkbox'] {
   .page-header > .nav-contact,
   .page-header > .nav-linkedin,
   .page-header > .nav-github,
-  .page-header > .nav-resume {
+  .page-header > .nav-resume,
+  .page-header > .nav-theme {
     margin-top: 0.85rem;
   }
 }
@@ -415,7 +425,8 @@ li input[type='checkbox'] {
 .nav-contact,
 .nav-linkedin,
 .nav-github,
-.nav-resume {
+.nav-resume,
+.nav-theme {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -427,10 +438,18 @@ li input[type='checkbox'] {
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
 
+.nav-theme {
+  font: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .nav-contact:hover,
 .nav-linkedin:hover,
 .nav-github:hover,
-.nav-resume:hover {
+.nav-resume:hover,
+.nav-theme:hover {
   opacity: 1;
   color: rgb(18, 38, 72);
   background-color: rgba(138, 180, 248, 0.14);
@@ -440,29 +459,32 @@ li input[type='checkbox'] {
 .nav-contact svg,
 .nav-linkedin svg,
 .nav-github svg,
-.nav-resume svg {
+.nav-resume svg,
+.nav-theme svg {
   width: 20px;
   height: 20px;
   display: block;
 }
 
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .nav-contact,
   .nav-linkedin,
   .nav-github,
-  .nav-resume {
+  .nav-resume,
+  .nav-theme {
     color: rgb(210, 222, 248);
   }
   .nav-contact:hover,
   .nav-linkedin:hover,
   .nav-github:hover,
-  .nav-resume:hover {
+  .nav-resume:hover,
+  .nav-theme:hover {
     color: #fff;
     background-color: rgba(168, 200, 255, 0.16);
   }
 }
 
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .page-header {
     background: rgb(
       calc(17 - (var(--bg-depth, 0) * 10)),
@@ -733,7 +755,7 @@ li input[type='checkbox'] {
     transition: none;
   }
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .feed-depth-indicator {
     background: rgba(20, 20, 20, 0.74);
     border-color: rgba(255, 255, 255, 0.18);
@@ -776,7 +798,7 @@ li input[type='checkbox'] {
   background: rgba(128, 128, 128, 0.22);
   color: inherit;
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .gif-row-count-badge {
     background: rgba(255, 255, 255, 0.12);
   }
@@ -893,6 +915,7 @@ li input[type='checkbox'] {
   border-bottom: none;
   padding-bottom: 0.25rem;
   pointer-events: auto;
+  color: #fff;
 }
 .card-labels .card-label--copy {
   pointer-events: auto;
@@ -902,7 +925,7 @@ li input[type='checkbox'] {
   font-weight: 400;
   font-family: inherit;
   line-height: 1.2;
-  color: inherit;
+  color: #fff;
   background: rgba(0, 0, 0, 0.5);
 }
 .card-labels .card-label-title:empty {
@@ -946,7 +969,7 @@ li input[type='checkbox'] {
 .gif-editor-message--error {
   color: #a40018;
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .gif-editor-message--error {
     color: #ff9a9a;
   }
@@ -1134,10 +1157,9 @@ a.editor-toolbar-btn:hover {
   border-radius: 12px;
   background: Canvas;
   color: CanvasText;
-  color-scheme: light dark;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .editor-popover {
     box-shadow: 0 18px 56px rgba(0, 0, 0, 0.55);
     border-color: rgba(255, 255, 255, 0.14);
@@ -1239,7 +1261,7 @@ a.editor-toolbar-btn:hover {
   padding: 0.85rem 1.65rem 1.35rem;
   border-top: 1px solid rgba(128, 128, 128, 0.28);
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .editor-popover--scrollable .editor-popover-actions {
     border-top-color: rgba(255, 255, 255, 0.12);
   }
@@ -1300,7 +1322,7 @@ a.editor-toolbar-btn:hover {
 .editor-btn--ghost:hover {
   background: rgba(128, 128, 128, 0.08);
 }
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .editor-btn--ghost:hover {
     background: rgba(255, 255, 255, 0.06);
   }
@@ -1324,9 +1346,10 @@ a.editor-toolbar-btn:hover {
   opacity: 1;
 }
 
-@media (prefers-color-scheme: light) {
+:root[data-theme='light'] {
   .toast {
     background: rgba(0, 0, 0, 0.85);
+    color: #fff;
   }
 }
 
@@ -1454,7 +1477,7 @@ a.editor-toolbar-btn:hover {
   color: #a00;
 }
 
-@media (prefers-color-scheme: dark) {
+:root[data-theme='dark'] {
   .contact-form input,
   .contact-form textarea {
     border-color: #555;

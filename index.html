@@ -35,6 +35,7 @@
       name="twitter:image"
       content="https://www.michaelmace.dev/favicon.png"
     />
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/style.css" />
     <link rel="icon" href="/favicon.png" />
     <meta name="color-scheme" content="light dark" />
@@ -412,7 +413,7 @@
               )}">${datePrefix}${escapeHtml(label)}</a></li>`
             })
             .join('')
-          container.innerHTML = `<h2 id="home-recent-heading">recent feed entries</h2><ul class="home-feed-list">${listHtml}</ul><p class="home-feed-more"><a href="feed/index.html">open full feed</a></p>`
+          container.innerHTML = `<h2 id="home-recent-heading">recent stuff</h2><ul class="home-feed-list">${listHtml}</ul><p class="home-feed-more"><a href="feed/index.html">open full feed</a></p>`
         } catch (_) {
           container.innerHTML =
             '<p class="subtle">could not load feed preview.</p>'
