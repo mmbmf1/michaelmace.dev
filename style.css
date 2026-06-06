@@ -177,6 +177,12 @@ button.note-edit-btn:hover {
   margin-top: 2rem;
 }
 
+.home-inventory strong,
+.collaborations strong {
+  color: rgb(32, 52, 88);
+  font-weight: 600;
+}
+
 .inventory-list {
   list-style: none;
   margin: 0;
@@ -301,6 +307,11 @@ li input[type='checkbox'] {
   }
 
   .inventory-icon {
+    color: rgb(210, 222, 248);
+  }
+
+  .home-inventory strong,
+  .collaborations strong {
     color: rgb(210, 222, 248);
   }
 

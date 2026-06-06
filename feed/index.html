@@ -787,13 +787,20 @@
         return Math.min(max, Math.max(min, value))
       }
 
-      function scrollProgress() {
+      function scrollMetrics() {
         const maxScroll = Math.max(
           document.documentElement.scrollHeight - window.innerHeight,
           0
         )
-        if (maxScroll === 0) return 0
-        return clamp(window.scrollY / maxScroll, 0, 1)
+        const progress =
+          maxScroll === 0 ? 0 : clamp(window.scrollY / maxScroll, 0, 1)
+        return { maxScroll, progress }
+      }
+
+      function maxDepthForScroll(maxScroll) {
+        const minDepthMeters = 3
+        const pixelsPerMeter = 1000
+        return Math.max(minDepthMeters, maxScroll / pixelsPerMeter)
       }
 
       function depthLabelForMeters(meters) {
@@ -808,8 +815,7 @@
         const list = document.getElementById('feed-list')
         if (!indicator || !list) return
 
-        // Tweaks for feel: total synthetic depth and archive threshold.
-        const maxDepthMeters = 3
+        // Tweaks for feel: min synthetic depth, scroll-to-meters ratio, archive threshold.
         const archiveThresholdMeters = 1
         let framePending = false
         let archiveDividerInserted = false
@@ -830,7 +836,8 @@
 
         function renderDepthState() {
           framePending = false
-          const progress = scrollProgress()
+          const { maxScroll, progress } = scrollMetrics()
+          const maxDepthMeters = maxDepthForScroll(maxScroll)
           const depthMeters = progress * maxDepthMeters
           const label = depthLabelForMeters(depthMeters)
           document.body.style.setProperty('--bg-depth', progress.toFixed(4))
