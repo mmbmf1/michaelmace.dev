@@ -97,9 +97,10 @@
 
     <h1 class="no-margin-bottom">feed editor</h1>
     <p class="subtle" style="margin-top: 0.45rem">
-      local-only helper for <code>feed/data.json</code>. keep source urls when
-      you embed external content (if omitted, save falls back to external
-      embed/image urls).
+      local-only helper for <code>feed/data.json</code>. for video, upload to
+      YouTube (unlisted) and use a YouTube URL in <code>source url</code> or
+      <code>embed</code> — avoid committing large <code>.mp4</code> files to
+      <code>feed/images/</code>.
     </p>
     <p class="gif-editor-toolbar feed-editor-toolbar">
       <button type="button" id="load-btn" class="editor-toolbar-btn">reload</button>
@@ -168,8 +169,12 @@
       <details class="editor-popover-advanced">
         <summary>Media &amp; links (optional)</summary>
         <div class="editor-popover-field">
-          <label for="quick-video">Video URL</label>
-          <input type="text" id="quick-video" placeholder="/feed/images/...mp4" />
+          <label for="quick-video">Local video path (discouraged)</label>
+          <input
+            type="text"
+            id="quick-video"
+            placeholder="prefer YouTube in source url above"
+          />
         </div>
         <div class="editor-popover-field">
           <label for="quick-media-fit">Media fit</label>
@@ -444,6 +449,11 @@
           }
           if (videoUrl && !isSafeHref(videoUrl)) {
             errors.push(`items[${row}] video_url is not a safe URL/path.`)
+          }
+          if (videoUrl && /\.mp4$/i.test(videoUrl) && !isHttpUrl(videoUrl)) {
+            warnings.push(
+              `items[${row}] uses a local .mp4 in video_url; upload to YouTube (unlisted) and use embed instead to avoid CDN bandwidth costs.`
+            )
           }
 
           if (item.embed != null) {

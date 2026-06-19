@@ -120,8 +120,9 @@ Editor behavior (`editor/gifs.html`):
 - If an item has no `source_url`, save falls back to an external `embed.url` or
   external `image_url` so attribution stays visible on the feed page.
 - Feed page only auto-renders embeds for YouTube-style URLs; other URLs are shown as source links.
+- **Prefer YouTube for video** — upload clips as unlisted YouTube videos and set `embed: { "type": "youtube", "url": "..." }` (or a YouTube `source_url`). Avoid committing large `.mp4` files under `feed/images/`; they count against Vercel Fast Data Transfer.
 - Optional `image_url` renders an image block in feed cards (commonly committed under `feed/images/`).
-- Optional `video_url` renders an inline HTML5 video block in feed cards.
+- Optional `video_url` renders an inline HTML5 video when present (legacy; prefer YouTube `embed` for new entries).
 - Feed rendering order is reverse-chronological by `date` (newest first); entries
   with the same date keep their JSON order.
 - Data shape centers on `items[]` and supports keys like:
@@ -143,7 +144,7 @@ Renderer behavior (`feed/index.html`):
 - `body_md` supports a small Markdown subset (paragraphs, `-` lists, inline code, `*italic*`, `**bold**`, links).
 - Only YouTube URLs are rendered as embeds (from `embed.url` when `embed.type === "youtube"`, otherwise from `source_url`).
 - `image_url` is rendered as an image block when present.
-- `video_url` is rendered as an inline HTML5 video when present.
+- `video_url` is rendered as an inline HTML5 video when present (lazy-loaded, no autoplay; prefer YouTube `embed` for new video entries).
 - Items are rendered reverse-chronologically by `date`; undated/unparseable dates fall to the end.
 - The feed UI groups consecutive entries by day and shows a small per-day entry count.
 - Feed tags are clickable and can filter the page via `?tag=<tag-slug>`.
@@ -175,6 +176,15 @@ Feed rendering constraints (`feed/index.html`):
 - `embed.type: "youtube"` supports `youtu.be`, `youtube.com/watch`, `/shorts/`, and `/embed/` URLs.
 - `image_url` must also pass the same safe URL check (`http(s)://`, `/`, `./`, `../`).
 - Entry anchors/permalinks are generated from `id` after lowercasing and replacing unsupported characters.
+
+## Feed images and bandwidth
+
+Large photos and videos in `feed/images/` are served from Vercel's CDN and count toward Fast Data Transfer on the Hobby plan.
+
+- **Video:** upload to YouTube as unlisted, then reference via `embed` (preferred when the entry also has images) or `source_url`.
+- **Photos:** run `npm run optimize-feed-images` before committing new or oversized JPEGs/PNGs (resizes to max 1600px wide, skips files already under ~500 KB).
+- **Caching:** [`vercel.json`](vercel.json) sets long-lived `Cache-Control` on `/feed/images/*` after images are optimized.
+- **Usage alerts:** in the Vercel dashboard, go to **Settings → Notifications** and enable warnings at 75% and 100% of Fast Data Transfer.
 
 ## Git-hours snapshot workflow
 

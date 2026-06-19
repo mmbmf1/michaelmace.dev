@@ -1,0 +1,10 @@
+{
+  "name": "michaelmace-dev",
+  "private": true,
+  "scripts": {
+    "optimize-feed-images": "node scripts/optimize-feed-images.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.34.2"
+  }
+}

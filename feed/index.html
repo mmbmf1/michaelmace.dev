@@ -517,9 +517,9 @@
         if (videoUrl && isSafeHref(videoUrl)) {
           cards.push(
             renderMediaFrame(
-              `<video class="feed-video" src="${escapeHtml(
+              `<video class="feed-video" data-src="${escapeHtml(
                 videoUrl
-              )}" controls muted loop playsinline autoplay preload="metadata"></video>`,
+              )}" controls muted loop playsinline preload="none"></video>`,
               mediaOptions
             )
           )
@@ -881,6 +881,34 @@
           })
       }
 
+      function setupLazyVideos(root) {
+        if (!root || typeof IntersectionObserver === 'undefined') return
+        const videos = root.querySelectorAll('video.feed-video[data-src]')
+        if (videos.length === 0) return
+
+        const observer = new IntersectionObserver(
+          (entries, obs) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue
+              const video = entry.target
+              const src = video.getAttribute('data-src')
+              if (!src || video.getAttribute('src')) {
+                obs.unobserve(video)
+                continue
+              }
+              video.setAttribute('src', src)
+              video.removeAttribute('data-src')
+              obs.unobserve(video)
+            }
+          },
+          { root: null, rootMargin: '200px 0px', threshold: 0.01 }
+        )
+
+        for (const video of videos) {
+          observer.observe(video)
+        }
+      }
+
       function setupFeedItemReveal() {
         const items = document.querySelectorAll('.feed-item')
         if (items.length === 0) return
@@ -942,6 +970,7 @@
           }
           list.innerHTML = renderGroupedFeed(filteredItems, activeTag)
           highlightFeedCodeBlocks(list)
+          setupLazyVideos(list)
           setupFeedItemReveal()
           setupDepthUi()
         } catch (_) {
