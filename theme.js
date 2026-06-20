@@ -1,5 +1,4 @@
 (function () {
-  const STORAGE_KEY = 'theme'
   const SYSTEM_MEDIA = window.matchMedia('(prefers-color-scheme: dark)')
 
   const MOON_SVG =
@@ -10,13 +9,11 @@
 
   let overrideTheme = null
 
-  try {
-    localStorage.removeItem(STORAGE_KEY)
-  } catch (_) {}
-
   function getSystemTheme() {
     return SYSTEM_MEDIA.matches ? 'dark' : 'light'
   }
+
+  let lastSystemTheme = getSystemTheme()
 
   function getActiveTheme() {
     return overrideTheme ?? getSystemTheme()
@@ -53,9 +50,22 @@
     btn.title = label
   }
 
-  function syncWithSystem() {
-    overrideTheme = null
-    applyTheme(getSystemTheme())
+  function ensureSystemTheme() {
+    const system = getSystemTheme()
+
+    if (overrideTheme) {
+      if (system === lastSystemTheme) return
+      lastSystemTheme = system
+      overrideTheme = null
+      applyTheme(system)
+      updateToggleButton()
+      return
+    }
+
+    if (system === lastSystemTheme && getTheme() === system) return
+
+    lastSystemTheme = system
+    applyTheme(system)
     updateToggleButton()
   }
 
@@ -82,15 +92,28 @@
     updateToggleButton()
   }
 
-  applyTheme(getActiveTheme())
+  function watchSystemTheme() {
+    if (SYSTEM_MEDIA.addEventListener) {
+      SYSTEM_MEDIA.addEventListener('change', ensureSystemTheme)
+    } else if (SYSTEM_MEDIA.addListener) {
+      SYSTEM_MEDIA.addListener(ensureSystemTheme)
+    }
+  }
 
-  SYSTEM_MEDIA.addEventListener('change', syncWithSystem)
+  applyTheme(getActiveTheme())
+  watchSystemTheme()
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible' || overrideTheme) return
-    applyTheme(getSystemTheme())
-    updateToggleButton()
+    if (document.visibilityState === 'visible') ensureSystemTheme()
   })
+
+  window.addEventListener('pageshow', ensureSystemTheme)
+  window.addEventListener('focus', ensureSystemTheme)
+
+  // macOS/Safari often skip matchMedia "change" while the tab stays focused
+  setInterval(() => {
+    if (document.visibilityState !== 'hidden') ensureSystemTheme()
+  }, 1000)
 
   function onReady() {
     updateHljs(getTheme())

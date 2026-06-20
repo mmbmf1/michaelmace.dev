@@ -645,6 +645,11 @@ app.post('/api/feed/data', (req, res) => {
 const contactHandler = require('../lib/contact')
 app.post('/api/contact', contactHandler)
 
+app.get('/theme.js', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store')
+  next()
+})
+
 app.use(express.static(REPO_ROOT))
 
 if (process.argv.includes('--regenerate-notes')) {
