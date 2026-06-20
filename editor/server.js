@@ -531,6 +531,8 @@ function normalizeFeedItem(item, index) {
   const mediaFit = normalizeMediaFit(item && item.media_fit)
   const mediaRatio = normalizeMediaRatio(item && item.media_ratio)
   const mediaMaxWidth = normalizeMediaMaxWidth(item && item.media_max_width)
+  const updatedAt =
+    item && typeof item.updated_at === 'string' ? item.updated_at.trim() : ''
   const sourceUrl = preferredSourceUrl(
     sourceUrlInput,
     embedType,
@@ -556,6 +558,7 @@ function normalizeFeedItem(item, index) {
   if (mediaMaxWidth != null) normalized.media_max_width = mediaMaxWidth
   if (tags.length > 0) normalized.tags = tags
   if (relatedLinks.length > 0) normalized.related_links = relatedLinks
+  if (/^\d{4}-\d{2}-\d{2}$/.test(updatedAt)) normalized.updated_at = updatedAt
   return normalized
 }
 

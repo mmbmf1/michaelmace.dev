@@ -62,17 +62,6 @@
         <span id="gifs-nav-wrap" class="hidden">
           · <a href="../gifs/index.html">GIFs</a></span
         >
-        <span id="feed-edit-wrap" class="nav-edit-wrap hidden">
-          ·
-          <a
-            id="feed-editor-link"
-            href="/editor/feed.html"
-            class="local-edit nav-inline-edit-link"
-            aria-label="Edit feed"
-            title="Open feed editor (local)"
-            >edit</a
-          ></span
-        >
       </p>
       <a
         class="nav-contact"
@@ -192,6 +181,15 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
     <script>
+      const EDITOR_PORT = 3002
+      const isLocal =
+        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
+        location.hostname === ''
+      const editorOrigin =
+        isLocal && String(location.port) !== String(EDITOR_PORT)
+          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
+          : ''
+
       function escapeHtml(text) {
         return String(text == null ? '' : text)
           .replace(/&/g, '&amp;')
@@ -677,6 +675,15 @@
         return clean ? `<ul class="feed-tags">${clean}</ul>` : ''
       }
 
+      function renderFeedItemEditLink(itemId) {
+        if (!isLocal || !itemId) return ''
+        const href =
+          (editorOrigin || '') +
+          '/editor/feed.html?edit=' +
+          encodeURIComponent(itemId)
+        return `<a href="${escapeHtml(href)}" class="local-edit feed-item-edit-link" aria-label="Edit this entry" title="Edit this entry (local)">edit</a>`
+      }
+
       function renderItem(item, index, activeTag) {
         const title =
           item && item.title ? `<h2>${escapeHtml(item.title)}</h2>` : ''
@@ -712,9 +719,10 @@
         const dateLabel = date || 'undated'
         const tagsOnly = renderTags(item && item.tags, activeTag)
         const relatedLinks = renderRelatedLinks(item && item.related_links)
+        const editLink = renderFeedItemEditLink(itemId)
         return `<article id="${escapeHtml(
           itemId
-        )}" class="feed-item"><div class="feed-item-head">${title}${tagsOnly}</div><p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
+        )}" class="feed-item"><div class="feed-item-head">${title}${editLink}${tagsOnly}</div><p class="feed-date"><a class="feed-permalink" href="#${escapeHtml(
           itemId
         )}" aria-label="link to this entry">#</a> ${escapeHtml(
           dateLabel
@@ -980,26 +988,12 @@
         }
       }
 
-      const EDITOR_PORT = 3002
-      const isLocal =
-        /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ||
-        location.hostname === ''
-      const editorOrigin =
-        isLocal && String(location.port) !== String(EDITOR_PORT)
-          ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
-          : ''
-
       initFeed()
       if (isLocal) {
-        const editWrap = document.getElementById('feed-edit-wrap')
-        if (editWrap) editWrap.classList.remove('hidden')
         const notesNavWrap = document.getElementById('notes-nav-wrap')
         if (notesNavWrap) notesNavWrap.classList.remove('hidden')
         const gifsNavWrap = document.getElementById('gifs-nav-wrap')
         if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
-        const editLink = document.getElementById('feed-editor-link')
-        if (editLink && editorOrigin)
-          editLink.href = editorOrigin + '/editor/feed.html'
       }
     </script>
   </body>

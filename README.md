@@ -95,10 +95,10 @@ Load order in `gifs/index.html`:
 
 Editor behavior (`editor/gifs.html`):
 
-- Reordering controls (`up`/`down`) set display order.
+- Reordering controls (`up`/`down`) set display order and save immediately.
 - New lists can be added by name (ID is slugified in-browser).
 - `favorites` (`listId: "favs"`) is capped at 10 items in the UI.
-- Save writes `gifs/data.json` via `POST /api/gifs/data`.
+- Add/edit/remove/reorder in the GIF editor save immediately to `gifs/data.json` via `POST /api/gifs/data`.
 - Save removes any item without a non-empty `url` and persists only `{ url, alt, title, listId }` (extra item fields are dropped).
 - List order in `lists[]` controls section order on `gifs/index.html`.
 
@@ -109,12 +109,11 @@ Editor behavior (`editor/gifs.html`):
 - `feed/schema.json` documents the expected feed item shape.
 - Public feed page (`feed/index.html`) is static and read-only.
 - Local edits can be made in `editor/feed.html`.
-- Feed editor includes an **Add entry** toolbar popover (like the GIF editor)
-  that inserts a new entry at the top of the JSON while keeping full manual
-  JSON editing available.
-- Feed editor includes a "validate" button that checks item IDs/dates, safe URLs,
-  duplicate IDs, and common attribution mistakes before saving.
-- Save writes `feed/data.json` via `POST /api/feed/data`.
+- Feed editor shows a scrollable list of entries with **Add entry** and **Edit** modals
+  (same form fields for both). Each row shows date, title, tags, and an edited date
+  when an entry has been changed.
+- Add/edit/delete in the feed editor save immediately to `feed/data.json` via `POST /api/feed/data`.
+- Save validates item IDs/dates, safe URLs, duplicate IDs, and common attribution mistakes.
 - `body_md` supports lightweight markdown for paragraphs, headings, blockquotes,
   unordered/ordered lists, links, inline code, and fenced code blocks.
 - If an item has no `source_url`, save falls back to an external `embed.url` or

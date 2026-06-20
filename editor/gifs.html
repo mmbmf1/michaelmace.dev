@@ -101,8 +101,7 @@
     </p>
     <p class="gif-editor-toolbar">
       <button type="button" id="add-list-btn" class="editor-toolbar-btn" popovertarget="add-list-popover" disabled>Add list</button>
-      <button type="button" id="add-gif-popover-btn" class="editor-toolbar-btn" popovertarget="add-gif-popover">Add GIF</button>
-      <button type="button" id="save-btn" class="editor-toolbar-btn editor-toolbar-btn--primary" disabled>save</button>
+      <button type="button" id="add-gif-popover-btn" class="editor-toolbar-btn editor-toolbar-btn--primary" popovertarget="add-gif-popover">Add GIF</button>
     </p>
 
     <div id="add-list-popover" popover="auto" class="editor-popover" aria-labelledby="add-list-popover-title">
@@ -120,7 +119,7 @@
 
     <div id="add-gif-popover" popover="auto" class="editor-popover" aria-labelledby="add-gif-popover-title">
       <p id="add-gif-popover-title" class="editor-popover__title">Add GIF</p>
-      <p class="editor-popover-hint">Paste a direct image URL (e.g. from Giphy). Set list, title, and alt before adding.</p>
+      <p class="editor-popover-hint">Paste a direct image URL (e.g. from Giphy). Saved when you add to library.</p>
       <div class="editor-popover-field">
         <label for="paste-url">URL</label>
         <input type="url" id="paste-url" placeholder="https://..." />
@@ -166,11 +165,12 @@
       const pasteTitle = document.getElementById('paste-title')
       const pasteAlt = document.getElementById('paste-alt')
       const pasteAddBtn = document.getElementById('paste-add-btn')
-      const saveBtn = document.getElementById('save-btn')
       const messageEl = document.getElementById('message')
 
       let lists = DEFAULT_LISTS.slice()
       let items = []
+      let saveInProgress = false
+      let pendingEditUrl = new URLSearchParams(location.search).get('edit')
 
       function setMessage(text, isError) {
         messageEl.textContent = text
@@ -190,6 +190,49 @@
         if (!item.listId) item.listId = 'others'
       }
 
+      async function saveData(successPrefix) {
+        if (saveInProgress) return false
+        saveInProgress = true
+        setMessage('Saving...')
+        try {
+          items.forEach(ensureListId)
+          const payload = {
+            lists: lists.map((l) => ({ id: String(l.id), label: String(l.label) })),
+            items: items.map((it) => ({
+              url: it.url,
+              alt: it.alt || '',
+              title: it.title || '',
+              listId: String(it.listId || 'others'),
+            })),
+          }
+          const res = await fetch(apiBase + '/api/gifs/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            const msg = data.detail ? data.error + ': ' + data.detail : (data.error || 'Save failed')
+            setMessage(msg + ' (' + res.status + ')', true)
+            return false
+          }
+          const prefix =
+            typeof successPrefix === 'string' && successPrefix.trim()
+              ? successPrefix.trim()
+              : 'Saved.'
+          setMessage(prefix)
+          return true
+        } catch (err) {
+          setMessage(
+            'Request failed: ' + err.message + '. Is the editor server running on port 3002?',
+            true
+          )
+          return false
+        } finally {
+          saveInProgress = false
+        }
+      }
+
       function syncPasteListOptions() {
         const prev = (pasteList.value || '').trim() || 'others'
         pasteList.innerHTML = ''
@@ -201,6 +244,32 @@
         })
         if ([...pasteList.options].some((o) => o.value === prev)) pasteList.value = prev
         else pasteList.value = 'others'
+      }
+
+      function clearEditUrlParam() {
+        const url = new URL(location.href)
+        if (!url.searchParams.has('edit')) return
+        url.searchParams.delete('edit')
+        const next = url.pathname + url.search + url.hash
+        history.replaceState(null, '', next || url.pathname)
+      }
+
+      function focusGifFromUrlParam(urlParam) {
+        const target = String(urlParam == null ? '' : urlParam).trim()
+        if (!target) return
+        const card = document.querySelector(
+          `.gif-card[data-gif-url="${CSS.escape(target)}"]`
+        )
+        pendingEditUrl = null
+        clearEditUrlParam()
+        if (!card) {
+          setMessage('GIF not found in library.', true)
+          return
+        }
+        card.classList.add('gif-card--edit-focus')
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        const titleInput = card.querySelector('.card-label-field')
+        if (titleInput) titleInput.focus()
       }
 
       function renderList() {
@@ -236,6 +305,7 @@
 
             const card = document.createElement('div')
             card.className = 'gif-card'
+            card.dataset.gifUrl = item.url
 
             const img = document.createElement('img')
             img.className = 'gif'
@@ -272,8 +342,8 @@
                 return
               }
               item.listId = newId
-              setMessage('')
               renderList()
+              void saveData()
             })
 
             const removeBtn = document.createElement('button')
@@ -283,7 +353,7 @@
             removeBtn.addEventListener('click', () => {
               items.splice(i, 1)
               renderList()
-              setMessage('')
+              void saveData('GIF removed.')
             })
 
             const upBtn = document.createElement('button')
@@ -297,7 +367,7 @@
               const currIdx = listPairs[j].idx
               ;[items[prevIdx], items[currIdx]] = [items[currIdx], items[prevIdx]]
               renderList()
-              setMessage('')
+              void saveData()
             })
 
             const downBtn = document.createElement('button')
@@ -311,7 +381,7 @@
               const nextIdx = listPairs[j + 1].idx
               ;[items[currIdx], items[nextIdx]] = [items[nextIdx], items[currIdx]]
               renderList()
-              setMessage('')
+              void saveData()
             })
 
             const titleInput = document.createElement('input')
@@ -331,6 +401,7 @@
               item.title = t
               if (t) img.setAttribute('data-title', t)
               else img.removeAttribute('data-title')
+              void saveData()
             })
 
             const altInput = document.createElement('input')
@@ -346,6 +417,7 @@
             altInput.addEventListener('blur', () => {
               item.alt = altInput.value.trim()
               img.alt = item.alt
+              void saveData()
             })
 
             toolbar.appendChild(listSelect)
@@ -384,11 +456,10 @@
         }
         items.push({ url: u, alt: (alt || '').trim(), title: (title || '').trim(), listId: id })
         renderList()
-        setMessage('')
         return true
       }
 
-      function submitNewList() {
+      async function submitNewList() {
         const name = newListNameInput.value
         if (!name || !name.trim()) {
           setMessage('Enter a list name', true)
@@ -404,9 +475,9 @@
         lists.push({ id: String(id), label: String(label) })
         syncPasteListOptions()
         renderList()
-        setMessage('Added list: ' + label)
         newListNameInput.value = ''
         if (typeof addListPopover.hidePopover === 'function') addListPopover.hidePopover()
+        await saveData('Added list: ' + label)
       }
 
       addListSubmitBtn.addEventListener('click', submitNewList)
@@ -424,58 +495,19 @@
         }
       })
 
-      pasteAddBtn.addEventListener('click', () => {
+      pasteAddBtn.addEventListener('click', async () => {
         if (!addItem(pasteUrl.value, pasteAlt.value, pasteTitle.value, pasteList.value)) return
         pasteUrl.value = ''
         pasteTitle.value = ''
         pasteAlt.value = ''
         if (typeof addGifPopover.hidePopover === 'function') addGifPopover.hidePopover()
+        await saveData('GIF added.')
       })
 
       addGifPopover.addEventListener('toggle', (ev) => {
         if (ev.newState === 'open') {
           setMessage('')
           setTimeout(() => pasteUrl.focus(), 0)
-        }
-      })
-
-      document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
-          e.preventDefault()
-          if (!saveBtn.disabled) saveBtn.click()
-        }
-      })
-
-      saveBtn.addEventListener('click', async () => {
-        setMessage('')
-        saveBtn.disabled = true
-        try {
-          items.forEach(ensureListId)
-          const payload = {
-            lists: lists.map((l) => ({ id: String(l.id), label: String(l.label) })),
-            items: items.map((it) => ({
-              url: it.url,
-              alt: it.alt || '',
-              title: it.title || '',
-              listId: String(it.listId || 'others'),
-            })),
-          }
-          const res = await fetch(apiBase + '/api/gifs/data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          })
-          const data = await res.json().catch(() => ({}))
-          if (!res.ok) {
-            const msg = data.detail ? data.error + ': ' + data.detail : (data.error || 'Save failed')
-            setMessage(msg + ' (' + res.status + ')', true)
-            return
-          }
-          setMessage('Saved.')
-        } catch (err) {
-          setMessage('Request failed: ' + err.message + '. Is the editor server running on port 3002?', true)
-        } finally {
-          saveBtn.disabled = false
         }
       })
 
@@ -503,12 +535,11 @@
           renderList()
           syncPasteListOptions()
           addListBtn.disabled = false
-          saveBtn.disabled = false
           setMessage('')
+          if (pendingEditUrl) focusGifFromUrlParam(pendingEditUrl)
         } catch (err) {
           setMessage('Load failed: ' + err.message, true)
           addListBtn.disabled = false
-          saveBtn.disabled = false
           syncPasteListOptions()
         }
       })()

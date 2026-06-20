@@ -79,24 +79,6 @@ h1 {
   opacity: 1;
 }
 
-/* Local-only GIF editor entry: inline in nav, low contrast */
-.nav-edit-wrap {
-  font-weight: 400;
-  font-size: 0.88em;
-  opacity: 0.5;
-  letter-spacing: 0.02em;
-  transition: opacity 0.15s ease;
-}
-.nav-edit-wrap:hover {
-  opacity: 0.92;
-}
-.nav-links .nav-inline-edit-link {
-  margin: 0;
-  text-decoration: none;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
 .local-edit {
   margin-left: 0.35rem;
   margin-right: 0.35rem;
@@ -111,6 +93,11 @@ h1 .local-edit {
   font-size: 0.75em;
   vertical-align: middle;
   margin-left: 0.35rem;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+h1 .local-edit:hover {
+  opacity: 0.92;
 }
 
 button.note-edit-btn {
@@ -592,6 +579,18 @@ li input[type='checkbox'] {
   margin: 0;
   font-size: 1.15rem;
 }
+.feed-item-edit-link {
+  font-size: 0.78rem;
+  font-weight: 400;
+  opacity: 0.62;
+  text-decoration: none;
+  border-bottom: none;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+.feed-item-edit-link:hover {
+  opacity: 0.92;
+}
 .feed-item-head .feed-tags {
   margin-top: 0;
   display: inline-flex;
@@ -871,6 +870,25 @@ li input[type='checkbox'] {
   border-radius: 10px;
   overflow: hidden;
 }
+.gif-item-edit-link {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 2;
+  font-size: 0.72rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border-bottom: none;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.58);
+  opacity: 0.88;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.gif-item-edit-link:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.72);
+}
 
 .gif {
   width: 100%;
@@ -928,6 +946,7 @@ li input[type='checkbox'] {
   color: #fff;
   background: rgba(0, 0, 0, 0.5);
 }
+
 .card-labels .card-label-title:empty {
   display: none;
 }
@@ -1000,6 +1019,10 @@ li input[type='checkbox'] {
 .gif-card:focus-within .card-labels--editor {
   border-color: rgba(255, 255, 255, 0.22);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+}
+.gif-card--edit-focus {
+  outline: 2px solid rgba(138, 180, 248, 0.85);
+  outline-offset: 3px;
 }
 .card-labels-toolbar {
   display: flex;
@@ -1273,6 +1296,105 @@ a.editor-toolbar-btn:hover {
   min-height: 1.55em;
   margin: 0.35rem 0 0.75rem 0;
   font-size: 0.92rem;
+}
+.feed-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+}
+.feed-editor-empty {
+  margin: 0.5rem 0 1rem 0;
+  font-size: 0.92rem;
+  opacity: 0.78;
+}
+.feed-editor-item {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 10px;
+  background: rgba(128, 128, 128, 0.04);
+}
+.feed-editor-item-thumb {
+  flex-shrink: 0;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.28);
+}
+.feed-editor-item-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.feed-editor-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.55rem 0.85rem;
+}
+.feed-editor-item-head-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.feed-editor-item-date {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+.feed-editor-item-title {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.35;
+  word-break: break-word;
+}
+.feed-editor-item-edited {
+  font-size: 0.78rem;
+  opacity: 0.62;
+  white-space: nowrap;
+}
+.feed-editor-item-tags {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0.78;
+}
+.feed-editor-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.feed-editor-item-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.28rem 0.62rem;
+  border-radius: 7px;
+  border: 1px solid rgba(128, 128, 128, 0.42);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.feed-editor-item-btn:hover:not(:disabled) {
+  background: rgba(128, 128, 128, 0.09);
+  border-color: rgba(128, 128, 128, 0.55);
+}
+.feed-editor-item-btn:focus-visible {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+.feed-editor-item-btn--danger:hover:not(:disabled) {
+  background: rgba(200, 48, 48, 0.12);
+  border-color: rgba(200, 48, 48, 0.45);
 }
 .editor-popover input:focus-visible,
 .editor-popover select:focus-visible,

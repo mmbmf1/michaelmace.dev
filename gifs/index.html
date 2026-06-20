@@ -16,7 +16,6 @@
         <a href="../feed/index.html">Feed</a>
         <span id="notes-nav-wrap" class="hidden"> · <a href="../notes/index.html">Notes</a></span>
         <span id="gifs-nav-wrap" class="hidden"> · <a href="index.html" class="active">GIFs</a></span>
-        <span id="gif-editor-wrap" class="nav-edit-wrap hidden"> · <a id="gif-editor-link" href="/editor/gifs.html" class="local-edit nav-inline-edit-link" aria-label="Edit GIFs" title="Open GIF editor (local)">edit</a></span>
       </p>
       <a
         class="nav-contact"
@@ -183,6 +182,18 @@
         copyBtn.title = 'Copy link to this GIF on this site'
         copyBtn.setAttribute('aria-label', 'Copy link to this GIF on this site')
         labels.appendChild(copyBtn)
+        if (isLocal) {
+          const editLink = document.createElement('a')
+          editLink.className = 'gif-item-edit-link local-edit'
+          editLink.href =
+            (editorOrigin || '') +
+            '/editor/gifs.html?edit=' +
+            encodeURIComponent(url)
+          editLink.textContent = 'edit'
+          editLink.title = 'Edit this GIF (local)'
+          editLink.setAttribute('aria-label', 'Edit this GIF (local)')
+          card.appendChild(editLink)
+        }
         if (youtubeUrl) {
           const yt = document.createElement('a')
           yt.className = 'card-label'
@@ -383,10 +394,6 @@
           if (notesNavWrap) notesNavWrap.classList.remove('hidden')
           const gifsNavWrap = document.getElementById('gifs-nav-wrap')
           if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
-          const wrap = document.getElementById('gif-editor-wrap')
-          if (wrap) wrap.classList.remove('hidden')
-          const link = document.getElementById('gif-editor-link')
-          if (link && editorOrigin) link.href = editorOrigin + '/editor/gifs.html'
         }
         window.addEventListener('hashchange', scrollToHashSection)
       })()

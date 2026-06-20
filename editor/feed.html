@@ -98,126 +98,128 @@
     <h1 class="no-margin-bottom">feed editor</h1>
     <p class="subtle" style="margin-top: 0.45rem">
       local-only helper for <code>feed/data.json</code>. for video, upload to
-      YouTube (unlisted) and use a YouTube URL in <code>source url</code> or
-      <code>embed</code> — avoid committing large <code>.mp4</code> files to
-      <code>feed/images/</code>.
+      YouTube (unlisted) and use a YouTube URL in source url — avoid committing
+      large <code>.mp4</code> files to <code>feed/images/</code>.
     </p>
     <p class="gif-editor-toolbar feed-editor-toolbar">
-      <button type="button" id="load-btn" class="editor-toolbar-btn">reload</button>
       <button
         type="button"
-        id="add-feed-popover-btn"
-        class="editor-toolbar-btn"
-        popovertarget="add-feed-popover"
+        id="add-entry-btn"
+        class="editor-toolbar-btn editor-toolbar-btn--primary"
       >
         Add entry
       </button>
-      <button type="button" id="validate-btn" class="editor-toolbar-btn">validate</button>
-      <button type="button" id="save-btn" class="editor-toolbar-btn editor-toolbar-btn--primary">save</button>
-      <a href="../feed/index.html" class="editor-toolbar-btn feed-editor-open-link">open feed</a>
     </p>
 
     <div
-      id="add-feed-popover"
+      id="feed-entry-popover"
       popover="auto"
       class="editor-popover editor-popover--scrollable"
-      aria-labelledby="add-feed-popover-title"
+      aria-labelledby="feed-entry-popover-title"
     >
       <div class="editor-popover-scroll">
-      <p id="add-feed-popover-title" class="editor-popover__title">Add entry</p>
-      <p class="editor-popover-hint">Inserts at the top of the JSON — review and save.</p>
-      <div class="editor-popover-field">
-        <label for="quick-date">Date</label>
-        <input type="date" id="quick-date" />
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-title">Title (optional)</label>
-        <input
-          type="text"
-          id="quick-title"
-          placeholder="watched / read / build note"
-        />
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-body">Body (markdown)</label>
-        <textarea
-          id="quick-body"
-          rows="4"
-          placeholder="short note, thought, or tiny artifact"
-        ></textarea>
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-source">Source URL (optional)</label>
-        <input type="url" id="quick-source" placeholder="https://..." />
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-image">Image URL (optional)</label>
-        <input type="text" id="quick-image" placeholder="/feed/images/..." />
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-images">Image URLs (optional, comma separated)</label>
-        <input
-          type="text"
-          id="quick-images"
-          placeholder="/feed/images/a.jpg, /feed/images/b.jpg"
-        />
-      </div>
-      <div class="editor-popover-field">
-        <label for="quick-tags">Tags (optional, comma separated)</label>
-        <input type="text" id="quick-tags" placeholder="reading, tools" />
-      </div>
-      <details class="editor-popover-advanced">
-        <summary>Media &amp; links (optional)</summary>
+        <p id="feed-entry-popover-title" class="editor-popover__title">Add entry</p>
+        <p id="feed-entry-popover-hint" class="editor-popover-hint">
+          New entries are added at the top of the feed and saved immediately.
+        </p>
+        <div id="entry-id-field" class="editor-popover-field hidden">
+          <label for="entry-id">ID</label>
+          <input type="text" id="entry-id" readonly />
+        </div>
         <div class="editor-popover-field">
-          <label for="quick-video">Local video path (discouraged)</label>
+          <label for="entry-date">Date</label>
+          <input type="date" id="entry-date" />
+        </div>
+        <div class="editor-popover-field">
+          <label for="entry-title">Title (optional)</label>
           <input
             type="text"
-            id="quick-video"
-            placeholder="prefer YouTube in source url above"
+            id="entry-title"
+            placeholder="watched / read / build note"
           />
         </div>
         <div class="editor-popover-field">
-          <label for="quick-media-fit">Media fit</label>
-          <select id="quick-media-fit">
-            <option value="">default (contain)</option>
-            <option value="contain">contain</option>
-            <option value="cover">cover</option>
-          </select>
+          <label for="entry-body">Body (markdown)</label>
+          <textarea
+            id="entry-body"
+            rows="4"
+            placeholder="short note, thought, or tiny artifact"
+          ></textarea>
         </div>
         <div class="editor-popover-field">
-          <label for="quick-media-ratio">Media ratio</label>
-          <input type="text" id="quick-media-ratio" placeholder="4:3" />
+          <label for="entry-source">Source URL (optional)</label>
+          <input type="url" id="entry-source" placeholder="https://..." />
         </div>
         <div class="editor-popover-field">
-          <label for="quick-media-max-width">Media max width (px)</label>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            id="quick-media-max-width"
-            placeholder="420"
-          />
+          <label for="entry-image">Image URL (optional)</label>
+          <input type="text" id="entry-image" placeholder="/feed/images/..." />
         </div>
         <div class="editor-popover-field">
-          <label for="quick-related-url">Related link URL</label>
+          <label for="entry-images">Image URLs (optional, comma separated)</label>
           <input
             type="text"
-            id="quick-related-url"
-            placeholder="/notes/slug.html or https://..."
+            id="entry-images"
+            placeholder="/feed/images/a.jpg, /feed/images/b.jpg"
           />
         </div>
         <div class="editor-popover-field">
-          <label for="quick-related-label">Related link label</label>
-          <input type="text" id="quick-related-label" placeholder="note: ..." />
+          <label for="entry-tags">Tags (optional, comma separated)</label>
+          <input type="text" id="entry-tags" placeholder="reading, tools" />
         </div>
-      </details>
+        <details id="entry-advanced" class="editor-popover-advanced">
+          <summary>Media &amp; links (optional)</summary>
+          <div class="editor-popover-field">
+            <label for="entry-video">Local video path (discouraged)</label>
+            <input
+              type="text"
+              id="entry-video"
+              placeholder="prefer YouTube in source url above"
+            />
+          </div>
+          <div class="editor-popover-field">
+            <label for="entry-media-fit">Media fit</label>
+            <select id="entry-media-fit">
+              <option value="">default (contain)</option>
+              <option value="contain">contain</option>
+              <option value="cover">cover</option>
+            </select>
+          </div>
+          <div class="editor-popover-field">
+            <label for="entry-media-ratio">Media ratio</label>
+            <input type="text" id="entry-media-ratio" placeholder="4:3" />
+          </div>
+          <div class="editor-popover-field">
+            <label for="entry-media-max-width">Media max width (px)</label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              id="entry-media-max-width"
+              placeholder="420"
+            />
+          </div>
+          <div class="editor-popover-field">
+            <label for="entry-related-url">Related link URL</label>
+            <input
+              type="text"
+              id="entry-related-url"
+              placeholder="/notes/slug.html or https://..."
+            />
+          </div>
+          <div class="editor-popover-field">
+            <label for="entry-related-label">Related link label</label>
+            <input type="text" id="entry-related-label" placeholder="note: ..." />
+          </div>
+        </details>
       </div>
       <div class="editor-popover-actions">
-        <button type="button" id="quick-add-btn" class="editor-btn editor-btn--primary">Add to feed</button>
+        <button type="button" id="entry-submit-btn" class="editor-btn editor-btn--primary">
+          Add to feed
+        </button>
         <button
           type="button"
           class="editor-btn editor-btn--ghost"
-          popovertarget="add-feed-popover"
+          popovertarget="feed-entry-popover"
           popovertargetaction="hide"
         >
           Cancel
@@ -225,14 +227,8 @@
       </div>
     </div>
 
-    <textarea
-      id="feed-json"
-      rows="28"
-      spellcheck="false"
-      style="width: 100%; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92rem; line-height: 1.45"
-    ></textarea>
-
     <p id="message" class="gif-editor-message" aria-live="polite"></p>
+    <div id="feed-editor-list" class="feed-editor-list" aria-live="polite"></div>
 
     <script>
       const EDITOR_PORT = 3002
@@ -244,26 +240,33 @@
           ? location.protocol + '//' + location.hostname + ':' + EDITOR_PORT
           : ''
 
-      const jsonEl = document.getElementById('feed-json')
       const messageEl = document.getElementById('message')
-      const loadBtn = document.getElementById('load-btn')
-      const validateBtn = document.getElementById('validate-btn')
-      const saveBtn = document.getElementById('save-btn')
-      const quickDateEl = document.getElementById('quick-date')
-      const quickTitleEl = document.getElementById('quick-title')
-      const quickBodyEl = document.getElementById('quick-body')
-      const quickSourceEl = document.getElementById('quick-source')
-      const quickImageEl = document.getElementById('quick-image')
-      const quickImagesEl = document.getElementById('quick-images')
-      const quickVideoEl = document.getElementById('quick-video')
-      const quickMediaFitEl = document.getElementById('quick-media-fit')
-      const quickMediaRatioEl = document.getElementById('quick-media-ratio')
-      const quickMediaMaxWidthEl = document.getElementById('quick-media-max-width')
-      const quickTagsEl = document.getElementById('quick-tags')
-      const quickRelatedUrlEl = document.getElementById('quick-related-url')
-      const quickRelatedLabelEl = document.getElementById('quick-related-label')
-      const quickAddBtn = document.getElementById('quick-add-btn')
-      const addFeedPopover = document.getElementById('add-feed-popover')
+      const feedEditorList = document.getElementById('feed-editor-list')
+      const entryPopover = document.getElementById('feed-entry-popover')
+      const entryPopoverTitle = document.getElementById('feed-entry-popover-title')
+      const entryPopoverHint = document.getElementById('feed-entry-popover-hint')
+      const entryIdField = document.getElementById('entry-id-field')
+      const entryIdEl = document.getElementById('entry-id')
+      const entryDateEl = document.getElementById('entry-date')
+      const entryTitleEl = document.getElementById('entry-title')
+      const entryBodyEl = document.getElementById('entry-body')
+      const entrySourceEl = document.getElementById('entry-source')
+      const entryImageEl = document.getElementById('entry-image')
+      const entryImagesEl = document.getElementById('entry-images')
+      const entryVideoEl = document.getElementById('entry-video')
+      const entryMediaFitEl = document.getElementById('entry-media-fit')
+      const entryMediaRatioEl = document.getElementById('entry-media-ratio')
+      const entryMediaMaxWidthEl = document.getElementById('entry-media-max-width')
+      const entryTagsEl = document.getElementById('entry-tags')
+      const entryRelatedUrlEl = document.getElementById('entry-related-url')
+      const entryRelatedLabelEl = document.getElementById('entry-related-label')
+      const entryAdvancedEl = document.getElementById('entry-advanced')
+      const entrySubmitBtn = document.getElementById('entry-submit-btn')
+
+      let items = []
+      let editingIndex = null
+      let saveInProgress = false
+      let pendingEditId = new URLSearchParams(location.search).get('edit')
 
       function setMessage(text, isError) {
         messageEl.textContent = text
@@ -331,10 +334,6 @@
           n += 1
         }
         return candidate
-      }
-
-      function stripTrailingCommas(jsonStr) {
-        return jsonStr.replace(/,(\s*[}\]])/g, '$1')
       }
 
       function isPlainObject(value) {
@@ -411,6 +410,12 @@
             errors.push(`items[${row}] is missing date.`)
           } else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
             errors.push(`items[${row}] date "${date}" must use YYYY-MM-DD.`)
+          }
+
+          const updatedAt =
+            typeof item.updated_at === 'string' ? item.updated_at.trim() : ''
+          if (updatedAt && !/^\d{4}-\d{2}-\d{2}$/.test(updatedAt)) {
+            errors.push(`items[${row}] updated_at "${updatedAt}" must use YYYY-MM-DD.`)
           }
 
           if (!hasAnyContent(item)) {
@@ -573,71 +578,130 @@
         return parts.join(' | ')
       }
 
-      function parseEditorJson() {
-        try {
-          const parsed = JSON.parse(stripTrailingCommas(jsonEl.value))
-          if (!parsed || typeof parsed !== 'object') {
-            throw new Error('Top-level value must be an object.')
-          }
-          if (!Array.isArray(parsed.items)) {
-            throw new Error('Expected an items array.')
-          }
-          return { ok: true, data: parsed }
-        } catch (err) {
-          return { ok: false, error: err.message }
+      function itemSummaryTitle(item) {
+        const title = typeof item.title === 'string' ? item.title.trim() : ''
+        if (title) return title
+        const bodyMd = typeof item.body_md === 'string' ? item.body_md.trim() : ''
+        if (bodyMd) {
+          const firstLine = bodyMd.split('\n').find((line) => line.trim())
+          if (firstLine) return firstLine.trim()
         }
+        return typeof item.id === 'string' ? item.id : 'Untitled entry'
       }
 
-      let saveInProgress = false
-      async function loadData() {
-        if (saveInProgress) return
-        setMessage('Loading...')
-        try {
-          const res = await fetch(apiBase + '/api/feed/data')
-          const data = await res.json().catch(() => ({}))
-          if (!res.ok) {
-            const detail = data.detail ? ': ' + data.detail : ''
-            setMessage((data.error || 'Load failed') + detail, true)
-            return
-          }
-          jsonEl.value = JSON.stringify(
-            { items: Array.isArray(data.items) ? data.items : [] },
-            null,
-            2
-          )
-          setMessage('')
-        } catch (err) {
-          setMessage(
-            'Request failed: ' +
-              err.message +
-              '. Is the editor server running on port 3002?',
-            true
-          )
+      function itemThumbnailUrl(item) {
+        const imageUrl = typeof item.image_url === 'string' ? item.image_url.trim() : ''
+        if (imageUrl && isSafeHref(imageUrl) && !isHttpUrl(imageUrl)) return imageUrl
+        if (Array.isArray(item.image_urls)) {
+          const local = item.image_urls
+            .map((url) => (typeof url === 'string' ? url.trim() : ''))
+            .find((url) => url && isSafeHref(url) && !isHttpUrl(url))
+          if (local) return local
         }
+        return ''
       }
 
-      quickAddBtn.addEventListener('click', () => {
-        const current = parseEditorJson()
-        if (!current.ok) {
-          setMessage('Invalid JSON: ' + current.error, true)
-          return
-        }
-        const data = current.data
-        if (!Array.isArray(data.items)) data.items = []
+      function sortedItemIndices() {
+        return items
+          .map((item, index) => ({
+            index,
+            date: typeof item.date === 'string' ? item.date.trim() : '',
+          }))
+          .sort((a, b) => {
+            if (a.date !== b.date) return a.date < b.date ? 1 : -1
+            return a.index - b.index
+          })
+          .map((entry) => entry.index)
+      }
 
-        const date = (quickDateEl.value || todayIso()).trim()
-        const title = quickTitleEl.value.trim()
-        const bodyMd = quickBodyEl.value.trim()
-        const sourceUrl = quickSourceEl.value.trim()
-        const imageUrl = quickImageEl.value.trim()
-        const imageUrls = parseCsvUrls(quickImagesEl.value)
-        const videoUrl = quickVideoEl.value.trim()
-        const mediaFit = quickMediaFitEl.value.trim()
-        const mediaRatio = quickMediaRatioEl.value.trim()
-        const mediaMaxWidthRaw = quickMediaMaxWidthEl.value.trim()
-        const tags = parseTags(quickTagsEl.value)
-        const relatedUrl = quickRelatedUrlEl.value.trim()
-        const relatedLabel = quickRelatedLabelEl.value.trim()
+      function resetForm() {
+        entryIdEl.value = ''
+        entryDateEl.value = todayIso()
+        entryTitleEl.value = ''
+        entryBodyEl.value = ''
+        entrySourceEl.value = ''
+        entryImageEl.value = ''
+        entryImagesEl.value = ''
+        entryVideoEl.value = ''
+        entryMediaFitEl.value = ''
+        entryMediaRatioEl.value = ''
+        entryMediaMaxWidthEl.value = ''
+        entryTagsEl.value = ''
+        entryRelatedUrlEl.value = ''
+        entryRelatedLabelEl.value = ''
+        entryAdvancedEl.open = false
+      }
+
+      function populateFormFromItem(item) {
+        entryIdEl.value = typeof item.id === 'string' ? item.id : ''
+        entryDateEl.value =
+          typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date.trim())
+            ? item.date.trim()
+            : todayIso()
+        entryTitleEl.value = typeof item.title === 'string' ? item.title : ''
+        entryBodyEl.value = typeof item.body_md === 'string' ? item.body_md : ''
+
+        let sourceUrl = typeof item.source_url === 'string' ? item.source_url.trim() : ''
+        const embedUrl =
+          item.embed &&
+          typeof item.embed === 'object' &&
+          typeof item.embed.url === 'string'
+            ? item.embed.url.trim()
+            : ''
+        if (!sourceUrl && embedUrl) sourceUrl = embedUrl
+        entrySourceEl.value = sourceUrl
+
+        entryImageEl.value = typeof item.image_url === 'string' ? item.image_url : ''
+        entryImagesEl.value = Array.isArray(item.image_urls)
+          ? item.image_urls.filter((url) => typeof url === 'string' && url.trim()).join(', ')
+          : ''
+        entryVideoEl.value = typeof item.video_url === 'string' ? item.video_url : ''
+        entryMediaFitEl.value =
+          item.media_fit === 'contain' || item.media_fit === 'cover' ? item.media_fit : ''
+        entryMediaRatioEl.value =
+          typeof item.media_ratio === 'string' ? item.media_ratio : ''
+        entryMediaMaxWidthEl.value =
+          item.media_max_width != null && Number.isFinite(Number(item.media_max_width))
+            ? String(item.media_max_width)
+            : ''
+        entryTagsEl.value = Array.isArray(item.tags)
+          ? item.tags.filter((tag) => typeof tag === 'string' && tag.trim()).join(', ')
+          : ''
+
+        const related =
+          Array.isArray(item.related_links) && item.related_links[0] ? item.related_links[0] : null
+        entryRelatedUrlEl.value = related && typeof related.url === 'string' ? related.url : ''
+        entryRelatedLabelEl.value =
+          related && typeof related.label === 'string' ? related.label : ''
+
+        const hasAdvanced = !!(
+          entryVideoEl.value ||
+          entryMediaFitEl.value ||
+          entryMediaRatioEl.value ||
+          entryMediaMaxWidthEl.value ||
+          entryRelatedUrlEl.value ||
+          entryRelatedLabelEl.value
+        )
+        entryAdvancedEl.open = hasAdvanced
+      }
+
+      function buildItemFromForm(options) {
+        const existingId = options && options.existingId ? options.existingId : ''
+        const isEdit = !!existingId
+
+        const date = (entryDateEl.value || todayIso()).trim()
+        const title = entryTitleEl.value.trim()
+        const bodyMd = entryBodyEl.value.trim()
+        const sourceUrl = entrySourceEl.value.trim()
+        const imageUrl = entryImageEl.value.trim()
+        const imageUrls = parseCsvUrls(entryImagesEl.value)
+        const videoUrl = entryVideoEl.value.trim()
+        const mediaFit = entryMediaFitEl.value.trim()
+        const mediaRatio = entryMediaRatioEl.value.trim()
+        const mediaMaxWidthRaw = entryMediaMaxWidthEl.value.trim()
+        const tags = parseTags(entryTagsEl.value)
+        const relatedUrl = entryRelatedUrlEl.value.trim()
+        const relatedLabel = entryRelatedLabelEl.value.trim()
 
         if (
           !title &&
@@ -645,17 +709,18 @@
           !sourceUrl &&
           !imageUrl &&
           imageUrls.length === 0 &&
-          !videoUrl
+          !videoUrl &&
+          !relatedUrl
         ) {
-          setMessage(
-            'Add at least one of: title, body, source url, image url(s), or video url.',
-            true
-          )
-          return
+          return {
+            ok: false,
+            error:
+              'Add at least one of: title, body, source url, image url(s), video url, or related link.',
+          }
         }
 
         const item = {
-          id: buildUniqueId(date, title || bodyMd, data.items),
+          id: isEdit ? existingId : buildUniqueId(date, title || bodyMd, items),
           date,
         }
         if (title) item.title = title
@@ -678,117 +743,291 @@
             ? [{ label: relatedLabel, url: relatedUrl }]
             : [{ url: relatedUrl }]
         }
-
-        data.items.unshift(item)
-        jsonEl.value = JSON.stringify(data, null, 2)
-        setMessage('Added new item at the top. review the JSON, then save.')
-
-        quickTitleEl.value = ''
-        quickBodyEl.value = ''
-        quickSourceEl.value = ''
-        quickImageEl.value = ''
-        quickImagesEl.value = ''
-        quickVideoEl.value = ''
-        quickMediaFitEl.value = ''
-        quickMediaRatioEl.value = ''
-        quickMediaMaxWidthEl.value = ''
-        quickTagsEl.value = ''
-        quickRelatedUrlEl.value = ''
-        quickRelatedLabelEl.value = ''
-        if (addFeedPopover && typeof addFeedPopover.hidePopover === 'function') {
-          addFeedPopover.hidePopover()
+        if (isEdit) {
+          item.updated_at = todayIso()
         }
-      })
 
-      if (addFeedPopover) {
-        if (typeof addFeedPopover.hidePopover === 'function') addFeedPopover.hidePopover()
-        document.body.style.overflow = ''
-        addFeedPopover.addEventListener('toggle', (ev) => {
-          if (ev.newState === 'open') {
-            document.body.style.overflow = 'hidden'
-            setMessage('')
-            if (quickDateEl && !quickDateEl.value) quickDateEl.value = todayIso()
-            setTimeout(() => {
-              if (quickTitleEl) quickTitleEl.focus()
-            }, 0)
-          } else if (ev.newState === 'closed') {
-            document.body.style.overflow = ''
+        return { ok: true, item }
+      }
+
+      function openEntryPopover(mode, index) {
+        editingIndex = mode === 'edit' && Number.isInteger(index) ? index : null
+        const isEdit = editingIndex != null
+
+        entryPopoverTitle.textContent = isEdit ? 'Edit entry' : 'Add entry'
+        entryPopoverHint.textContent = isEdit
+          ? 'Changes are saved when you click Save changes.'
+          : 'New entries are added at the top of the feed and saved immediately.'
+        entrySubmitBtn.textContent = isEdit ? 'Save changes' : 'Add to feed'
+        entryIdField.classList.toggle('hidden', !isEdit)
+
+        if (isEdit) {
+          populateFormFromItem(items[editingIndex])
+        } else {
+          resetForm()
+        }
+
+        if (entryPopover && typeof entryPopover.showPopover === 'function') {
+          entryPopover.showPopover()
+        }
+      }
+
+      function closeEntryPopover() {
+        editingIndex = null
+        if (entryPopover && typeof entryPopover.hidePopover === 'function') {
+          entryPopover.hidePopover()
+        }
+      }
+
+      function clearEditUrlParam() {
+        const url = new URL(location.href)
+        if (!url.searchParams.has('edit')) return
+        url.searchParams.delete('edit')
+        const next = url.pathname + url.search + url.hash
+        history.replaceState(null, '', next || url.pathname)
+      }
+
+      function openItemFromUrlParam(id) {
+        const trimmed = String(id == null ? '' : id).trim()
+        if (!trimmed) return
+        const index = items.findIndex(
+          (item) => item && typeof item.id === 'string' && item.id.trim() === trimmed
+        )
+        if (index < 0) {
+          setMessage(`No entry with id "${trimmed}".`, true)
+          pendingEditId = null
+          clearEditUrlParam()
+          return
+        }
+        pendingEditId = null
+        clearEditUrlParam()
+        const row = feedEditorList.querySelector(`[data-feed-item-id="${CSS.escape(trimmed)}"]`)
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        openEntryPopover('edit', index)
+      }
+
+      function renderFeedList() {
+        feedEditorList.innerHTML = ''
+        if (items.length === 0) {
+          const empty = document.createElement('p')
+          empty.className = 'feed-editor-empty'
+          empty.textContent = 'No feed entries yet. Add one to get started.'
+          feedEditorList.appendChild(empty)
+          return
+        }
+
+        sortedItemIndices().forEach((index) => {
+          const item = items[index]
+          const row = document.createElement('article')
+          row.className = 'feed-editor-item'
+          if (typeof item.id === 'string' && item.id.trim()) {
+            row.dataset.feedItemId = item.id.trim()
           }
+
+          const thumbUrl = itemThumbnailUrl(item)
+          if (thumbUrl) {
+            const thumb = document.createElement('img')
+            thumb.className = 'feed-editor-item-thumb'
+            thumb.src = thumbUrl
+            thumb.alt = ''
+            thumb.loading = 'lazy'
+            row.appendChild(thumb)
+          }
+
+          const main = document.createElement('div')
+          main.className = 'feed-editor-item-main'
+
+          const head = document.createElement('div')
+          head.className = 'feed-editor-item-head'
+
+          const headText = document.createElement('div')
+          headText.className = 'feed-editor-item-head-text'
+
+          const dateEl = document.createElement('span')
+          dateEl.className = 'feed-editor-item-date'
+          dateEl.textContent = typeof item.date === 'string' ? item.date : ''
+
+          const titleEl = document.createElement('span')
+          titleEl.className = 'feed-editor-item-title'
+          titleEl.textContent = itemSummaryTitle(item)
+
+          headText.appendChild(dateEl)
+          headText.appendChild(titleEl)
+
+          const updatedAt =
+            typeof item.updated_at === 'string' ? item.updated_at.trim() : ''
+          if (updatedAt) {
+            const editedEl = document.createElement('span')
+            editedEl.className = 'feed-editor-item-edited'
+            editedEl.textContent = `edited ${updatedAt}`
+            headText.appendChild(editedEl)
+          }
+
+          const actions = document.createElement('div')
+          actions.className = 'feed-editor-item-actions'
+
+          const editBtn = document.createElement('button')
+          editBtn.type = 'button'
+          editBtn.className = 'feed-editor-item-btn'
+          editBtn.textContent = 'Edit'
+          editBtn.addEventListener('click', () => openEntryPopover('edit', index))
+
+          const deleteBtn = document.createElement('button')
+          deleteBtn.type = 'button'
+          deleteBtn.className = 'feed-editor-item-btn feed-editor-item-btn--danger'
+          deleteBtn.textContent = 'Delete'
+          deleteBtn.addEventListener('click', () => {
+            const label = itemSummaryTitle(item)
+            if (!window.confirm(`Delete "${label}"?`)) return
+            items.splice(index, 1)
+            renderFeedList()
+            void saveData('Entry removed.')
+          })
+
+          actions.appendChild(editBtn)
+          actions.appendChild(deleteBtn)
+          head.appendChild(headText)
+          head.appendChild(actions)
+          main.appendChild(head)
+
+          if (Array.isArray(item.tags) && item.tags.length > 0) {
+            const tagsEl = document.createElement('p')
+            tagsEl.className = 'feed-editor-item-tags'
+            const tagText = item.tags
+              .filter((tag) => typeof tag === 'string' && tag.trim())
+              .join(', ')
+            tagsEl.textContent = tagText.length > 120 ? tagText.slice(0, 117) + '…' : tagText
+            main.appendChild(tagsEl)
+          }
+
+          row.appendChild(main)
+          feedEditorList.appendChild(row)
         })
       }
 
-      validateBtn.addEventListener('click', () => {
-        const parsed = parseEditorJson()
-        if (!parsed.ok) {
-          setMessage('Invalid JSON: ' + parsed.error, true)
-          return
-        }
-        const report = validateFeedData(parsed.data)
-        if (report.errors.length > 0) {
-          setMessage(summarizeValidation(report), true)
-          return
-        }
-        setMessage(summarizeValidation(report), false)
-      })
-
-      saveBtn.addEventListener('click', async () => {
+      async function loadData() {
         if (saveInProgress) return
-        const parsed = parseEditorJson()
-        if (!parsed.ok) {
-          setMessage('Invalid JSON: ' + parsed.error, true)
-          return
+        setMessage('Loading...')
+        try {
+          const res = await fetch(apiBase + '/api/feed/data')
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            const detail = data.detail ? ': ' + data.detail : ''
+            setMessage((data.error || 'Load failed') + detail, true)
+            return
+          }
+          items = Array.isArray(data.items) ? data.items.slice() : []
+          renderFeedList()
+          setMessage('')
+          if (pendingEditId) openItemFromUrlParam(pendingEditId)
+        } catch (err) {
+          setMessage(
+            'Request failed: ' +
+              err.message +
+              '. Is the editor server running on port 3002?',
+            true
+          )
         }
-        const validation = validateFeedData(parsed.data)
+      }
+
+      async function saveData(successPrefix) {
+        if (saveInProgress) return false
+        const validation = validateFeedData({ items })
         if (validation.errors.length > 0) {
           setMessage(summarizeValidation(validation), true)
-          return
+          return false
         }
         saveInProgress = true
-        saveBtn.disabled = true
         setMessage('Saving...')
         try {
           const res = await fetch(apiBase + '/api/feed/data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(parsed.data),
+            body: JSON.stringify({ items }),
           })
           const data = await res.json().catch(() => ({}))
           if (!res.ok) {
             const detail = data.detail ? ': ' + data.detail : ''
             setMessage((data.error || 'Save failed') + detail, true)
-            return
+            return false
           }
-          jsonEl.value = JSON.stringify(
-            { items: Array.isArray(parsed.data.items) ? parsed.data.items : [] },
-            null,
-            2
-          )
-          const count = typeof data.count === 'number' ? data.count : null
           const warningText =
             validation.warnings.length > 0
               ? ` (${validation.warnings.length} warning${
                   validation.warnings.length === 1 ? '' : 's'
                 })`
               : ''
-          setMessage(
-            count == null ? `Saved.${warningText}` : `Saved ${count} item(s).${warningText}`
-          )
+          const prefix =
+            typeof successPrefix === 'string' && successPrefix.trim()
+              ? successPrefix.trim()
+              : 'Saved.'
+          setMessage(prefix + warningText)
+          return true
         } catch (err) {
           setMessage('Request failed: ' + err.message, true)
+          return false
         } finally {
           saveInProgress = false
-          saveBtn.disabled = false
         }
+      }
+
+      entrySubmitBtn.addEventListener('click', async () => {
+        const isEdit = editingIndex != null
+        const built = buildItemFromForm(
+          isEdit
+            ? {
+                existingId: items[editingIndex] && items[editingIndex].id,
+              }
+            : undefined
+        )
+        if (!built.ok) {
+          setMessage(built.error, true)
+          return
+        }
+
+        if (isEdit) {
+          items[editingIndex] = built.item
+        } else {
+          items.unshift(built.item)
+        }
+
+        renderFeedList()
+        closeEntryPopover()
+        await saveData(isEdit ? 'Entry updated.' : 'Entry added.')
       })
 
-      loadBtn.addEventListener('click', loadData)
+      if (entryPopover) {
+        if (typeof entryPopover.hidePopover === 'function') entryPopover.hidePopover()
+        document.body.style.overflow = ''
+        entryPopover.addEventListener('toggle', (ev) => {
+          if (ev.newState === 'open') {
+            document.body.style.overflow = 'hidden'
+            setMessage('')
+            if (editingIndex == null && entryDateEl && !entryDateEl.value) {
+              entryDateEl.value = todayIso()
+            }
+            setTimeout(() => {
+              if (editingIndex == null && entryTitleEl) entryTitleEl.focus()
+              else if (entryBodyEl) entryBodyEl.focus()
+            }, 0)
+          } else if (ev.newState === 'closed') {
+            document.body.style.overflow = ''
+            editingIndex = null
+          }
+        })
+      }
+
+      document.getElementById('add-entry-btn').addEventListener('click', () => {
+        openEntryPopover('add')
+      })
+
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') loadData()
       })
       window.addEventListener('pageshow', (e) => {
         if (e.persisted) loadData()
       })
-      if (quickDateEl && !quickDateEl.value) quickDateEl.value = todayIso()
+
       loadData()
 
       if (isLocal) {
