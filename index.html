@@ -45,7 +45,7 @@
     <header class="page-header">
       <p class="nav-links">
         <a href="/" class="active">Home</a> ·
-        <a href="feed/index.html">Feed</a>
+        <a href="/feed/">Feed</a>
         <span id="notes-nav-wrap" class="hidden">
           · <a href="notes/index.html">Notes</a></span
         >
@@ -55,7 +55,7 @@
       </p>
       <a
         class="nav-contact"
-        href="contact/index.html"
+        href="/contact/"
         aria-label="Send me a message"
         title="Send me a message"
       >
@@ -113,7 +113,7 @@
       </a>
       <a
         class="nav-resume"
-        href="resume/index.html"
+        href="/resume/"
         aria-label="Resume"
         title="Resume"
       >
@@ -168,7 +168,7 @@
             rel="noopener noreferrer"
             >github</a
           >. if you'd like to chat about a project or some work,
-          <a href="contact/index.html">reach out</a>.
+          <a href="/contact/">reach out</a>.
         </p>
         <div class="collaborations" aria-labelledby="tools-heading">
           <h2 id="tools-heading">tools</h2>
@@ -397,7 +397,7 @@
           const items = sortFeedItemsByDate(allItems).slice(0, 3)
           if (items.length === 0) {
             container.innerHTML =
-              '<p class="subtle">feed is quiet right now.</p><p><a href="feed/index.html">open feed</a></p>'
+              '<p class="subtle">feed is quiet right now.</p><p><a href="/feed/">open feed</a></p>'
             return
           }
           const listHtml = items
@@ -408,12 +408,12 @@
               const datePrefix = date
                 ? `<span class="home-feed-date">${escapeHtml(date)} · </span>`
                 : ''
-              return `<li><a href="feed/index.html#${escapeHtml(
+              return `<li><a href="/feed/#${escapeHtml(
                 itemId
               )}">${datePrefix}${escapeHtml(label)}</a></li>`
             })
             .join('')
-          container.innerHTML = `<h2 id="home-recent-heading">recent stuff</h2><ul class="home-feed-list">${listHtml}</ul><p class="home-feed-more"><a href="feed/index.html">open full feed</a></p>`
+          container.innerHTML = `<h2 id="home-recent-heading">recent stuff</h2><ul class="home-feed-list">${listHtml}</ul><p class="home-feed-more"><a href="/feed/">open full feed</a></p>`
         } catch (_) {
           container.innerHTML =
             '<p class="subtle">could not load feed preview.</p>'

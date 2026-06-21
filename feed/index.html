@@ -54,8 +54,8 @@
   <body class="feed-page">
     <header class="page-header">
       <p class="nav-links">
-        <a href="../index.html">Home</a> ·
-        <a href="index.html" class="active">Feed</a>
+        <a href="/">Home</a> ·
+        <a href="/feed/" class="active">Feed</a>
         <span id="notes-nav-wrap" class="hidden">
           · <a href="../notes/index.html">Notes</a></span
         >
@@ -65,7 +65,7 @@
       </p>
       <a
         class="nav-contact"
-        href="../contact/index.html"
+        href="/contact/"
         aria-label="Send me a message"
         title="Send me a message"
       >
@@ -123,7 +123,7 @@
       </a>
       <a
         class="nav-resume"
-        href="../resume/index.html"
+        href="/resume/"
         aria-label="Resume"
         title="Resume"
       >
@@ -790,7 +790,7 @@
           activeTag
         )} · ${escapeHtml(label)} (${escapeHtml(
           totalLabel
-        )}) · <a href="index.html">clear</a></p>`
+        )}) · <a href="/feed/">clear</a></p>`
       }
 
       function clamp(value, min, max) {
@@ -972,7 +972,7 @@
           if (filteredItems.length === 0) {
             list.innerHTML = `<p class="subtle">no entries for #${escapeHtml(
               activeTag
-            )} yet. <a href="index.html">clear filter</a>.</p>`
+            )} yet. <a href="/feed/">clear filter</a>.</p>`
             setupDepthUi()
             return
           }
