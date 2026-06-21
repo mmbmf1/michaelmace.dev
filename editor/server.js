@@ -31,6 +31,11 @@ marked.setOptions({ gfm: true })
 
 marked.use({
   renderer: {
+    heading({ depth, text }) {
+      // noteShell already renders the note title as the page's sole h1
+      const level = depth === 1 ? 2 : Math.min(depth, 6)
+      return `<h${level}>${text}</h${level}>\n`
+    },
     code({ text, lang }) {
       const language = (lang || 'plaintext').trim().toLowerCase()
       try {
