@@ -470,7 +470,6 @@
       "date": "2026-03-04",
       "title": "read",
       "body_md": "reread this and left myself a short note in the margin.",
-      "source_url": "https://www.robinsloan.com/notes/home-cooked-app/",
       "image_url": "/feed/images/6_pillars_ai.png",
       "tags": [
         "reading",
@@ -481,16 +480,18 @@
           "label": "note: on layering intelligence",
           "url": "/notes/on-layering-intel.html"
         }
-      ]
+      ],
+      "updated_at": "2026-06-21"
     },
     {
       "id": "2026-03-03-small-artifact",
       "date": "2026-03-03",
-      "body_md": "tiny artifact: [reaction vocabulary](/gifs/index.html) keeps getting more useful than expected.",
+      "body_md": "reaction vocab keeps getting more useful than expected.",
       "tags": [
         "artifact",
         "gifs"
-      ]
+      ],
+      "updated_at": "2026-06-21"
     }
   ]
 }
