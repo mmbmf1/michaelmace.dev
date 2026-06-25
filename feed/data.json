@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "id": "2026-06-25-vercel-bandwidth-spike",
+      "date": "2026-06-25",
+      "title": "vercel bandwidth spike",
+      "body_md": "got a ~110 GB fast data transfer spike on june 10 — feed images and mp4s were the culprits.\n\nwhat we changed:\n- removed .mp4s from feed/images/ (video → unlisted youtube)\n- ran npm run optimize-feed-images (resize + compress jpegs/pngs)\n- added long-cache headers in vercel.json for /feed/images/*\n\nusage dropped back to near zero after deploy.",
+      "image_url": "/feed/images/20260625_vercel_bandwidth_spike.png",
+      "tags": [
+        "vercel",
+        "bandwidth",
+        "feed"
+      ]
+    },
+    {
       "id": "2026-06-20-some-nature-over-the-last-few-days",
       "date": "2026-06-20",
       "title": "some nature over the last few days",
