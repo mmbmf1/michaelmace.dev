@@ -2,22 +2,22 @@
 
 Static personal site deployed to Vercel.
 
-- **Home** - `index.html`
-- **Notes** - Markdown-authored notes rendered to `notes/*.html`
-- **Feed** - Static logbook rendered from `feed/data.json`
-- **GIFs** - reaction library rendered from `gifs/data.json`
-- **Contact** - form at `contact/index.html`, sends mail via Resend (`api/contact.js`)
-- **Resume** - print-friendly page at `resume/index.html`
+- **Home** - `index.html` (deployed)
+- **Notes** - Markdown-authored notes rendered to `notes/*.html` (local-only; not deployed)
+- **Feed** - Static logbook rendered from `feed/data.json` (deployed)
+- **GIFs** - reaction library rendered from `gifs/data.json` (local-only; not deployed)
+- **Contact** - form at `contact/index.html`, sends mail via Resend (`api/contact.js`) (deployed)
+- **Resume** - print-friendly page at `resume/index.html` (deployed)
 - **10k progress snapshot** - homepage widget reads `data/git-hours.json`
 
 ## Architecture at a glance
 
-- Production is static HTML/CSS plus JSON data files (`feed/data.json`, `gifs/data.json`, `data/git-hours.json`).
+- Production deploys `/`, `/feed/`, `/contact/`, `/resume/`, plus static assets and `feed/data.json`. Notes and GIFs are authored locally and excluded from Vercel via `.vercelignore`.
 - Feed entries are stored in `feed/data.json` and rendered client-side by `feed/index.html`.
 - `index.html` reads `feed/data.json` for the recent-entry preview (first 3 items) and links each row to a feed anchor.
 - Git-hours progress is stored as a static snapshot in `data/git-hours.json` and rendered client-side on `index.html`.
-- Home page preview cards read the first three entries from `feed/data.json` and link to `feed/index.html#<item-id>`.
-- `editor/` is a local-only authoring app (`node editor/server.js`) and is excluded from deploys via `.vercelignore`.
+- Home page preview cards read the first three entries from `feed/data.json` and link to `/feed/#<item-id>`.
+- `editor/`, `notes/`, and `gifs/` are local-only and excluded from deploys via `.vercelignore`. Use `node editor/server.js` to author and preview them at `http://localhost:3002/`.
 - The editor serves:
   - HTML UIs at `/editor/index.html` (notes), `/editor/feed.html` (feed), and `/editor/gifs.html` (GIFs)
   - JSON APIs under `/api/*`
@@ -184,6 +184,21 @@ Large photos and videos in `feed/images/` are served from Vercel's CDN and count
 - **Photos:** run `npm run optimize-feed-images` before committing new or oversized JPEGs/PNGs (resizes to max 1600px wide, skips files already under ~500 KB).
 - **Caching:** [`vercel.json`](vercel.json) sets long-lived `Cache-Control` on `/feed/images/*` after images are optimized.
 - **Usage alerts:** in the Vercel dashboard, go to **Settings → Notifications** and enable warnings at 75% and 100% of Fast Data Transfer.
+
+## SEO and domains
+
+Production pages (`/`, `/feed/`, `/contact/`, `/resume/`) ship canonical URLs, Open Graph tags, and `robots: index, follow` via [`scripts/apply-seo-meta.js`](scripts/apply-seo-meta.js). `feed/data.json` is served with `X-Robots-Tag: noindex` (see [`vercel.json`](vercel.json)).
+
+**Canonical host:** `https://www.michaelmace.dev`. In **Vercel → Project → Settings → Domains**, set `www.michaelmace.dev` as the primary domain and ensure `michaelmace.dev` redirects to it with a **permanent (308)** redirect. After changing domain settings, verify:
+
+```bash
+curl -sI http://michaelmace.dev/ | grep -iE '^(HTTP|location:)'
+curl -sI https://michaelmace.dev/ | grep -iE '^(HTTP|location:)'
+curl -sI https://www.michaelmace.dev/feed/data.json | grep -i x-robots
+curl -sI https://www.michaelmace.dev/notes/ | head -1   # expect 404 after deploy
+```
+
+[`vercel.json`](vercel.json) also 308-redirects `index.html` paths to trailing-slash clean URLs (e.g. `/feed/index.html` → `/feed/`).
 
 ## Git-hours snapshot workflow
 
