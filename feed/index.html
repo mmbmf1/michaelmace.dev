@@ -54,8 +54,10 @@
   <body class="feed-page">
     <header class="page-header">
       <p class="nav-links">
-        <a href="/">Home</a> ·
-        <a href="/feed/" class="active">Feed</a>
+        <a href="/">Home</a>
+        <span id="feed-nav-wrap" class="hidden">
+          · <a href="/feed/" class="active">Feed</a></span
+        >
         <span id="notes-nav-wrap" class="hidden">
           · <a href="../notes/index.html">Notes</a></span
         >
@@ -990,6 +992,8 @@
 
       initFeed()
       if (isLocal) {
+        const feedNavWrap = document.getElementById('feed-nav-wrap')
+        if (feedNavWrap) feedNavWrap.classList.remove('hidden')
         const notesNavWrap = document.getElementById('notes-nav-wrap')
         if (notesNavWrap) notesNavWrap.classList.remove('hidden')
         const gifsNavWrap = document.getElementById('gifs-nav-wrap')

@@ -12,8 +12,8 @@
   <body>
     <header class="page-header">
       <p class="nav-links">
-        <a href="../index.html">Home</a> ·
-        <a href="../feed/index.html">Feed</a>
+        <a href="../index.html">Home</a>
+        <span id="feed-nav-wrap" class="hidden"> · <a href="../feed/index.html">Feed</a></span>
         <span id="notes-nav-wrap" class="hidden"> · <a href="index.html" class="active">Notes</a></span>
         <span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html">GIFs</a></span>
       </p>
@@ -396,6 +396,8 @@
         if (notesNavWrap) notesNavWrap.classList.remove('hidden')
         const gifsNavWrap = document.getElementById('gifs-nav-wrap')
         if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        const feedNavWrap = document.getElementById('feed-nav-wrap')
+        if (feedNavWrap) feedNavWrap.classList.remove('hidden')
         const newNoteWrap = document.getElementById('new-note-wrap')
         if (newNoteWrap) newNoteWrap.classList.remove('hidden')
         document.querySelectorAll('.local-edit').forEach((el) => el.classList.remove('hidden'))

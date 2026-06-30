@@ -43,8 +43,8 @@
   <body>
     <header class="page-header">
       <p class="nav-links">
-        <a href="/">Home</a> ·
-        <a href="/feed/">Feed</a>
+        <a href="/">Home</a>
+        <span id="feed-nav-wrap" class="hidden"> · <a href="/feed/">Feed</a></span>
         <span id="notes-nav-wrap" class="hidden">
           · <a href="../notes/index.html">Notes</a></span
         >
@@ -279,6 +279,8 @@
           if (notesNavWrap) notesNavWrap.classList.remove('hidden')
           const gifsNavWrap = document.getElementById('gifs-nav-wrap')
           if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+          const feedNavWrap = document.getElementById('feed-nav-wrap')
+          if (feedNavWrap) feedNavWrap.classList.remove('hidden')
         }
       })()
     </script>

@@ -44,8 +44,10 @@
   <body>
     <header class="page-header">
       <p class="nav-links">
-        <a href="/" class="active">Home</a> ·
-        <a href="/feed/">Feed</a>
+        <a href="/" class="active">Home</a>
+        <span id="feed-nav-wrap" class="hidden">
+          · <a href="/feed/">Feed</a></span
+        >
         <span id="notes-nav-wrap" class="hidden">
           · <a href="notes/index.html">Notes</a></span
         >
@@ -111,12 +113,7 @@
           />
         </svg>
       </a>
-      <a
-        class="nav-resume"
-        href="/resume/"
-        aria-label="Resume"
-        title="Resume"
-      >
+      <a class="nav-resume" href="/resume/" aria-label="Resume" title="Resume">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -421,16 +418,22 @@
       }
 
       initHoursWidget()
-      initHomeFeedPreview()
 
-      if (
+      const isLocal =
         /^localhost$|^127\.0\.0\.1$/.test(window.location.hostname) ||
         window.location.hostname === ''
-      ) {
+
+      if (isLocal) {
+        initHomeFeedPreview()
         const notesNavWrap = document.getElementById('notes-nav-wrap')
         if (notesNavWrap) notesNavWrap.classList.remove('hidden')
         const gifsNavWrap = document.getElementById('gifs-nav-wrap')
         if (gifsNavWrap) gifsNavWrap.classList.remove('hidden')
+        const feedNavWrap = document.getElementById('feed-nav-wrap')
+        if (feedNavWrap) feedNavWrap.classList.remove('hidden')
+      } else {
+        const feedPreview = document.querySelector('.home-feed-preview')
+        if (feedPreview) feedPreview.classList.add('hidden')
       }
     </script>
   </body>

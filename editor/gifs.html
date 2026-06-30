@@ -12,8 +12,8 @@
     <a href="#editor-gif-rows" class="skip-to-content">Skip to library</a>
     <header class="page-header">
       <p class="nav-links">
-        <a href="../index.html">Home</a> ·
-        <a href="../feed/index.html">Feed</a>
+        <a href="../index.html">Home</a>
+        <span id="feed-nav-wrap" class="hidden"> · <a href="../feed/index.html">Feed</a></span>
         <span id="notes-nav-wrap" class="hidden"> · <a href="../notes/index.html">Notes</a></span>
         <span id="gifs-nav-wrap" class="hidden"> · <a href="../gifs/index.html" class="active">GIFs</a></span>
       </p>
@@ -545,6 +545,8 @@
       })()
 
       if (isLocal) {
+        const feedNavWrap = document.getElementById('feed-nav-wrap')
+        if (feedNavWrap) feedNavWrap.classList.remove('hidden')
         const notesNavWrap = document.getElementById('notes-nav-wrap')
         if (notesNavWrap) notesNavWrap.classList.remove('hidden')
         const gifsNavWrap = document.getElementById('gifs-nav-wrap')
